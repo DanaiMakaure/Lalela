@@ -1,0 +1,1999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+        :root {
+            /* Primary Colors */
+            --primary-blue: #1e40af;
+            --primary-red: #dc2626;
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            
+            /* Neutrals */
+            --black: #000000;
+            --dark-gray: #333333;
+            --medium-gray: #666666;
+            --light-gray: #E5E5E5;
+            --white: #FFFFFF;
+            
+            /* Accents */
+            --light-blue: #dbeafe;
+            --light-red: #fee2e2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--white);
+            color: var(--black);
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Bar */
+        .top-navbar {
+            background-color: var(--white);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button {
+            font-size: 24px;
+            color: var(--primary-blue);
+            margin-right: 15px;
+            cursor: pointer;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-right: 20px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .profile-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 80px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding-bottom: 20px;
+        }
+
+        /* Post */
+        .post {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .post-header .profile-pic {
+            margin-right: 10px;
+        }
+
+        .post-user-info h4 {
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+
+        .post-user-info p {
+            font-size: 12px;
+            color: var(--medium-gray);
+        }
+
+        .post-content {
+            margin-bottom: 15px;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .post-footer {
+            border-top: 1px solid var(--light-gray);
+            padding-top: 10px;
+        }
+
+        .post-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: var(--medium-gray);
+            font-size: 14px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--light-gray);
+            padding-top: 5px;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .post-action:hover {
+            background-color: var(--light-gray);
+        }
+
+        .post-action i {
+            margin-right: 8px;
+        }
+
+        /* Comments Section */
+        .comments-header {
+            font-size: 18px;
+            margin: 20px 0 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .comment-disclaimer {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--primary-blue);
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: var(--medium-gray);
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .comment-disclaimer i {
+            color: var(--primary-blue);
+            margin-right: 8px;
+        }
+
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            background-color: var(--white);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--light-gray);
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .comment-anonymous {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .comment-media-preview {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .comment-media-preview img, .comment-media-preview video {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+        }
+
+        .remove-media {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .media-upload-btn {
+            background-color: var(--light-gray);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .comment-submit {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+
+        .comment {
+            display: flex;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: var(--medium-gray);
+        }
+
+        .comment-text {
+            font-size: 14px;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .comment-media {
+            margin-top: 10px;
+            max-width: 100%;
+        }
+
+        .comment-media img, .comment-media video {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+        }
+
+        .comment-actions {
+            display: flex;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .comment-action {
+            margin-right: 15px;
+            color: var(--medium-gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .comment-action i {
+            margin-right: 5px;
+        }
+
+        /* Reply Section */
+        .reply-form {
+            display: none;
+            margin-top: 10px;
+            padding-left: 50px;
+        }
+
+        .reply-form.active {
+            display: block;
+        }
+
+        .reply-input {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--light-gray);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .reply-submit {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .replies {
+            margin-top: 10px;
+            padding-left: 50px;
+            border-left: 2px solid var(--light-gray);
+        }
+
+        .reply {
+            display: flex;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        /* Emoji Picker */
+        .emoji-picker {
+            position: relative;
+            display: inline-block;
+        }
+
+        .emoji-picker-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--medium-gray);
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        .emoji-picker-container {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            display: none;
+        }
+
+        .emoji-picker-container.show {
+            display: block;
+        }
+
+        .emoji-option {
+            font-size: 20px;
+            margin: 0 3px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .emoji-option:hover {
+            transform: scale(1.3);
+        }
+
+        /* Reaction buttons */
+        .reaction-options {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            display: none;
+            background: white;
+            border-radius: 30px;
+            padding: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .reaction-option {
+            font-size: 20px;
+            margin: 0 3px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .reaction-option:hover {
+            transform: scale(1.3);
+        }
+
+        .like-action:hover .reaction-options {
+            display: flex;
+        }
+
+        /* Comment Options */
+        .comment-options {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .comment-options-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--medium-gray);
+            font-size: 16px;
+        }
+
+        .comment-options-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: var(--white);
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: none;
+            min-width: 120px;
+        }
+
+        .comment-options-menu.show {
+            display: block;
+        }
+
+        .comment-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .comment-option:hover {
+            background-color: var(--light-gray);
+        }
+
+        .comment-option i {
+            width: 18px;
+            text-align: center;
+        }
+
+        /* Reaction display */
+        .reaction-display {
+            display: flex;
+            align-items: center;
+            margin-left: 5px;
+        }
+
+        .reaction-display span {
+            font-size: 14px;
+            margin-left: 3px;
+        }
+
+        /* Loading indicator */
+        .loading-comments {
+            text-align: center;
+            color: var(--medium-gray);
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--medium-gray);
+        }
+
+        .modal-body {
+            padding: 15px;
+        }
+
+        .report-reasons {
+            margin: 15px 0;
+        }
+
+        .report-reason {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .report-reason input {
+            margin-right: 10px;
+        }
+
+        .report-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            margin-bottom: 15px;
+            resize: vertical;
+        }
+
+        .report-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .report-button {
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .report-cancel {
+            background-color: var(--light-gray);
+            border: none;
+        }
+
+        .report-submit {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+        }
+
+        /* File input */
+        .file-input {
+            display: none;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+                padding-top: 70px;
+            }
+            
+            .post {
+                border-radius: 0;
+                margin-bottom: 10px;
+            }
+            
+            .comment {
+                padding: 10px;
+            }
+            
+            .reply-form, .replies {
+                padding-left: 30px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .top-navbar {
+                padding: 0 10px;
+            }
+            
+            .logo {
+                font-size: 20px;
+            }
+            
+            .comment-action span {
+                display: none;
+            }
+            
+            .comment-action i {
+                margin-right: 0;
+                font-size: 16px;
+            }
+            
+            .comment-options-menu {
+                min-width: 100px;
+            }
+            
+            .comment-option {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="top-navbar">
+        <div class="back-button" id="backButton">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        <div class="logo">LALELA</div>
+        <div class="profile-nav">
+            <div class="profile-pic" id="userProfilePic">
+                <img src="logo.jpg" alt="Profile Picture">
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Post -->
+        <div class="post" id="postContainer">
+            <!-- Post will be loaded here dynamically -->
+        </div>
+
+        <!-- Comments Section -->
+        <h3 class="comments-header">Comments</h3>
+        
+        <div class="comment-disclaimer">
+            <i class="fas fa-heart"></i>
+            Remember to be kind and respectful in your comments. 
+            This is a safe space for sharing and support.
+        </div>
+
+        <!-- Comment Form -->
+        <form class="comment-form" id="commentForm">
+            <input type="text" class="comment-input" id="commentInput" placeholder="Write a comment..." required>
+            
+            <div id="commentMediaPreview" class="comment-media-preview" style="display: none;">
+                <button type="button" class="remove-media" id="removeCommentMedia">
+                    <i class="fas fa-times"></i>
+                </button>
+                <img id="commentMediaPreviewImg" style="display: none;">
+                <video id="commentMediaPreviewVideo" controls style="display: none;"></video>
+            </div>
+            
+            <input type="file" id="commentMediaInput" class="file-input" accept="image/*, video/*">
+            <button type="button" class="media-upload-btn" id="commentMediaBtn">
+                <i class="fas fa-camera"></i> Add Photo/Video
+            </button>
+            
+            <div class="comment-anonymous">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="commentAnonymousToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span>Post Anonymously</span>
+            </div>
+            <button type="submit" class="comment-submit">Post</button>
+        </form>
+
+        <!-- Comments List -->
+        <div id="commentsList">
+            <!-- Comments will be loaded here dynamically -->
+            <div class="loading-comments">Loading comments...</div>
+        </div>
+    </div>
+
+    <!-- Report Comment Modal -->
+    <div class="modal" id="reportCommentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Report Comment</h3>
+                <button class="close-modal" id="closeReportCommentModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Please select a reason for reporting this comment:</p>
+                <div class="report-reasons">
+                    <div class="report-reason">
+                        <input type="radio" id="commentReason1" name="commentReportReason" value="Inappropriate Content">
+                        <label for="commentReason1">Inappropriate Content</label>
+                    </div>
+                    <div class="report-reason">
+                        <input type="radio" id="commentReason2" name="commentReportReason" value="Harassment or Bullying">
+                        <label for="commentReason2">Harassment or Bullying</label>
+                    </div>
+                    <div class="report-reason">
+                        <input type="radio" id="commentReason3" name="commentReportReason" value="False Information">
+                        <label for="commentReason3">False Information</label>
+                    </div>
+                    <div class="report-reason">
+                        <input type="radio" id="commentReason4" name="commentReportReason" value="Spam">
+                        <label for="commentReason4">Spam</label>
+                    </div>
+                    <div class="report-reason">
+                        <input type="radio" id="commentReason5" name="commentReportReason" value="Other">
+                        <label for="commentReason5">Other</label>
+                    </div>
+                </div>
+                <textarea class="report-textarea" id="commentReportDetails" placeholder="Please provide additional details..." rows="4"></textarea>
+                <div class="report-buttons">
+                    <button class="report-button report-cancel" id="cancelCommentReport">Cancel</button>
+                    <button class="report-button report-submit" id="submitCommentReport">Submit Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Reply Modal -->
+    <div class="modal" id="reportReplyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Report Reply</h3>
+                <button class="close-modal" id="closeReportReplyModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Please select a reason for reporting this reply:</p>
+                <div class="report-reasons">
+                    <div class="report-reason">
+                        <input type="radio" id="replyReason1" name="replyReportReason" value="Inappropriate Content">
+                        <label for="replyReason1">Inappropriate Content</label>
+                    </div>
+                    <div class="report-reason">
+                        <input type="radio" id="replyReason2" name="replyReportReason" value="Harassment or Bullying">
+                        <label for="replyReason2">Harassment or Bullying</label>
+                    </div>
+                    <div class="report-reason">
+                        <input type="radio" id="replyReason3" name="replyReportReason" value="False Information">
+                        <label for="replyReason3">False Information</label>
+                    </div>
+                    <div class="report-reason">
+                        <input type="radio" id="replyReason4" name="replyReportReason" value="Spam">
+                        <label for="replyReason4">Spam</label>
+                    </div>
+                    <div class="report-reason">
+                        <input type="radio" id="replyReason5" name="replyReportReason" value="Other">
+                        <label for="replyReason5">Other</label>
+                    </div>
+                </div>
+                <textarea class="report-textarea" id="replyReportDetails" placeholder="Please provide additional details..." rows="4"></textarea>
+                <div class="report-buttons">
+                    <button class="report-button report-cancel" id="cancelReplyReport">Cancel</button>
+                    <button class="report-button report-submit" id="submitReplyReport">Submit Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getDatabase, 
+            ref, 
+            get, 
+            set, 
+            onValue,
+            push,
+            update,
+            child,
+            remove
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { 
+            getStorage,
+            ref as storageRef,
+            uploadBytes,
+            getDownloadURL
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+ // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVVNN0hHrR90FiEaPoJt8H4MVR8KBkWZw",
+            authDomain: "community-forum-75dc6.firebaseapp.com",
+            databaseURL: "https://community-forum-75dc6-default-rtdb.firebaseio.com",
+            projectId: "community-forum-75dc6",
+            storageBucket: "community-forum-75dc6.appspot.com",
+            messagingSenderId: "524182558257",
+            appId: "1:524182558257:web:3612faacdd8fbcb288a710",
+            measurementId: "G-JGMRZDKTG2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const storage = getStorage(app);
+
+        // DOM Elements
+        const backButton = document.getElementById('backButton');
+        const userProfilePic = document.getElementById('userProfilePic');
+        const postContainer = document.getElementById('postContainer');
+        const commentForm = document.getElementById('commentForm');
+        const commentInput = document.getElementById('commentInput');
+        const commentsList = document.getElementById('commentsList');
+        const commentAnonymousToggle = document.getElementById('commentAnonymousToggle');
+        const reportCommentModal = document.getElementById('reportCommentModal');
+        const closeReportCommentModal = document.getElementById('closeReportCommentModal');
+        const cancelCommentReport = document.getElementById('cancelCommentReport');
+        const submitCommentReport = document.getElementById('submitCommentReport');
+        const reportReplyModal = document.getElementById('reportReplyModal');
+        const closeReportReplyModal = document.getElementById('closeReportReplyModal');
+        const cancelReplyReport = document.getElementById('cancelReplyReport');
+        const submitReplyReport = document.getElementById('submitReplyReport');
+        const commentMediaInput = document.getElementById('commentMediaInput');
+        const commentMediaBtn = document.getElementById('commentMediaBtn');
+        const commentMediaPreview = document.getElementById('commentMediaPreview');
+        const commentMediaPreviewImg = document.getElementById('commentMediaPreviewImg');
+        const commentMediaPreviewVideo = document.getElementById('commentMediaPreviewVideo');
+        const removeCommentMedia = document.getElementById('removeCommentMedia');
+
+        // State variables
+        let currentUser = null;
+        let userData = {};
+        let postId = null;
+        let postData = {};
+        let commentsData = {};
+        let currentCommentToReport = null;
+        let currentReplyToReport = null;
+        let currentReplyCommentId = null;
+        let commentMediaFile = null;
+
+        // Initialize the comments page
+        function initComments() {
+            // Get post ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            postId = urlParams.get('id');
+            
+            if (!postId) {
+                window.location.href = 'home.html';
+                return;
+            }
+            
+            setupEventListeners();
+            checkAuthState();
+            loadPost();
+            loadComments();
+        }
+
+        // Check authentication state
+        function checkAuthState() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    loadUserData(user.uid);
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+
+        // Load user data from Firebase
+        function loadUserData(userId) {
+            const userRef = ref(database, `users/${userId}`);
+            
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    userData = data;
+                    updateProfileUI(data);
+                }
+            });
+        }
+
+        // Update profile UI elements
+        function updateProfileUI(data) {
+            // Update profile picture
+            if (data.photoURL) {
+                userProfilePic.querySelector('img').src = data.photoURL;
+            } else {
+                const initial = data.name ? data.name.charAt(0).toUpperCase() : 'U';
+                const placeholder = `https://ui-avatars.com/api/?name=${initial}&background=1e40af&color=fff`;
+                userProfilePic.querySelector('img').src = placeholder;
+            }
+        }
+
+        // Load the post from Firebase
+        function loadPost() {
+            const postRef = ref(database, `posts/${postId}`);
+            
+            get(postRef).then((snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    postData = data;
+                    displayPost(data);
+                } else {
+                    window.location.href = 'home.html';
+                }
+            });
+        }
+
+        // Display the post
+        function displayPost(post) {
+            // Format date
+            const postDate = new Date(post.timestamp);
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const formattedDate = postDate.toLocaleDateString('en-US', options);
+            
+            // Handle anonymous posts
+            const isAnonymous = post.anonymous;
+            const userName = isAnonymous ? 'Anonymous' : (post.authorName || 'User');
+            const userAvatar = isAnonymous ? 
+                'https://ui-avatars.com/api/?name=A&background=dc2626&color=fff' : 
+                (post.authorPhotoURL || 'https://via.placeholder.com/150');
+            
+            // Check if current user has liked this post
+            const hasLiked = post.likes && post.likes[currentUser?.uid] === true;
+            
+            // Process content with mentions
+            let processedContent = post.content;
+            if (post.mentions) {
+                Object.entries(post.mentions).forEach(([userId, userData]) => {
+                    if (userData.name) {
+                        const mentionPattern = new RegExp(`@${userData.name}`, 'g');
+                        processedContent = processedContent.replace(mentionPattern, 
+                            `<span class="mention">@${userData.name}</span>`);
+                    }
+                });
+            }
+            
+            postContainer.innerHTML = `
+                <div class="post-header">
+                    <div class="profile-pic">
+                        <img src="${userAvatar}" alt="Profile Picture">
+                    </div>
+                    <div class="post-user-info">
+                        <h4>${userName}</h4>
+                        <p>${formattedDate}</p>
+                        ${post.location ? `<p><i class="fas fa-map-marker-alt"></i> ${post.location}</p>` : ''}
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>${processedContent}</p>
+                    ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image" alt="Post image">` : ''}
+                </div>
+                <div class="post-footer">
+                    <div class="post-stats">
+                        <span>${post.likes ? Object.keys(post.likes).length : 0} likes</span>
+                        <span>${post.commentCount || 0} comments</span>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action like-action">
+                            <i class="far ${hasLiked ? 'fa-thumbs-up' : 'fa-thumbs-up'}"></i>
+                            <span>${hasLiked ? 'Liked' : 'Like'}</span>
+                            <div class="reaction-options">
+                                <span class="reaction-option" data-reaction="👍">👍</span>
+                                <span class="reaction-option" data-reaction="❤️">❤️</span>
+                                <span class="reaction-option" data-reaction="😮">😮</span>
+                                <span class="reaction-option" data-reaction="😢">😢</span>
+                                <span class="reaction-option" data-reaction="😡">😡</span>
+                            </div>
+                        </div>
+                        <div class="post-action comment-action">
+                            <i class="far fa-comment"></i>
+                            <span>Comment</span>
+                        </div>
+                        <div class="post-action share-action">
+                            <i class="fas fa-share"></i>
+                            <span>Share</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners to the post's interactive elements
+            addPostEventListeners();
+        }
+
+        // Load comments from Firebase
+        function loadComments() {
+            const commentsRef = ref(database, `posts/${postId}/comments`);
+            
+            onValue(commentsRef, (snapshot) => {
+                const comments = snapshot.val() || {};
+                commentsData = comments;
+                displayComments(comments);
+            });
+        }
+
+        // Display comments
+        function displayComments(comments) {
+            commentsList.innerHTML = '';
+            
+            if (Object.keys(comments).length === 0) {
+                commentsList.innerHTML = '<div class="loading-comments">No comments yet. Be the first to comment!</div>';
+                return;
+            }
+            
+            // Convert comments object to array and sort by timestamp
+            const commentsArray = Object.entries(comments).map(([id, comment]) => ({ id, ...comment }));
+            commentsArray.sort((a, b) => a.timestamp - b.timestamp);
+            
+            commentsArray.forEach(comment => {
+                const commentElement = createCommentElement(comment);
+                commentsList.appendChild(commentElement);
+            });
+        }
+
+        // Create a comment element with infinite reply capability
+        function createCommentElement(comment, depth = 0) {
+            const isAnonymous = comment.anonymous;
+            const userName = isAnonymous ? 'Anonymous' : (comment.authorName || 'User');
+            const userAvatar = isAnonymous ? 
+                'https://ui-avatars.com/api/?name=A&background=dc2626&color=fff' : 
+                (comment.authorPhotoURL || 'https://via.placeholder.com/150');
+            
+            const commentDate = new Date(comment.timestamp);
+            const formattedDate = commentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            // Check if current user has liked this comment
+            const hasLiked = comment.likes && comment.likes[currentUser?.uid] === true;
+            
+            // Check if current user is the author of this comment
+            const isAuthor = (comment.authorId === currentUser?.uid);
+            
+            // Get user's reaction if exists
+            const userReaction = comment.reactions && comment.reactions[currentUser?.uid];
+            
+            const commentElement = document.createElement('div');
+            commentElement.className = 'comment';
+            commentElement.dataset.commentId = comment.id;
+            commentElement.dataset.depth = depth;
+            
+            commentElement.innerHTML = `
+                <div class="comment-avatar">
+                    <img src="${userAvatar}" alt="Profile Picture">
+                </div>
+                <div class="comment-content">
+                    <div class="comment-header">
+                        <span class="comment-author">${userName}</span>
+                        <span class="comment-time">${formattedDate}</span>
+                    </div>
+                    <div class="comment-text">${comment.text}</div>
+                    ${comment.mediaUrl ? 
+                        comment.mediaType === 'image' ? 
+                            `<div class="comment-media"><img src="${comment.mediaUrl}" alt="Comment media"></div>` :
+                            `<div class="comment-media"><video src="${comment.mediaUrl}" controls></video></div>`
+                        : ''
+                    }
+                    <div class="comment-actions">
+                        <span class="comment-action like-comment" data-comment-id="${comment.id}">
+                            <i class="far ${hasLiked ? 'fa-thumbs-up' : 'fa-thumbs-up'}"></i>
+                            ${comment.likes ? Object.keys(comment.likes).length : 0} Likes
+                            ${userReaction ? `<div class="reaction-display">${userReaction}</div>` : ''}
+                        </span>
+                        <span class="comment-action reply-comment" data-comment-id="${comment.id}">
+                            <i class="far fa-comment-dots"></i> Reply
+                        </span>
+                        <span class="comment-action add-emoji" data-comment-id="${comment.id}">
+                            <i class="far fa-smile"></i> React
+                            <div class="emoji-picker-container">
+                                <span class="emoji-option" data-emoji="👍">👍</span>
+                                <span class="emoji-option" data-emoji="❤️">❤️</span>
+                                <span class="emoji-option" data-emoji="😊">😊</span>
+                                <span class="emoji-option" data-emoji="😮">😮</span>
+                                <span class="emoji-option" data-emoji="😢">😢</span>
+                                <span class="emoji-option" data-emoji="😡">😡</span>
+                            </div>
+                        </span>
+                    </div>
+                    ${comment.replies ? createRepliesSection(comment.replies, comment.id, depth + 1) : ''}
+                </div>
+                <div class="comment-options">
+                    <button class="comment-options-btn">⋮</button>
+                    <div class="comment-options-menu">
+                        ${isAuthor ? `
+                            <div class="comment-option delete-comment" data-comment-id="${comment.id}">
+                                <i class="fas fa-trash"></i>
+                                <span>Delete</span>
+                            </div>
+                        ` : ''}
+                        <div class="comment-option report-comment" data-comment-id="${comment.id}">
+                            <i class="fas fa-flag"></i>
+                            <span>Report</span>
+                        </div>
+                    </div>
+                </div>
+                <form class="reply-form" id="replyForm_${comment.id}">
+                    <input type="text" class="reply-input" placeholder="Write a reply..." required>
+                    <div id="replyMediaPreview_${comment.id}" class="comment-media-preview" style="display: none;">
+                        <button type="button" class="remove-media remove-reply-media" data-comment-id="${comment.id}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <img id="replyMediaPreviewImg_${comment.id}" style="display: none;">
+                        <video id="replyMediaPreviewVideo_${comment.id}" controls style="display: none;"></video>
+                    </div>
+                    <input type="file" id="replyMediaInput_${comment.id}" class="file-input" accept="image/*, video/*">
+                    <button type="button" class="media-upload-btn reply-media-btn" data-comment-id="${comment.id}">
+                        <i class="fas fa-camera"></i> Add Photo/Video
+                    </button>
+                    <button type="submit" class="reply-submit">Reply</button>
+                </form>
+            `;
+            
+            // Add event listeners to the comment
+            const likeButton = commentElement.querySelector('.like-comment');
+            likeButton.addEventListener('click', () => {
+                toggleLikeComment(comment.id);
+            });
+            
+            const replyButton = commentElement.querySelector('.reply-comment');
+            replyButton.addEventListener('click', () => {
+                const replyForm = commentElement.querySelector(`#replyForm_${comment.id}`);
+                replyForm.classList.toggle('active');
+            });
+            
+            const emojiButton = commentElement.querySelector('.add-emoji');
+            const emojiPicker = commentElement.querySelector('.emoji-picker-container');
+            
+            emojiButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.emoji-picker-container').forEach(picker => {
+                    if (picker !== emojiPicker) picker.classList.remove('show');
+                });
+                emojiPicker.classList.toggle('show');
+            });
+            
+            const emojiOptions = commentElement.querySelectorAll('.emoji-option');
+            emojiOptions.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    addEmojiReaction(comment.id, e.target.dataset.emoji);
+                    emojiPicker.classList.remove('show');
+                });
+            });
+            
+            // Reply form
+            const replyForm = commentElement.querySelector(`#replyForm_${comment.id}`);
+            const replyMediaInput = commentElement.querySelector(`#replyMediaInput_${comment.id}`);
+            const replyMediaBtn = commentElement.querySelector(`.reply-media-btn[data-comment-id="${comment.id}"]`);
+            const replyMediaPreview = commentElement.querySelector(`#replyMediaPreview_${comment.id}`);
+            const replyMediaPreviewImg = commentElement.querySelector(`#replyMediaPreviewImg_${comment.id}`);
+            const replyMediaPreviewVideo = commentElement.querySelector(`#replyMediaPreviewVideo_${comment.id}`);
+            const removeReplyMedia = commentElement.querySelector(`.remove-reply-media[data-comment-id="${comment.id}"]`);
+            
+            let replyMediaFile = null;
+            
+            replyMediaBtn.addEventListener('click', () => {
+                replyMediaInput.click();
+            });
+            
+            replyMediaInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    replyMediaFile = file;
+                    replyMediaPreview.style.display = 'block';
+                    
+                    if (file.type.startsWith('image/')) {
+                        replyMediaPreviewImg.style.display = 'block';
+                        replyMediaPreviewVideo.style.display = 'none';
+                        replyMediaPreviewImg.src = URL.createObjectURL(file);
+                    } else if (file.type.startsWith('video/')) {
+                        replyMediaPreviewImg.style.display = 'none';
+                        replyMediaPreviewVideo.style.display = 'block';
+                        replyMediaPreviewVideo.src = URL.createObjectURL(file);
+                    }
+                }
+            });
+            
+            removeReplyMedia.addEventListener('click', () => {
+                replyMediaFile = null;
+                replyMediaPreview.style.display = 'none';
+                replyMediaPreviewImg.style.display = 'none';
+                replyMediaPreviewVideo.style.display = 'none';
+                replyMediaInput.value = '';
+            });
+            
+            replyForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const input = replyForm.querySelector('.reply-input');
+                const replyText = input.value.trim();
+                
+                if (!replyText && !replyMediaFile) {
+                    alert('Please enter text or add media');
+                    return;
+                }
+                
+                let mediaUrl = null;
+                let mediaType = null;
+                
+                if (replyMediaFile) {
+                    try {
+                        // Upload media to Firebase Storage
+                        const fileRef = storageRef(storage, `comments/${comment.id}/replies/${Date.now()}_${replyMediaFile.name}`);
+                        await uploadBytes(fileRef, replyMediaFile);
+                        mediaUrl = await getDownloadURL(fileRef);
+                        mediaType = replyMediaFile.type.startsWith('image/') ? 'image' : 'video';
+                    } catch (error) {
+                        console.error('Error uploading media:', error);
+                        alert('Failed to upload media. Please try again.');
+                        return;
+                    }
+                }
+                
+                addReply(comment.id, replyText, mediaUrl, mediaType);
+                input.value = '';
+                replyMediaFile = null;
+                replyMediaPreview.style.display = 'none';
+                replyMediaPreviewImg.style.display = 'none';
+                replyMediaPreviewVideo.style.display = 'none';
+                replyMediaInput.value = '';
+                replyForm.classList.remove('active');
+            });
+            
+            // Comment options
+            const optionsButton = commentElement.querySelector('.comment-options-btn');
+            const optionsMenu = commentElement.querySelector('.comment-options-menu');
+            
+            optionsButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.comment-options-menu').forEach(menu => {
+                    if (menu !== optionsMenu) menu.classList.remove('show');
+                });
+                optionsMenu.classList.toggle('show');
+            });
+            
+            // Close emoji picker and options menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!emojiButton.contains(e.target) && !emojiPicker.contains(e.target)) {
+                    emojiPicker.classList.remove('show');
+                }
+                if (!optionsButton.contains(e.target) && !optionsMenu.contains(e.target)) {
+                    optionsMenu.classList.remove('show');
+                }
+            });
+            
+            return commentElement;
+        }
+
+        // Create replies section with infinite nesting capability
+        function createRepliesSection(replies, commentId, depth = 1) {
+            let repliesHTML = '<div class="replies">';
+            
+            // Convert replies object to array and sort by timestamp
+            const repliesArray = Object.entries(replies).map(([id, reply]) => ({ id, ...reply }));
+            repliesArray.sort((a, b) => a.timestamp - b.timestamp);
+            
+            repliesArray.forEach(reply => {
+                const isAnonymous = reply.anonymous;
+                const userName = isAnonymous ? 'Anonymous' : (reply.authorName || 'User');
+                const userAvatar = isAnonymous ? 
+                    'https://ui-avatars.com/api/?name=A&background=dc2626&color=fff' : 
+                    (reply.authorPhotoURL || 'https://via.placeholder.com/150');
+                
+                const replyDate = new Date(reply.timestamp);
+                const formattedDate = replyDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                
+                // Check if current user has liked this reply
+                const hasLiked = reply.likes && reply.likes[currentUser?.uid] === true;
+                
+                // Check if current user is the author of this reply
+                const isAuthor = (reply.authorId === currentUser?.uid);
+                
+                // Get user's reaction if exists
+                const userReaction = reply.reactions && reply.reactions[currentUser?.uid];
+                
+                repliesHTML += `
+                    <div class="reply" data-reply-id="${reply.id}" data-depth="${depth}">
+                        <div class="comment-avatar">
+                            <img src="${userAvatar}" alt="Profile Picture">
+                        </div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">${userName}</span>
+                                <span class="comment-time">${formattedDate}</span>
+                            </div>
+                            <div class="comment-text">${reply.text}</div>
+                            ${reply.mediaUrl ? 
+                                reply.mediaType === 'image' ? 
+                                    `<div class="comment-media"><img src="${reply.mediaUrl}" alt="Reply media"></div>` :
+                                    `<div class="comment-media"><video src="${reply.mediaUrl}" controls></video></div>`
+                                : ''
+                            }
+                            <div class="comment-actions">
+                                <span class="comment-action like-reply" data-comment-id="${commentId}" data-reply-id="${reply.id}">
+                                    <i class="far ${hasLiked ? 'fa-thumbs-up' : 'fa-thumbs-up'}"></i>
+                                    ${reply.likes ? Object.keys(reply.likes).length : 0} Likes
+                                    ${userReaction ? `<div class="reaction-display">${userReaction}</div>` : ''}
+                                </span>
+                                <span class="comment-action reply-to-reply" data-comment-id="${commentId}" data-reply-id="${reply.id}">
+                                    <i class="far fa-comment-dots"></i> Reply
+                                </span>
+                                <span class="comment-action add-emoji-reply" data-comment-id="${commentId}" data-reply-id="${reply.id}">
+                                    <i class="far fa-smile"></i> React
+                                    <div class="emoji-picker-container">
+                                        <span class="emoji-option" data-emoji="👍">👍</span>
+                                        <span class="emoji-option" data-emoji="❤️">❤️</span>
+                                        <span class="emoji-option" data-emoji="😊">😊</span>
+                                        <span class="emoji-option" data-emoji="😮">😮</span>
+                                        <span class="emoji-option" data-emoji="😢">😢</span>
+                                        <span class="emoji-option" data-emoji="😡">😡</span>
+                                    </div>
+                                </span>
+                            </div>
+                            ${reply.replies ? createRepliesSection(reply.replies, commentId, depth + 1) : ''}
+                        </div>
+                        <div class="comment-options">
+                            <button class="comment-options-btn">⋮</button>
+                            <div class="comment-options-menu">
+                                ${isAuthor ? `
+                                    <div class="comment-option delete-reply" data-comment-id="${commentId}" data-reply-id="${reply.id}">
+                                        <i class="fas fa-trash"></i>
+                                        <span>Delete</span>
+                                    </div>
+                                ` : ''}
+                                <div class="comment-option report-reply" data-comment-id="${commentId}" data-reply-id="${reply.id}">
+                                    <i class="fas fa-flag"></i>
+                                    <span>Report</span>
+                                </div>
+                            </div>
+                        </div>
+                        <form class="reply-form" id="replyForm_${commentId}_${reply.id}" style="display: none;">
+                            <input type="text" class="reply-input" placeholder="Write a reply..." required>
+                            <div id="replyMediaPreview_${commentId}_${reply.id}" class="comment-media-preview" style="display: none;">
+                                <button type="button" class="remove-media remove-reply-media" data-comment-id="${commentId}" data-reply-id="${reply.id}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <img id="replyMediaPreviewImg_${commentId}_${reply.id}" style="display: none;">
+                                <video id="replyMediaPreviewVideo_${commentId}_${reply.id}" controls style="display: none;"></video>
+                            </div>
+                            <input type="file" id="replyMediaInput_${commentId}_${reply.id}" class="file-input" accept="image/*, video/*">
+                            <button type="button" class="media-upload-btn reply-media-btn" data-comment-id="${commentId}" data-reply-id="${reply.id}">
+                                <i class="fas fa-camera"></i> Add Photo/Video
+                            </button>
+                            <button type="submit" class="reply-submit">Reply</button>
+                        </form>
+                    </div>
+                `;
+            });
+            
+            repliesHTML += '</div>';
+            return repliesHTML;
+        }
+
+        // Add comment to the post
+        async function addComment(commentText) {
+            if (!currentUser) return;
+            
+            if (!commentText && !commentMediaFile) {
+                alert('Please enter text or add media');
+                return;
+            }
+            
+            let mediaUrl = null;
+            let mediaType = null;
+            
+            if (commentMediaFile) {
+                try {
+                    // Upload media to Firebase Storage
+                    const fileRef = storageRef(storage, `comments/${postId}/${Date.now()}_${commentMediaFile.name}`);
+                    await uploadBytes(fileRef, commentMediaFile);
+                    mediaUrl = await getDownloadURL(fileRef);
+                    mediaType = commentMediaFile.type.startsWith('image/') ? 'image' : 'video';
+                } catch (error) {
+                    console.error('Error uploading media:', error);
+                    alert('Failed to upload media. Please try again.');
+                    return;
+                }
+            }
+            
+            const commentsRef = ref(database, `posts/${postId}/comments`);
+            const newCommentRef = push(commentsRef);
+            
+            // Check if anonymous toggle is checked
+            const isAnonymous = commentAnonymousToggle.checked;
+            
+            set(newCommentRef, {
+                text: commentText,
+                authorId: isAnonymous ? 'anonymous' : currentUser.uid,
+                authorName: isAnonymous ? null : (userData.name || 'User'),
+                authorPhotoURL: isAnonymous ? null : (userData.photoURL || 'https://via.placeholder.com/150'),
+                anonymous: isAnonymous,
+                timestamp: Date.now(),
+                likes: {},
+                replies: {},
+                ...(mediaUrl && { mediaUrl, mediaType })
+            });
+            
+            // Update comment count (including replies)
+            updateCommentCount(1);
+            
+            // Reset the form
+            commentInput.value = '';
+            commentAnonymousToggle.checked = false;
+            commentMediaFile = null;
+            commentMediaPreview.style.display = 'none';
+            commentMediaPreviewImg.style.display = 'none';
+            commentMediaPreviewVideo.style.display = 'none';
+            commentMediaInput.value = '';
+        }
+
+        // Add reply to a comment or another reply (supports infinite nesting)
+        async function addReply(commentId, replyText, mediaUrl = null, mediaType = null, parentReplyId = null) {
+            if (!currentUser) return;
+            
+            if (!replyText && !mediaUrl) {
+                alert('Please enter text or add media');
+                return;
+            }
+            
+            // Determine the path based on whether this is a reply to a comment or another reply
+            const path = parentReplyId ? 
+                `posts/${postId}/comments/${commentId}/replies/${parentReplyId}/replies` :
+                `posts/${postId}/comments/${commentId}/replies`;
+            
+            const repliesRef = ref(database, path);
+            const newReplyRef = push(repliesRef);
+            
+            set(newReplyRef, {
+                text: replyText,
+                authorId: currentUser.uid,
+                authorName: userData.name || 'User',
+                authorPhotoURL: userData.photoURL || 'https://via.placeholder.com/150',
+                timestamp: Date.now(),
+                likes: {},
+                replies: {},
+                ...(mediaUrl && { mediaUrl, mediaType })
+            });
+            
+            // Update comment count (including replies)
+            updateCommentCount(1);
+        }
+
+        // Update the comment count for the post
+        function updateCommentCount(change) {
+            const postRef = ref(database, `posts/${postId}`);
+            update(postRef, {
+                commentCount: (postData.commentCount || 0) + change
+            });
+        }
+
+        // Toggle like on a comment
+        function toggleLikeComment(commentId) {
+            if (!currentUser) return;
+            
+            const commentRef = ref(database, `posts/${postId}/comments/${commentId}/likes/${currentUser.uid}`);
+            const hasLiked = commentsData[commentId]?.likes?.[currentUser.uid] === true;
+            
+            if (hasLiked) {
+                // Unlike the comment
+                set(commentRef, null);
+            } else {
+                // Like the comment
+                set(commentRef, true);
+            }
+        }
+
+        // Toggle like on a reply
+        function toggleLikeReply(commentId, replyId) {
+            if (!currentUser) return;
+            
+            const replyRef = ref(database, `posts/${postId}/comments/${commentId}/replies/${replyId}/likes/${currentUser.uid}`);
+            const hasLiked = commentsData[commentId]?.replies?.[replyId]?.likes?.[currentUser.uid] === true;
+            
+            if (hasLiked) {
+                // Unlike the reply
+                set(replyRef, null);
+            } else {
+                // Like the reply
+                set(replyRef, true);
+            }
+        }
+
+        // Add emoji reaction to a comment
+        function addEmojiReaction(commentId, emoji) {
+            if (!currentUser) return;
+            
+            const reactionRef = ref(database, `posts/${postId}/comments/${commentId}/reactions/${currentUser.uid}`);
+            set(reactionRef, emoji);
+        }
+
+        // Add emoji reaction to a reply
+        function addEmojiReactionToReply(commentId, replyId, emoji) {
+            if (!currentUser) return;
+            
+            const reactionRef = ref(database, `posts/${postId}/comments/${commentId}/replies/${replyId}/reactions/${currentUser.uid}`);
+            set(reactionRef, emoji);
+        }
+
+        // Delete a comment and all its replies
+        function deleteComment(commentId) {
+            if (!currentUser) return;
+            
+            const commentRef = ref(database, `posts/${postId}/comments/${commentId}`);
+            
+            // First count all replies (including nested) to update comment count
+            countAllReplies(commentId).then(totalReplies => {
+                // +1 for the comment itself
+                const totalToRemove = totalReplies + 1;
+                
+                // Delete the comment
+                remove(commentRef)
+                    .then(() => {
+                        // Update comment count
+                        updateCommentCount(-totalToRemove);
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting comment:", error);
+                        alert("Failed to delete comment. Please try again.");
+                    });
+            });
+        }
+
+        // Recursively count all replies under a comment
+        async function countAllReplies(commentId, parentReplyId = null) {
+            const path = parentReplyId ? 
+                `posts/${postId}/comments/${commentId}/replies/${parentReplyId}/replies` :
+                `posts/${postId}/comments/${commentId}/replies`;
+            
+            const repliesRef = ref(database, path);
+            const snapshot = await get(repliesRef);
+            const replies = snapshot.val() || {};
+            
+            let count = Object.keys(replies).length;
+            
+            // Recursively count replies to replies
+            for (const replyId in replies) {
+                count += await countAllReplies(commentId, replyId);
+            }
+            
+            return count;
+        }
+
+        // Delete a reply and all its nested replies
+        function deleteReply(commentId, replyId) {
+            if (!currentUser) return;
+            
+            const replyRef = ref(database, `posts/${postId}/comments/${commentId}/replies/${replyId}`);
+            
+            // First count all nested replies to update comment count
+            countAllReplies(commentId, replyId).then(totalReplies => {
+                // +1 for the reply itself
+                const totalToRemove = totalReplies + 1;
+                
+                // Delete the reply
+                remove(replyRef)
+                    .then(() => {
+                        // Update comment count
+                        updateCommentCount(-totalToRemove);
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting reply:", error);
+                        alert("Failed to delete reply. Please try again.");
+                    });
+            });
+        }
+
+        // Report a comment
+        function reportComment(commentId, reason, details) {
+            if (!currentUser) return;
+            
+            const reportsRef = ref(database, `reports/comments/${commentId}`);
+            const newReportRef = push(reportsRef);
+            
+            set(newReportRef, {
+                reporterId: currentUser.uid,
+                reporterName: userData.name || 'User',
+                reason: reason,
+                details: details,
+                timestamp: Date.now(),
+                status: 'pending'
+            });
+            
+            alert("Thank you for reporting this comment. Our team will review it shortly.");
+        }
+
+        // Report a reply
+        function reportReply(commentId, replyId, reason, details) {
+            if (!currentUser) return;
+            
+            const reportsRef = ref(database, `reports/replies/${replyId}`);
+            const newReportRef = push(reportsRef);
+            
+            set(newReportRef, {
+                reporterId: currentUser.uid,
+                reporterName: userData.name || 'User',
+                commentId: commentId,
+                reason: reason,
+                details: details,
+                timestamp: Date.now(),
+                status: 'pending'
+            });
+            
+            alert("Thank you for reporting this reply. Our team will review it shortly.");
+        }
+
+        // Show report comment modal
+        function showReportCommentModal(commentId) {
+            currentCommentToReport = commentId;
+            document.querySelectorAll('input[name="commentReportReason"]').forEach(radio => {
+                radio.checked = false;
+            });
+            document.getElementById('commentReportDetails').value = '';
+            reportCommentModal.style.display = 'flex';
+        }
+
+        // Show report reply modal
+        function showReportReplyModal(commentId, replyId) {
+            currentReplyCommentId = commentId;
+            currentReplyToReport = replyId;
+            document.querySelectorAll('input[name="replyReportReason"]').forEach(radio => {
+                radio.checked = false;
+            });
+            document.getElementById('replyReportDetails').value = '';
+            reportReplyModal.style.display = 'flex';
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Back button
+            backButton.addEventListener('click', () => {
+                window.location.href = 'home.html';
+            });
+
+            // Profile picture click handler - navigates to dashboard
+            userProfilePic.addEventListener('click', () => {
+                window.location.href = 'dashboard.html';
+            });
+
+            // Comment form submission
+            commentForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const commentText = commentInput.value.trim();
+                addComment(commentText);
+            });
+
+            // Comment media handling
+            commentMediaBtn.addEventListener('click', () => {
+                commentMediaInput.click();
+            });
+
+            commentMediaInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    commentMediaFile = file;
+                    commentMediaPreview.style.display = 'block';
+                    
+                    if (file.type.startsWith('image/')) {
+                        commentMediaPreviewImg.style.display = 'block';
+                        commentMediaPreviewVideo.style.display = 'none';
+                        commentMediaPreviewImg.src = URL.createObjectURL(file);
+                    } else if (file.type.startsWith('video/')) {
+                        commentMediaPreviewImg.style.display = 'none';
+                        commentMediaPreviewVideo.style.display = 'block';
+                        commentMediaPreviewVideo.src = URL.createObjectURL(file);
+                    }
+                }
+            });
+
+            removeCommentMedia.addEventListener('click', () => {
+                commentMediaFile = null;
+                commentMediaPreview.style.display = 'none';
+                commentMediaPreviewImg.style.display = 'none';
+                commentMediaPreviewVideo.style.display = 'none';
+                commentMediaInput.value = '';
+            });
+
+            // Report comment modal buttons
+            closeReportCommentModal.addEventListener('click', () => {
+                reportCommentModal.style.display = 'none';
+            });
+
+            cancelCommentReport.addEventListener('click', () => {
+                reportCommentModal.style.display = 'none';
+            });
+
+            submitCommentReport.addEventListener('click', () => {
+                const reason = document.querySelector('input[name="commentReportReason"]:checked')?.value;
+                const details = document.getElementById('commentReportDetails').value.trim();
+                
+                if (!reason) {
+                    alert("Please select a reason for reporting");
+                    return;
+                }
+                
+                reportComment(currentCommentToReport, reason, details);
+                reportCommentModal.style.display = 'none';
+            });
+
+            // Report reply modal buttons
+            closeReportReplyModal.addEventListener('click', () => {
+                reportReplyModal.style.display = 'none';
+            });
+
+            cancelReplyReport.addEventListener('click', () => {
+                reportReplyModal.style.display = 'none';
+            });
+
+            submitReplyReport.addEventListener('click', () => {
+                const reason = document.querySelector('input[name="replyReportReason"]:checked')?.value;
+                const details = document.getElementById('replyReportDetails').value.trim();
+                
+                if (!reason) {
+                    alert("Please select a reason for reporting");
+                    return;
+                }
+                
+                reportReply(currentReplyCommentId, currentReplyToReport, reason, details);
+                reportReplyModal.style.display = 'none';
+            });
+
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === reportCommentModal) {
+                    reportCommentModal.style.display = 'none';
+                }
+                if (e.target === reportReplyModal) {
+                    reportReplyModal.style.display = 'none';
+                }
+            });
+
+            // Handle comment options (delete, report)
+            document.addEventListener('click', (e) => {
+                // Delete comment
+                if (e.target.classList.contains('delete-comment') || e.target.closest('.delete-comment')) {
+                    const commentId = e.target.closest('.comment-option').dataset.commentId;
+                    if (confirm("Are you sure you want to delete this comment and all its replies?")) {
+                        deleteComment(commentId);
+                    }
+                }
+
+                // Report comment
+                if (e.target.classList.contains('report-comment') || e.target.closest('.report-comment')) {
+                    const commentId = e.target.closest('.comment-option').dataset.commentId;
+                    showReportCommentModal(commentId);
+                }
+
+                // Delete reply
+                if (e.target.classList.contains('delete-reply') || e.target.closest('.delete-reply')) {
+                    const commentId = e.target.closest('.comment-option').dataset.commentId;
+                    const replyId = e.target.closest('.comment-option').dataset.replyId;
+                    if (confirm("Are you sure you want to delete this reply and all its nested replies?")) {
+                        deleteReply(commentId, replyId);
+                    }
+                }
+
+                // Report reply
+                if (e.target.classList.contains('report-reply') || e.target.closest('.report-reply')) {
+                    const commentId = e.target.closest('.comment-option').dataset.commentId;
+                    const replyId = e.target.closest('.comment-option').dataset.replyId;
+                    showReportReplyModal(commentId, replyId);
+                }
+
+                // Like reply
+                if (e.target.classList.contains('like-reply') || e.target.closest('.like-reply')) {
+                    const commentId = e.target.closest('.comment-action').dataset.commentId;
+                    const replyId = e.target.closest('.comment-action').dataset.replyId;
+                    toggleLikeReply(commentId, replyId);
+                }
+
+                // Add emoji to reply
+                if (e.target.classList.contains('add-emoji-reply') || e.target.closest('.add-emoji-reply')) {
+                    const commentId = e.target.closest('.comment-action').dataset.commentId;
+                    const replyId = e.target.closest('.comment-action').dataset.replyId;
+                    const emojiPicker = e.target.closest('.comment-action').querySelector('.emoji-picker-container');
+                    
+                    if (emojiPicker) {
+                        emojiPicker.classList.toggle('show');
+                        
+                        const emojiOptions = emojiPicker.querySelectorAll('.emoji-option');
+                        emojiOptions.forEach(option => {
+                            option.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                addEmojiReactionToReply(commentId, replyId, e.target.dataset.emoji);
+                                emojiPicker.classList.remove('show');
+                            });
+                        });
+                    }
+                }
+
+                // Reply to reply (this enables infinite nesting)
+                if (e.target.classList.contains('reply-to-reply') || e.target.closest('.reply-to-reply')) {
+                    const commentId = e.target.closest('.comment-action').dataset.commentId;
+                    const replyId = e.target.closest('.comment-action').dataset.replyId;
+                    const replyForm = document.getElementById(`replyForm_${commentId}_${replyId}`);
+                    replyForm.classList.toggle('active');
+                }
+
+                // Handle reply form submission for nested replies
+                if (e.target.classList.contains('reply-submit') && e.target.closest('.reply-form')) {
+                    e.preventDefault();
+                    const form = e.target.closest('.reply-form');
+                    const input = form.querySelector('.reply-input');
+                    const replyText = input.value.trim();
+                    
+                    // Extract commentId and replyId from form ID
+                    const formId = form.id;
+                    const ids = formId.split('_');
+                    const commentId = ids[1];
+                    const replyId = ids.length > 2 ? ids[2] : null;
+                    
+                    // Get media elements specific to this form
+                    const replyMediaPreview = form.querySelector('.comment-media-preview');
+                    const replyMediaPreviewImg = form.querySelector('img');
+                    const replyMediaPreviewVideo = form.querySelector('video');
+                    const replyMediaInput = form.querySelector('.file-input');
+                    
+                    // Check if media was added
+                    let mediaFile = null;
+                    if (replyMediaPreview.style.display !== 'none') {
+                        if (replyMediaPreviewImg.style.display !== 'none') {
+                            // This is an image reply
+                            mediaFile = replyMediaInput.files[0];
+                        } else if (replyMediaPreviewVideo.style.display !== 'none') {
+                            // This is a video reply
+                            mediaFile = replyMediaInput.files[0];
+                        }
+                    }
+                    
+                    if (!replyText && !mediaFile) {
+                        alert('Please enter text or add media');
+                        return;
+                    }
+                    
+                    // Handle the reply submission
+                    handleReplySubmission(commentId, replyId, replyText, mediaFile, form);
+                }
+            });
+        }
+
+        // Handle reply submission for nested replies
+        async function handleReplySubmission(commentId, parentReplyId, replyText, mediaFile, form) {
+            let mediaUrl = null;
+            let mediaType = null;
+            
+            if (mediaFile) {
+                try {
+                    // Upload media to Firebase Storage
+                    const fileRef = storageRef(storage, `comments/${commentId}/replies/${Date.now()}_${mediaFile.name}`);
+                    await uploadBytes(fileRef, mediaFile);
+                    mediaUrl = await getDownloadURL(fileRef);
+                    mediaType = mediaFile.type.startsWith('image/') ? 'image' : 'video';
+                } catch (error) {
+                    console.error('Error uploading media:', error);
+                    alert('Failed to upload media. Please try again.');
+                    return;
+                }
+            }
+            
+            // Add the reply (supports infinite nesting)
+            await addReply(commentId, replyText, mediaUrl, mediaType, parentReplyId);
+            
+            // Reset the form
+            const input = form.querySelector('.reply-input');
+            input.value = '';
+            
+            const replyMediaPreview = form.querySelector('.comment-media-preview');
+            const replyMediaPreviewImg = form.querySelector('img');
+            const replyMediaPreviewVideo = form.querySelector('video');
+            const replyMediaInput = form.querySelector('.file-input');
+            
+            replyMediaPreview.style.display = 'none';
+            replyMediaPreviewImg.style.display = 'none';
+            replyMediaPreviewVideo.style.display = 'none';
+            replyMediaInput.value = '';
+            form.classList.remove('active');
+        }
+
+        // Add event listeners to post elements (like, etc.)
+        function addPostEventListeners() {
+            // Like button
+            const likeButton = postContainer.querySelector('.like-action');
+            if (likeButton) {
+                likeButton.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('reaction-option')) {
+                        toggleLikePost();
+                    }
+                });
+                
+                // Reaction options
+                const reactionOptions = postContainer.querySelectorAll('.reaction-option');
+                reactionOptions.forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        addReactionToPost(e.target.dataset.reaction);
+                    });
+                });
+            }
+        }
+
+        // Toggle like on the post
+        function toggleLikePost() {
+            if (!currentUser) return;
+            
+            const postRef = ref(database, `posts/${postId}/likes/${currentUser.uid}`);
+            const hasLiked = postData.likes?.[currentUser.uid] === true;
+            
+            if (hasLiked) {
+                // Unlike the post
+                set(postRef, null);
+            } else {
+                // Like the post
+                set(postRef, true);
+            }
+        }
+
+        // Add reaction to the post
+        function addReactionToPost(reaction) {
+            if (!currentUser) return;
+            
+            const reactionRef = ref(database, `posts/${postId}/reactions/${currentUser.uid}`);
+            set(reactionRef, reaction);
+        }
+
+        // Initialize the comments page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initComments);
+    </script>
+</body>
+</html>

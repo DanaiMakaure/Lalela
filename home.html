@@ -1,0 +1,3534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - AquaSafe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+        :root {
+            /* Primary Colors - Updated with blue and red */
+            --blue: #3498db;
+            --dark-blue: #2980b9;
+            --red: #e74c3c;
+            --dark-red: #c0392b;
+            --purple: #7A4EAB;  
+            
+            /* Neutrals */
+            --black:  #FFFFFF;
+            --dark-gray: #333333;
+            --medium-gray: #666666;
+            --light-gray: #E5E5E5;
+            --white: #FFFFFF;
+             
+            /* Text Colors */
+            background: var(--dark-gray);
+            --light-gray:#FFFFFF;
+            --white: #1A1A1A;
+            --text-primary: #FFFFFF;
+            --text-secondary: #E8ECEF;
+            --text-tertiary: #ADB5BD;
+            --border-light: #404040;
+        
+            /* Accents - Updated with blue and red */
+            --light-purple: #9D6BD6;
+            --light-blue: #5dade2;
+            --light-red: #f1948a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0b1220;
+            color: var(--black);
+            overflow-x: hidden;
+            padding-top: 120px; /* Space for fixed header */
+        }
+
+        /* Top Alert Bar */
+        .alert-bar {
+            background-color: var(--black);
+            color: var(--white);
+            padding: 8px 0;
+            text-align: center;
+            font-size: 14px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .alert-bar .close-alert {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--white);
+        }
+
+        /* Main Header - Fixed Position */
+        .main-header {
+            background-color: var(--white);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            position: fixed;
+            top: 40px;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid #dddfe2;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--blue); /* Changed from orange to blue */
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+            margin: 0 10px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 8px 15px 8px 40px;
+            border-radius: 20px;
+            border: none;
+            background-color: #f0f2f5;
+            font-size: 14px;
+            height: 40px;
+        }
+
+        .search-container input:focus {
+            outline: none;
+            background-color: #e4e6eb;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--medium-gray);
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--dark-gray);
+            font-size: 18px;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+
+        .header-icon:hover {
+            background-color: #f0f2f5;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: var(--red); /* Changed from orange to red */
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Notification Dropdown */
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+        }
+
+        .notification-dropdown.show {
+            display: block;
+        }
+
+        .notification-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid #dddfe2;
+            font-weight: 600;
+        }
+
+        .notification-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f2f5;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+            overflow: hidden;
+        }
+
+        .notification-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--medium-gray);
+            margin-top: 2px;
+        }
+
+        .notification-mark-read {
+            color: var(--blue); /* Changed from orange to blue */
+            font-size: 12px;
+            margin-top: 4px;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px 20px;
+        }
+
+        /* Middle Content - Posts */
+        .middle-content {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Create Post */
+        .create-post {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dddfe2;
+        }
+
+        .create-post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .create-post-header .profile-pi{
+            margin-right: 10px;
+            width: 40px;
+            height: 40px;
+        }
+
+        .create-post-header input {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            background-color: #f0f2f5;
+            cursor: pointer;
+            height: 40px;
+        }
+
+        .create-post-header input:hover {
+            background-color: #e4e6eb;
+        }
+
+        .create-post-divider {
+            height: 1px;
+            background-color: #dddfe2;
+            margin: 12px 0;
+        }
+
+        .create-post-options {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .create-post-option {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            flex: 1;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .create-post-option:hover {
+            background-color: #f0f2f5;
+        }
+
+        .create-post-option i {
+            margin-right: 8px;
+            color: var(--blue); /* Changed from orange to blue */
+            font-size: 18px;
+        }
+
+        .create-post-option span {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+
+        /* Post */
+        .post {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dddfe2;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .post-header .profile-pic {
+            margin-right: 10px;
+            width: 40px;
+            height: 40px;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-user-info h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .post-user-info p {
+            font-size: 12px;
+            color: var(--medium-gray);
+        }
+
+        .post-options {
+            position: relative;
+        }
+
+        .post-options-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--medium-gray);
+            font-size: 18px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .post-options-btn:hover {
+            background-color: #f0f2f5;
+        }
+
+        .post-options-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: none;
+            min-width: 200px;
+            border: 1px solid #dddfe2;
+        }
+
+        .post-options-menu.show {
+            display: block;
+        }
+
+        .post-option {
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .post-option:hover {
+            background-color: #f0f2f5;
+        }
+
+        .post-option i {
+            width: 20px;
+            text-align: center;
+            color: var(--medium-gray);
+        }
+
+        .post-content {
+            margin-bottom: 12px;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #dddfe2;
+        }
+
+        .post-divider {
+            height: 1px;
+            background-color: #dddfe2;
+            margin: 12px 0;
+        }
+
+        .post-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: var(--medium-gray);
+            font-size: 14px;
+            padding: 0 8px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 8px;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--medium-gray);
+        }
+
+        .post-action:hover {
+            background-color: #f0f2f5;
+        }
+
+        .post-action i {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        /* Right Sidebar - Emergency Numbers */
+        .right-sidebar {
+            width: 300px;
+            padding-left: 20px;
+            position: sticky;
+            top: 120px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        /* Emergency Numbers Section */
+        .emergency-numbers {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dddfe2;
+        }
+
+        .emergency-numbers h3 {
+            color: #dddfe2;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .emergency-number {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #dddfe2;
+        }
+
+        .emergency-number:last-child {
+            border-bottom: none;
+        }
+
+        .emergency-number i {
+            color: #dddfe2;
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .emergency-number a {
+            color: #dddfe2;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 14px;
+        }
+
+        .emergency-number a:hover {
+            color: var(--blue); /* Changed from orange to blue */
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid #dddfe2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--medium-gray);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .close-modal:hover {
+            background-color: #f0f2f5;
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .post-form .form-group {
+            margin-bottom: 16px;
+        }
+
+        .post-form textarea {
+            width: 100%;
+            border: none;
+            resize: none;
+            font-size: 16px;
+            min-height: 100px;
+            padding: 10px;
+            font-family: inherit;
+        }
+
+        .post-form textarea:focus {
+            outline: none;
+        }
+
+        .attachment-options {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .attachment-option {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background-color: #f0f2f5;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .attachment-option:hover {
+            background-color: #e4e6eb;
+        }
+
+        .attachment-option i {
+            margin-right: 8px;
+            color: var(--medium-gray);
+        }
+
+        .attachment-option span {
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+
+        .post-button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--blue); /* Changed from orange to blue */
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background-color 0.2s;
+        }
+
+        .post-button:hover {
+            background-color: var(--dark-blue); /* Changed from dark-orange to dark-blue */
+        }
+
+        .post-button:disabled {
+            background-color: #e4e6eb;
+            cursor: not-allowed;
+        }
+
+        /* Anonymous Toggle */
+        .anonymous-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e4e6eb;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--blue); /* Changed from orange to blue */
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* No Posts Message */
+        .no-posts {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            color: var(--medium-gray);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dddfe2;
+        }
+
+        /* Floating Buttons */
+        .floating-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .floating-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--blue); /* Changed from orange to blue */
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .floating-button:hover {
+            transform: scale(1.1);
+        }
+
+        .floating-button:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 60px;
+            white-space: nowrap;
+            background-color: var(--black);
+            color: var(--white);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Panic Button */
+        .panic-button {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--red); /* Changed from orange to red */
+            border: 4px solid var(--red); /* Changed from orange to red */
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.5); /* Changed from orange to red */
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            line-height: 1.2;
+            z-index: 1000;
+            animation: none; /* Remove the pulse animation */
+        }
+
+        .panic-button:hover {
+            background: var(--dark-red); /* Changed from orange to red */
+        }
+
+        .panic-button.pressed {
+            transform: scale(0.95);
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.8); /* Changed from orange to red */
+            background: var(--dark-red); /* Changed from orange to red */
+        }
+
+        /* Add this new animation */
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); /* Changed from orange to red */
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); /* Changed from orange to red */
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); /* Changed from orange to red */
+            }
+        }
+
+        /* Panic Modal */
+        .panic-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2003;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .panic-modal-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .panic-modal h3 {
+            color: var(--red); /* Changed from orange to red */
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .panic-modal p {
+            margin-bottom: 20px;
+            color: var(--dark-gray);
+        }
+
+        .panic-status {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #1A1A1A;
+            border-radius: 8px;
+        }
+
+        .panic-status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .panic-status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .panic-status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .panic-status-icon.success {
+            background-color: #4CAF50;
+            color: #1A1A1A;
+        }
+
+        .panic-status-icon.error {
+            background-color: var(--red); /* Changed from orange to red */
+            color:#1A1A1A;
+        }
+
+        .panic-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .panic-button-cancel {
+            padding: 10px 20px;
+            background-color: #f0f2f5;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .panic-button-confirm {
+            padding: 10px 20px;
+            background-color: var(--red); /* Changed from orange to red */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Camera Preview */
+        .camera-preview-container {
+            width: 100%;
+            max-height: 300px;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .camera-preview {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .recording-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--red); /* Changed from orange to red */
+            color: #1A1A1A;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .recording-indicator::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #1A1A1A;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* Preview Image */
+        .image-preview-container {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            display: block;
+            border: 1px solid #dddfe2;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Location Tag */
+        .location-tag {
+            display: flex;
+            align-items: center;
+            background-color: #f0f2f5;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .location-tag i {
+            margin-right: 6px;
+            color: var(--blue); /* Changed from orange to blue */
+        }
+
+        .remove-location {
+            margin-left: 10px;
+            cursor: pointer;
+            color: var(--medium-gray);
+        }
+
+        /* Comments Section */
+        .comments-section {
+            margin-top: 16px;
+            border-top: 1px solid #dddfe2;
+            padding-top: 16px;
+        }
+
+        /* Comment Disclaimer */
+        .comment-disclaimer {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--blue); /* Changed from orange to blue */
+            padding: 10px 15px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: var(--medium-gray);
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .comment-disclaimer i {
+            color: var(--blue); /* Changed from orange to blue */
+            margin-right: 8px;
+        }
+
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 16px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #dddfe2;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .comment-anonymous {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .comment-submit {
+            background-color: var(--blue); /* Changed from orange to blue */
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            align-self: flex-end;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .comment-submit:hover {
+            background-color: var(--dark-blue); /* Changed from dark-orange to dark-blue */
+        }
+
+        .comment {
+            display: flex;
+            margin-bottom: 16px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            font-size: 13px;
+            margin-right: 5px;
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: var(--medium-gray);
+            margin-top: 2px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        .comment-actions {
+            display: flex;
+            margin-top: 4px;
+            font-size: 12px;
+        }
+
+        .comment-action {
+            margin-right: 15px;
+            color: var(--medium-gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+
+        .comment-action:hover {
+            color: var(--dark-gray);
+        }
+
+        .comment-action i {
+            margin-right: 5px;
+        }
+
+        .view-more-comments {
+            color: var(--blue); /* Changed from orange to blue */
+            font-size: 14px;
+            text-align: center;
+            margin: 10px 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .view-more-comments:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading indicator */
+        .loading-comments {
+            text-align: center;
+            color: var(--medium-gray);
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        /* Reaction buttons */
+        .reaction-options {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            display: none;
+            background: white;
+            border-radius: 30px;
+            padding: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .reaction-option {
+            font-size: 20px;
+            margin: 0 3px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .reaction-option:hover {
+            transform: scale(1.3);
+        }
+
+        .like-action:hover .reaction-options {
+            display: flex;
+        }
+
+        /* Tagging Modal */
+        .tagging-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tagging-modal-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .tagging-modal-header {
+            padding: 16px;
+            border-bottom: 1px solid #dddfe2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tagging-modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .tag-search-container {
+            padding: 16px;
+            position: relative;
+        }
+
+        .tag-search-input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border-radius: 20px;
+            border: 1px solid #dddfe2;
+            font-size: 14px;
+        }
+
+        .tag-search-icon {
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--medium-gray);
+        }
+
+        .user-tag-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .user-tag-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .user-tag-item:hover {
+            background-color: #f0f2f5;
+        }
+
+        .user-tag-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+
+        .user-tag-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-tag-info h4 {
+            font-size: 15px;
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+
+        .user-tag-info p {
+            font-size: 12px;
+            color: var(--medium-gray);
+        }
+
+        .user-tag-checkbox {
+            margin-left: auto;
+        }
+
+        .tagged-users-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 16px;
+        }
+
+        .tagged-user {
+            background-color: #f0f2f5;
+            border-radius: 20px;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .tagged-user-remove {
+            margin-left: 5px;
+            cursor: pointer;
+            color: var(--medium-gray);
+        }
+
+        /* Mention styling in textarea */
+        .mention {
+            background-color: var(--light-blue); /* Changed from light-purple to light-blue */
+            color: white;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        /* Report Modal */
+        .report-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2002;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .report-modal-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .report-reasons {
+            margin: 15px 0;
+        }
+
+        .report-reason {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .report-reason input {
+            margin-right: 10px;
+        }
+
+        .report-reason label {
+            font-size: 14px;
+        }
+
+        .report-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dddfe2;
+            border-radius: 5px;
+            resize: none;
+            margin-top: 10px;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .report-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .report-button {
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .report-cancel {
+            background-color: #f0f2f5;
+            border: none;
+            color: var(--dark-gray);
+        }
+
+        .report-cancel:hover {
+            background-color: #e4e6eb;
+        }
+
+        .report-submit {
+            background-color: var(--blue); /* Changed from orange to blue */
+            color: white;
+            border: none;
+        }
+
+        .report-submit:hover {
+            background-color: var(--dark-blue); /* Changed from dark-orange to dark-blue */
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .right-sidebar {
+                display: none;
+            }
+            
+            .middle-content {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-header {
+                top: 40px;
+            }
+            
+            body {
+                padding-top: 100px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-header {
+                padding: 0 10px;
+                top: 40px;
+                height: 50px;
+            }
+            
+            .logo {
+                font-size: 20px;
+            }
+            
+            .search-container input {
+                padding-left: 35px;
+                font-size: 13px;
+            }
+            
+            .header-icons {
+                gap: 5px;
+            }
+            
+            .create-post-option span {
+                display: none;
+            }
+            
+            .create-post-option i {
+                margin-right: 0;
+            }
+            
+            .floating-buttons {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .panic-button {
+                bottom: 20px;
+                left: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            body {
+                padding-top: 90px;
+            }
+            
+            .notification-dropdown {
+                width: 280px;
+                right: -20px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .search-container {
+                display: none;
+            }
+            
+            .logo {
+                margin-right: 0;
+            }
+        }
+
+        /* Add these new styles for petition modal */
+        .petition-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2004;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .petition-modal-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .petition-form .form-group {
+            margin-bottom: 16px;
+        }
+
+        .petition-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+
+        .petition-form input,
+        .petition-form textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .petition-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .petition-goal {
+            display: flex;
+            align-items: center;
+        }
+
+        .petition-goal span {
+            margin: 0 10px;
+        }
+
+        .petition-button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--purple);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background-color 0.2s;
+        }
+
+        .petition-button:hover {
+            background-color: var(--light-purple);
+        }
+
+        /* Petition post styling */
+        .petition-post {
+            border-left: 4px solid var(--purple);
+            padding-left: 12px;
+            margin-bottom: 16px;
+        }
+
+        .petition-title {
+            font-weight: 600;
+            color: var(--purple);
+            margin-bottom: 8px;
+        }
+
+        .petition-progress {
+            height: 8px;
+            background-color: #f0f2f5;
+            border-radius: 4px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+
+        .petition-progress-bar {
+            height: 100%;
+            background-color: var(--purple);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .petition-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--medium-gray);
+        }
+
+        .petition-sign-button {
+            background-color: var(--purple);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .petition-sign-button:hover {
+            background-color: var(--light-purple);
+        }
+
+        .petition-sign-button.signed {
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+        }
+
+        .petition-download {
+            background-color: transparent;
+            color: var(--purple);
+            border: 1px solid var(--purple);
+            border-radius: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 8px;
+            margin-left: 8px;
+            transition: all 0.2s;
+        }
+
+        .petition-download:hover {
+            background-color: var(--purple);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Top Alert Bar -->
+    <div class="alert-bar">
+        <span>🔴 BREAKING: Protests cases rose by 20% in 2024. Stand with LALELA today!</span>
+        <span class="close-alert"><i class="fas fa-times"></i></span>
+    </div>
+    
+    <!-- Fixed Header -->
+    <div class="main-header">
+        <div class="header-content">
+            <div class="logo">LALELA</div> <!-- Changed from AquaSafe to LALELA -->
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search posts or users...">
+            </div>
+            <div class="header-icons">
+                <div class="header-icon" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                    <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">Notifications</div>
+                        <div class="no-notifications" style="padding: 20px; text-align: center; color: var(--medium-gray);">
+                            No new notifications
+                        </div>
+                    </div>
+                </div>
+                <div class="header-icon" id="createPostBtn">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="profile-pic" id="userProfilePic">
+                    <img src="https://via.placeholder.com/150" alt="Profile Picture">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Middle Content - Posts -->
+        <div class="middle-content">
+            <!-- Create Post -->
+            <div class="create-post">
+                <div class="create-post-header">
+                    <div class="profile-pic" id="createPostProfilePic">
+                        <img src="https://via.placeholder.com/150" alt="Profile Picture">
+                    </div>
+                    <input type="text" placeholder="What's on your mind?" id="whatsOnYourMind">
+                </div>
+                <div class="create-post-divider"></div>
+                <div class="create-post-options">
+                    <div class="create-post-option" id="photoVideoOption">
+                        <i class="fas fa-image"></i>
+                        <span>Photo/Video</span>
+                    </div>
+                    <div class="create-post-option" id="tagSomeoneOption">
+                        <i class="fas fa-user-tag"></i>
+                        <span>Tag Someone</span>
+                    </div>
+                    <div class="create-post-option" id="locationOption">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Location</span>
+                    </div>
+                    <div class="attachment-option" id="petitionModalOption">
+                        <i class="fas fa-pen-fancy"></i>
+                        <span>Start Petition</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Posts Feed -->
+            <div id="postsFeed">
+                <!-- Posts will be loaded here dynamically -->
+                <div class="no-posts">
+                    <p>No posts yet. Be the first to share something!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Emergency Numbers -->
+        <div class="right-sidebar">
+            <div class="emergency-numbers">
+                <h3>Emergency Numbers</h3>
+                <div class="emergency-number">
+                    <i class="fas fa-phone"></i>
+                    <a href="tel:10111">Police Emergency: 10111</a>
+                </div>
+                <div class="emergency-number">
+                    <i class="fas fa-ambulance"></i>
+                    <a href="tel:10177">Ambulance: 10177</a>
+                </div>
+                <div class="emergency-number">
+                    <i class="fas fa-fire"></i>
+                    <a href="tel:10177">Fire Department: 10177</a>
+                </div>
+                <div class="emergency-number">
+                    <i class="fas fa-heartbeat"></i>
+                    <a href="tel:0800012999">Protests Helpline: 0800 012 999</a>
+                </div>
+                <div class="emergency-number">
+                    <i class="fas fa-child"></i>
+                    <a href="tel:0800055555">Childline: 0800 055 555</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panic Button -->
+    <button class="panic-button" id="panicButton">
+        PANIC<br>BUTTON
+    </button>
+
+    <!-- Panic Modal -->
+    <div class="panic-modal" id="panicModal">
+        <div class="panic-modal-content">
+            <h3>Emergency Alert</h3>
+            <p>Your emergency contacts are being notified with your live location, camera feed, and audio recording.</p>
+            
+            <div class="camera-preview-container">
+                <video id="cameraPreview" class="camera-preview" autoplay muted></video>
+                <div class="recording-indicator">RECORDING</div>
+            </div>
+            
+            <div class="panic-status">
+                <div class="panic-status-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="panic-status-icon" id="locationStatusIcon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <span id="locationStatusText">Sharing location...</span>
+                    </div>
+                </div>
+                <div class="panic-status-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="panic-status-icon" id="cameraStatusIcon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <span id="cameraStatusText">Recording video...</span>
+                    </div>
+                </div>
+                <div class="panic-status-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="panic-status-icon" id="micStatusIcon">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <span id="micStatusText">Recording audio...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panic-buttons">
+                <button class="panic-button-cancel" id="cancelPanic">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Post Modal -->
+    <div class="modal" id="createPostModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Post</h3>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="post-form" id="postForm">
+                    <div class="anonymous-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="anonymousToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span>Post Anonymously</span>
+                    </div>
+                    <div class="form-group">
+                        <textarea placeholder="What's on your mind?" id="postContent"></textarea>
+                    </div>
+                    
+                    <!-- Tagged Users -->
+                    <div class="tagged-users-container" id="taggedUsersContainer"></div>
+                    
+                    <!-- Image Preview -->
+                    <div class="image-preview-container" id="imagePreviewContainer" style="display: none;">
+                        <img id="imagePreview" class="image-preview" src="#" alt="Preview">
+                        <button type="button" class="remove-image" id="removeImageBtn">&times;</button>
+                    </div>
+                    
+                    <!-- Location Tag -->
+                    <div class="location-tag" id="locationTag" style="display: none;">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span id="locationText"></span>
+                        <span class="remove-location" id="removeLocationBtn">&times;</span>
+                    </div>
+                    
+                    <div class="attachment-options">
+                        <div class="attachment-option" id="photoVideoModalOption">
+                            <i class="fas fa-image"></i>
+                            <span>Photo/Video</span>
+                            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="attachment-option" id="tagSomeoneModalOption">
+                            <i class="fas fa-user-tag"></i>
+                            <span>Tag Someone</span>
+                        </div>
+                        <div class="attachment-option" id="locationModalOption">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Location</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="post-button" id="submitPost">Post</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tagging Modal -->
+    <div class="tagging-modal" id="taggingModal">
+        <div class="tagging-modal-content">
+            <div class="tagging-modal-header">
+                <h3>Tag People</h3>
+                <button class="close-modal" id="closeTaggingModal">&times;</button>
+            </div>
+            <div class="tag-search-container">
+                <i class="fas fa-search tag-search-icon"></i>
+                <input type="text" class="tag-search-input" id="tagSearchInput" placeholder="Search for people to tag">
+            </div>
+            <div class="user-tag-list" id="userTagList">
+                <!-- Users will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="report-modal" id="reportModal">
+        <div class="report-modal-content">
+            <h3>Report Post</h3>
+            <p>Please select a reason for reporting this post:</p>
+            <div class="report-reasons">
+                <div class="report-reason">
+                    <input type="radio" id="reason1" name="reportReason" value="Inappropriate Content">
+                    <label for="reason1">Inappropriate Content</label>
+                </div>
+                <div class="report-reason">
+                    <input type="radio" id="reason2" name="reportReason" value="Harassment or Bullying">
+                    <label for="reason2">Harassment or Bullying</label>
+                </div>
+                <div class="report-reason">
+                    <input type="radio" id="reason3" name="reportReason" value="False Information">
+                    <label for="reason3">False Information</label>
+                </div>
+                <div class="report-reason">
+                    <input type="radio" id="reason4" name="reportReason" value="Spam">
+                    <label for="reason4">Spam</label>
+                </div>
+                <div class="report-reason">
+                    <input type="radio" id="reason5" name="reportReason" value="Other">
+                    <label for="reason5">Other</label>
+                </div>
+            </div>
+            <textarea class="report-textarea" id="reportDetails" placeholder="Please provide additional details..."></textarea>
+            <div class="report-buttons">
+                <button class="report-button report-cancel" id="cancelReport">Cancel</button>
+                <button class="report-button report-submit" id="submitReport">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Buttons -->
+    <div class="floating-buttons">
+        <div class="floating-button" id="chatbotBtn" data-tooltip="Chatbot">
+            Q
+        </div>
+        <div class="floating-button" id="wallOfHonorBtn" data-tooltip="Wall of Honor">
+            W
+        </div>
+    </div>
+
+    <!-- Petition Modal -->
+    <div class="petition-modal" id="petitionModal">
+        <div class="petition-modal-content">
+            <div class="modal-header">
+                <h3>Create Petition</h3>
+                <button class="close-modal" id="closePetitionModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="petition-form" id="petitionForm">
+                    <div class="anonymous-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="petitionAnonymousToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span>Create Anonymously</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="petitionTitle">Petition Title</label>
+                        <input type="text" id="petitionTitle" placeholder="What are you petitioning for?" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="petitionDescription">Description</label>
+                        <textarea id="petitionDescription" placeholder="Explain the purpose of your petition and why people should support it..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Signature Goal</label>
+                        <div class="petition-goal">
+                            <input type="number" id="petitionGoal" min="10" value="100" required>
+                            <span>signatures</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Add Image (Optional)</label>
+                        <input type="file" id="petitionImageUpload" accept="image/*">
+                        <div class="image-preview-container" id="petitionImagePreviewContainer" style="display: none; margin-top: 10px;">
+                            <img id="petitionImagePreview" class="image-preview" src="#" alt="Petition Preview">
+                            <button type="button" class="remove-image" id="removePetitionImageBtn">&times;</button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="petition-button" id="submitPetition">Create Petition</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // All the JavaScript code remains the same as in the original
+        // Only the color variables and logo text have been updated in the CSS and HTML
+        // The JavaScript functionality is unchanged
+        
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getDatabase, 
+            ref, 
+            get, 
+            set, 
+            onValue,
+            push,
+            update,
+            child,
+            remove
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVVNN0hHrR90FiEaPoJt8H4MVR8KBkWZw",
+            authDomain: "community-forum-75dc6.firebaseapp.com",
+            databaseURL: "https://community-forum-75dc6-default-rtdb.firebaseio.com",
+            projectId: "community-forum-75dc6",
+            storageBucket: "community-forum-75dc6.appspot.com",
+            messagingSenderId: "524182558257",
+            appId: "1:524182558257:web:3612faacdd8fbcb288a710",
+            measurementId: "G-JGMRZDKTG2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const storage = getStorage(app);
+
+        // DOM Elements
+        const createPostBtn = document.getElementById('createPostBtn');
+        const whatsOnYourMind = document.getElementById('whatsOnYourMind');
+        const createPostModal = document.getElementById('createPostModal');
+        const closeModal = document.getElementById('closeModal');
+        const postForm = document.getElementById('postForm');
+        const postContent = document.getElementById('postContent');
+        const submitPost = document.getElementById('submitPost');
+        const postsFeed = document.getElementById('postsFeed');
+        const userProfilePic = document.getElementById('userProfilePic');
+        const createPostProfilePic = document.getElementById('createPostProfilePic');
+        const chatbotBtn = document.getElementById('chatbotBtn');
+        const wallOfHonorBtn = document.getElementById('wallOfHonorBtn');
+        const anonymousToggle = document.getElementById('anonymousToggle');
+        const closeAlert = document.querySelector('.close-alert');
+        const photoVideoOption = document.getElementById('photoVideoOption');
+        const tagSomeoneOption = document.getElementById('tagSomeoneOption');
+        const locationOption = document.getElementById('locationOption');
+        const photoVideoModalOption = document.getElementById('photoVideoModalOption');
+        const tagSomeoneModalOption = document.getElementById('tagSomeoneModalOption');
+        const locationModalOption = document.getElementById('locationModalOption');
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const removeImageBtn = document.getElementById('removeImageBtn');
+        const locationTag = document.getElementById('locationTag');
+        const locationText = document.getElementById('locationText');
+        const removeLocationBtn = document.getElementById('removeLocationBtn');
+        const taggingModal = document.getElementById('taggingModal');
+        const closeTaggingModal = document.getElementById('closeTaggingModal');
+        const tagSearchInput = document.getElementById('tagSearchInput');
+        const userTagList = document.getElementById('userTagList');
+        const taggedUsersContainer = document.getElementById('taggedUsersContainer');
+        const reportModal = document.getElementById('reportModal');
+        const cancelReport = document.getElementById('cancelReport');
+        const submitReport = document.getElementById('submitReport');
+        const reportDetails = document.getElementById('reportDetails');
+        const panicButton = document.getElementById('panicButton');
+        const panicModal = document.getElementById('panicModal');
+        const cancelPanic = document.getElementById('cancelPanic');
+        const cameraPreview = document.getElementById('cameraPreview');
+        const locationStatusIcon = document.getElementById('locationStatusIcon');
+        const locationStatusText = document.getElementById('locationStatusText');
+        const cameraStatusIcon = document.getElementById('cameraStatusIcon');
+        const cameraStatusText = document.getElementById('cameraStatusText');
+        const micStatusIcon = document.getElementById('micStatusIcon');
+        const micStatusText = document.getElementById('micStatusText');
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationBadge = document.getElementById('notificationBadge');
+
+        // State variables
+        let currentUser = null;
+        let userData = {};
+        let selectedImageFile = null;
+        let currentLocation = null;
+        let postsData = {};
+        let allUsers = [];
+        let taggedUsers = [];
+        let lastAtPosition = -1;
+        let currentPostToReport = null;
+        let notifications = [];
+        let mediaStream = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let emergencyAlertId = null;
+        let locationInterval = null;
+
+        // Initialize the home page
+        function initHome() {
+            setupEventListeners();
+            checkAuthState();
+            loadPosts();
+            loadAllUsers();
+            loadNotifications();
+        }
+
+        // Check authentication state
+        function checkAuthState() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    loadUserData(user.uid);
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+
+        // Load user data from Firebase
+        function loadUserData(userId) {
+            const userRef = ref(database, `users/${userId}`);
+            
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    userData = data;
+                    updateProfileUI(data);
+                }
+            });
+        }
+
+        // Update profile UI elements
+        function updateProfileUI(data) {
+            // Update profile pictures
+            if (data.photoURL) {
+                userProfilePic.querySelector('img').src = data.photoURL;
+                createPostProfilePic.querySelector('img').src = data.photoURL;
+            } else {
+                const initial = data.name ? data.name.charAt(0).toUpperCase() : 'U';
+                const placeholder = `https://ui-avatars.com/api/?name=${initial}&background=3498db&color=fff`; // Changed from FF6B00 to 3498db (blue)
+                userProfilePic.querySelector('img').src = placeholder;
+                createPostProfilePic.querySelector('img').src = placeholder;
+            }
+        }
+
+        // Load all users for tagging
+        function loadAllUsers() {
+            const usersRef = ref(database, 'users');
+            
+            onValue(usersRef, (snapshot) => {
+                const users = snapshot.val() || {};
+                allUsers = Object.entries(users).map(([id, user]) => ({ id, ...user }));
+                renderUserTagList(allUsers);
+            });
+        }
+
+        // Load notifications from Firebase
+        function loadNotifications() {
+            if (!currentUser) return;
+            
+            const notificationsRef = ref(database, `users/${currentUser.uid}/notifications`);
+            
+            onValue(notificationsRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                notifications = Object.entries(data).map(([id, notification]) => ({ id, ...notification }));
+                updateNotificationUI();
+            });
+        }
+
+        // Update notification UI
+        function updateNotificationUI() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            
+            if (unreadCount > 0) {
+                notificationBadge.textContent = unreadCount;
+                notificationBadge.style.display = 'flex';
+                
+                // Update dropdown content
+                notificationDropdown.innerHTML = `
+                    <div class="notification-header">Notifications</div>
+                    ${notifications.map(notification => `
+                        <div class="notification-item" data-notification-id="${notification.id}">
+                            <div class="notification-avatar">
+                                <img src="${notification.senderPhotoURL || 'https://via.placeholder.com/150'}" alt="${notification.senderName}">
+                            </div>
+                            <div class="notification-content">
+                                <div>${notification.message}</div>
+                                <div class="notification-time">${formatTime(notification.timestamp)}</div>
+                                ${!notification.read ? `<div class="notification-mark-read">Mark as read</div>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            } else {
+                notificationBadge.style.display = 'none';
+                notificationDropdown.innerHTML = `
+                    <div class="notification-header">Notifications</div>
+                    <div class="no-notifications" style="padding: 20px; text-align: center; color: var(--medium-gray);">
+                        No new notifications
+                    </div>
+                `;
+            }
+        }
+
+        // Format time for notifications
+        function formatTime(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return "Just now";
+            if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+            if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+            return `${days} day${days === 1 ? '' : 's'} ago`;
+        }
+
+        // Mark notification as read
+        function markNotificationAsRead(notificationId) {
+            if (!currentUser) return;
+            
+            const notificationRef = ref(database, `users/${currentUser.uid}/notifications/${notificationId}/read`);
+            set(notificationRef, true);
+        }
+
+        // Render user list for tagging
+        function renderUserTagList(users) {
+            userTagList.innerHTML = '';
+            
+            users.forEach(user => {
+                if (user.id === currentUser.uid) return; // Skip current user
+                
+                const isTagged = taggedUsers.some(u => u.id === user.id);
+                const userElement = document.createElement('div');
+                userElement.className = 'user-tag-item';
+                userElement.innerHTML = `
+                    <div class="user-tag-avatar">
+                        <img src="${user.photoURL || 'https://via.placeholder.com/150'}" alt="${user.name}">
+                    </div>
+                    <div class="user-tag-info">
+                        <h4>${user.name}</h4>
+                        <p>${user.email || ''}</p>
+                    </div>
+                    <div class="user-tag-checkbox">
+                        <input type="checkbox" ${isTagged ? 'checked' : ''} data-user-id="${user.id}">
+                    </div>
+                `;
+                
+                const checkbox = userElement.querySelector('input');
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        taggedUsers.push(user);
+                        // Add mention to post content
+                        if (lastAtPosition !== -1) {
+                            const currentText = postContent.value;
+                            const newText = currentText.substring(0, lastAtPosition) + 
+                                          `@${user.name}` + 
+                                          currentText.substring(postContent.selectionStart);
+                            postContent.value = newText;
+                            lastAtPosition = -1;
+                        }
+                    } else {
+                        taggedUsers = taggedUsers.filter(u => u.id !== user.id);
+                    }
+                    renderTaggedUsers();
+                });
+                
+                userTagList.appendChild(userElement);
+            });
+        }
+
+        // Render tagged users
+        function renderTaggedUsers() {
+            taggedUsersContainer.innerHTML = '';
+            
+            taggedUsers.forEach(user => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'tagged-user';
+                tagElement.innerHTML = `
+                    ${user.name}
+                    <span class="tagged-user-remove" data-user-id="${user.id}">&times;</span>
+                `;
+                
+                const removeBtn = tagElement.querySelector('.tagged-user-remove');
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    taggedUsers = taggedUsers.filter(u => u.id !== user.id);
+                    renderTaggedUsers();
+                    
+                    // Also uncheck in the user list
+                    const checkboxes = userTagList.querySelectorAll('input');
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox.dataset.userId === user.id) {
+                            checkbox.checked = false;
+                        }
+                    });
+                    
+                    // Remove mention from post content
+                    const mentionPattern = new RegExp(`@${user.name}`, 'g');
+                    postContent.value = postContent.value.replace(mentionPattern, '');
+                });
+                
+                taggedUsersContainer.appendChild(tagElement);
+            });
+        }
+
+        // Load posts from Firebase
+        function loadPosts() {
+            const postsRef = ref(database, 'posts');
+            
+            onValue(postsRef, (snapshot) => {
+                const posts = snapshot.val() || {};
+                postsData = posts;
+                displayPosts(posts);
+            });
+        }
+
+        // Display posts in the feed
+        function displayPosts(posts) {
+            postsFeed.innerHTML = '';
+            
+            if (Object.keys(posts).length === 0) {
+                postsFeed.innerHTML = `
+                    <div class="no-posts">
+                        <p>No posts yet. Be the first to share something!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Convert to array and sort by timestamp (newest first)
+            const postsArray = Object.entries(posts).map(([id, post]) => ({ id, ...post }));
+            postsArray.sort((a, b) => b.timestamp - a.timestamp);
+            
+            postsArray.forEach(post => {
+                const postElement = createPostElement(post);
+                postsFeed.appendChild(postElement);
+            });
+        }
+
+        // Create a post element
+        function createPostElement(post) {
+            const postElement = document.createElement('div');
+            postElement.className = 'post';
+            postElement.dataset.postId = post.id;
+            
+            // Format date
+            const postDate = new Date(post.timestamp);
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const formattedDate = postDate.toLocaleDateString('en-US', options);
+            
+            // Handle anonymous posts
+            const isAnonymous = post.anonymous;
+            const userName = isAnonymous ? 'Anonymous' : (post.authorName || 'User');
+            const userAvatar = isAnonymous ? 
+                'https://ui-avatars.com/api/?name=A&background=7A4EAB&color=fff' : 
+                (post.authorPhotoURL || 'https://via.placeholder.com/150');
+            
+            // Check if current user has liked this post
+            const hasLiked = post.likes && post.likes[currentUser?.uid] === true;
+            
+            // Check if current user is the author of this post
+            const isAuthor = (post.realAuthorId === currentUser?.uid) || (post.authorId === currentUser?.uid);
+            
+            // Process content with mentions
+            let processedContent = post.content;
+            if (post.mentions) {
+                Object.entries(post.mentions).forEach(([userId, userData]) => {
+                    if (userData.name) {
+                        const mentionPattern = new RegExp(`@${userData.name}`, 'g');
+                        processedContent = processedContent.replace(mentionPattern, 
+                            `<span class="mention">@${userData.name}</span>`);
+                    }
+                });
+            }
+            
+            postElement.innerHTML = `
+                <div class="post-header">
+                    <div class="profile-pic">
+                        <img src="${userAvatar}" alt="Profile Picture">
+                    </div>
+                    <div class="post-user-info">
+                        <h4>${userName}</h4>
+                        <p>${formattedDate}</p>
+                        ${post.location ? `<p><i class="fas fa-map-marker-alt"></i> ${post.location}</p>` : ''}
+                    </div>
+                    <div class="post-options">
+                        <button class="post-options-btn">⋮</button>
+                        <div class="post-options-menu" id="postOptionsMenu_${post.id}">
+                            ${isAuthor ? `
+                                <div class="post-option delete-post" data-post-id="${post.id}">
+                                    <i class="fas fa-trash"></i>
+                                    <span>Delete Post</span>
+                                </div>
+                            ` : ''}
+                            <div class="post-option report-post" data-post-id="${post.id}">
+                                <i class="fas fa-flag"></i>
+                                <span>Report Post</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>${processedContent}</p>
+                    ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image" alt="Post image">` : ''}
+                </div>
+                <div class="post-footer">
+                    <div class="post-stats">
+                        <span>${post.likes ? Object.keys(post.likes).length : 0} likes</span>
+                        <span>${post.commentCount || 0} comments</span>
+                    </div>
+                    <div class="post-divider"></div>
+                    <div class="post-actions">
+                        <div class="post-action like-action">
+                            <i class="far ${hasLiked ? 'fa-thumbs-up' : 'fa-thumbs-up'}"></i>
+                            <span>${hasLiked ? 'Liked' : 'Like'}</span>
+                            <div class="reaction-options">
+                                <span class="reaction-option" data-reaction="👍">👍</span>
+                                <span class="reaction-option" data-reaction="❤️">❤️</span>
+                                <span class="reaction-option" data-reaction="😮">😮</span>
+                                <span class="reaction-option" data-reaction="😢">😢</span>
+                                <span class="reaction-option" data-reaction="😡">😡</span>
+                            </div>
+                        </div>
+                        <div class="post-action comment-action" data-post-id="${post.id}">
+                            <i class="far fa-comment"></i>
+                            <span>Comment</span>
+                        </div>
+                        <div class="post-action share-action" data-post-id="${post.id}">
+                            <i class="fas fa-share"></i>
+                            <span>Share</span>
+                        </div>
+                    </div>
+                    ${post.comments ? createCommentsSection(post.comments, post.id) : createCommentsSection({}, post.id)}
+                </div>
+            `;
+            
+            // Add event listeners to the post's interactive elements
+            addPostEventListeners(postElement, post);
+            
+            return postElement;
+        }
+
+        // Create comments section HTML with disclaimer
+        function createCommentsSection(comments, postId) {
+            let commentsHTML = '<div class="comments-section">';
+
+            // Add friendly disclaimer
+            commentsHTML += `
+                <div class="comment-disclaimer">
+                    <i class="fas fa-heart"></i>
+                    Remember to be kind and respectful in your comments. 
+                    This is a safe space for sharing and support.
+                </div>
+            `;
+            
+            // Convert comments object to array and sort by timestamp
+            const commentsArray = Object.entries(comments).map(([id, comment]) => ({ id, ...comment }));
+            commentsArray.sort((a, b) => a.timestamp - b.timestamp);
+            
+            // Display up to 3 comments initially
+            const commentsToShow = commentsArray.slice(0, 3);
+            
+            commentsToShow.forEach(comment => {
+                const isAnonymous = comment.anonymous;
+                const userName = isAnonymous ? 'Anonymous' : (comment.authorName || 'User');
+                const userAvatar = isAnonymous ? 
+                    'https://ui-avatars.com/api/?name=A&background=7A4EAB&color=fff' : 
+                    (comment.authorPhotoURL || 'https://via.placeholder.com/150');
+                
+                const commentDate = new Date(comment.timestamp);
+                const formattedDate = commentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                
+                // Check if current user has liked this comment
+                const hasLiked = comment.likes && comment.likes[currentUser?.uid] === true;
+                
+                commentsHTML += `
+                    <div class="comment" data-comment-id="${comment.id}">
+                        <div class="comment-avatar">
+                            <img src="${userAvatar}" alt="Profile Picture">
+                        </div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">${userName}</span>
+                                <span class="comment-time">${formattedDate}</span>
+                            </div>
+                            <div class="comment-text">${comment.text}</div>
+                            <div class="comment-actions">
+                                <span class="comment-action like-comment" data-comment-id="${comment.id}">
+                                    <i class="far ${hasLiked ? 'fa-thumbs-up' : 'fa-thumbs-up'}"></i>
+                                    ${comment.likes ? Object.keys(comment.likes).length : 0} Likes
+                                </span>
+                                <span class="comment-action reply-comment" data-comment-id="${comment.id}">
+                                    <i class="far fa-comment-dots"></i> Reply
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Add "View more comments" if there are more than 3
+            if (commentsArray.length > 3) {
+                commentsHTML += `
+                    <a href="comments.html?id=${postId}" class="view-more-comments">
+                        View all ${commentsArray.length} comments
+                    </a>
+                `;
+            }
+            
+            // Add comment form
+            commentsHTML += `
+                <form class="comment-form">
+                    <input type="text" class="comment-input" placeholder="Write a comment..." required>
+                    <div class="anonymous-toggle comment-anonymous">
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="comment-anonymous-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span>Post Anonymously</span>
+                    </div>
+                    <button type="submit" class="comment-submit">Post</button>
+                </form>
+            `;
+            
+            commentsHTML += '</div>';
+            
+            return commentsHTML;
+        }
+
+        // Add event listeners to post elements (like, comment, etc.)
+        function addPostEventListeners(postElement, post) {
+            // Like button
+            const likeButton = postElement.querySelector('.like-action');
+            if (likeButton) {
+                likeButton.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('reaction-option')) {
+                        toggleLikePost(post.id);
+                    }
+                });
+                
+                // Reaction options
+                const reactionOptions = postElement.querySelectorAll('.reaction-option');
+                reactionOptions.forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        addReaction(post.id, e.target.dataset.reaction);
+                    });
+                });
+            }
+            
+            // Comment button - redirect to comments page
+            const commentButton = postElement.querySelector('.comment-action');
+            if (commentButton) {
+                commentButton.addEventListener('click', (e) => {
+                    if (e.currentTarget.classList.contains('comment-action')) {
+                        window.location.href = `comments.html?id=${post.id}`;
+                    }
+                });
+            }
+            
+            // Share button
+            const shareButton = postElement.querySelector('.share-action');
+            if (shareButton) {
+                shareButton.addEventListener('click', (e) => {
+                    if (e.currentTarget.classList.contains('share-action')) {
+                        sharePost(post.id);
+                    }
+                });
+            }
+            
+            // Comment form
+            const commentForm = postElement.querySelector('.comment-form');
+            if (commentForm) {
+                commentForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const input = commentForm.querySelector('.comment-input');
+                    const commentText = input.value.trim();
+                    if (commentText) {
+                        addComment(post.id, commentText);
+                        input.value = '';
+                    }
+                });
+            }
+            
+            // Like comment buttons
+            const likeCommentButtons = postElement.querySelectorAll('.like-comment');
+            likeCommentButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const commentId = e.currentTarget.dataset.commentId;
+                    toggleLikeComment(post.id, commentId);
+                });
+            });
+            
+            // Reply to comment buttons
+            const replyCommentButtons = postElement.querySelectorAll('.reply-comment');
+            replyCommentButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const commentId = e.currentTarget.dataset.commentId;
+                    const commentElement = e.currentTarget.closest('.comment');
+                    const commentAuthor = commentElement.querySelector('.comment-author').textContent;
+                    const commentForm = postElement.querySelector('.comment-form');
+                    const commentInput = commentForm.querySelector('.comment-input');
+                    commentInput.value = `@${commentAuthor} `;
+                    commentInput.focus();
+                });
+            });
+        }
+
+        // Share post function
+        function sharePost(postId) {
+            const post = postsData[postId];
+            if (!post) return;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Check out this post on LALELA', // Changed from AquaSafe to LALELA
+                    text: post.content.substring(0, 100) + (post.content.length > 100 ? '...' : ''),
+                    url: window.location.href + '?post=' + postId
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                    // Fallback for when sharing is not supported
+                    prompt('Copy this link to share:', window.location.href + '?post=' + postId);
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                prompt('Copy this link to share:', window.location.href + '?post=' + postId);
+            }
+        }
+
+        // Toggle like on a post
+        function toggleLikePost(postId) {
+            if (!currentUser) return;
+            
+            const postRef = ref(database, `posts/${postId}/likes/${currentUser.uid}`);
+            const hasLiked = postsData[postId]?.likes?.[currentUser.uid] === true;
+            
+            if (hasLiked) {
+                // Unlike the post
+                set(postRef, null);
+                
+                // Remove notification if exists
+                const notificationRef = ref(database, `users/${postsData[postId].realAuthorId}/notifications`);
+                get(notificationRef).then((snapshot) => {
+                    const notifications = snapshot.val() || {};
+                    for (const [id, notification] of Object.entries(notifications)) {
+                        if (notification.postId === postId && notification.type === 'like' && notification.senderId === currentUser.uid) {
+                            remove(ref(database, `users/${postsData[postId].realAuthorId}/notifications/${id}`));
+                            break;
+                        }
+                    }
+                });
+            } else {
+                // Like the post
+                set(postRef, true);
+                
+                // Create notification for post author if not the current user
+                if (postsData[postId].realAuthorId !== currentUser.uid) {
+                    const notificationRef = ref(database, `users/${postsData[postId].realAuthorId}/notifications`);
+                    const newNotificationRef = push(notificationRef);
+                    
+                    set(newNotificationRef, {
+                        type: 'like',
+                        message: `${userData.name || 'Someone'} liked your post`,
+                        postId: postId,
+                        senderId: currentUser.uid,
+                        senderName: userData.name || 'User',
+                        senderPhotoURL: userData.photoURL || null,
+                        timestamp: Date.now(),
+                        read: false
+                    });
+                }
+            }
+        }
+
+        // Toggle like on a comment
+        function toggleLikeComment(postId, commentId) {
+            if (!currentUser) return;
+            
+            const commentRef = ref(database, `posts/${postId}/comments/${commentId}/likes/${currentUser.uid}`);
+            const hasLiked = postsData[postId]?.comments?.[commentId]?.likes?.[currentUser.uid] === true;
+            
+            if (hasLiked) {
+                // Unlike the comment
+                set(commentRef, null);
+            } else {
+                // Like the comment
+                set(commentRef, true);
+                
+                // Create notification for comment author if not the current user
+                const commentAuthorId = postsData[postId].comments[commentId].authorId;
+                if (commentAuthorId !== currentUser.uid && commentAuthorId !== 'anonymous') {
+                    const notificationRef = ref(database, `users/${commentAuthorId}/notifications`);
+                    const newNotificationRef = push(notificationRef);
+                    
+                    set(newNotificationRef, {
+                        type: 'comment_like',
+                        message: `${userData.name || 'Someone'} liked your comment`,
+                        postId: postId,
+                        commentId: commentId,
+                        senderId: currentUser.uid,
+                        senderName: userData.name || 'User',
+                        senderPhotoURL: userData.photoURL || null,
+                        timestamp: Date.now(),
+                        read: false
+                    });
+                }
+            }
+        }
+
+        // Add reaction to a post
+        function addReaction(postId, reaction) {
+            if (!currentUser) return;
+            
+            const postRef = ref(database, `posts/${postId}/reactions/${currentUser.uid}`);
+            set(postRef, reaction);
+            
+            // Create notification for post author if not the current user
+            if (postsData[postId].realAuthorId !== currentUser.uid) {
+                const notificationRef = ref(database, `users/${postsData[postId].realAuthorId}/notifications`);
+                const newNotificationRef = push(notificationRef);
+                
+                set(newNotificationRef, {
+                    type: 'reaction',
+                    message: `${userData.name || 'Someone'} reacted ${reaction} to your post`,
+                    postId: postId,
+                    senderId: currentUser.uid,
+                    senderName: userData.name || 'User',
+                    senderPhotoURL: userData.photoURL || null,
+                    timestamp: Date.now(),
+                    read: false
+                });
+            }
+        }
+
+        // Add comment to a post
+        function addComment(postId, commentText) {
+            if (!currentUser || !commentText) return;
+            
+            const commentsRef = ref(database, `posts/${postId}/comments`);
+            const newCommentRef = push(commentsRef);
+            
+            // Check if anonymous toggle is checked for the comment
+            const postElement = document.querySelector(`#postsFeed [data-post-id="${postId}"]`);
+            const isAnonymous = postElement.querySelector('.comment-anonymous-toggle')?.checked;
+            
+            set(newCommentRef, {
+                text: commentText,
+                authorId: isAnonymous ? 'anonymous' : currentUser.uid,
+                authorName: isAnonymous ? null : (userData.name || 'User'),
+                authorPhotoURL: isAnonymous ? null : (userData.photoURL || 'https://via.placeholder.com/150'),
+                anonymous: isAnonymous,
+                timestamp: Date.now(),
+                likes: {}
+            });
+            
+            // Update comment count
+            const postRef = ref(database, `posts/${postId}`);
+            update(postRef, {
+                commentCount: postsData[postId]?.commentCount ? postsData[postId].commentCount + 1 : 1
+            });
+            
+            // Create notification for post author if not the current user
+            if (postsData[postId].realAuthorId !== currentUser.uid) {
+                const notificationRef = ref(database, `users/${postsData[postId].realAuthorId}/notifications`);
+                const newNotificationRef = push(notificationRef);
+                
+                set(newNotificationRef, {
+                    type: 'comment',
+                    message: `${isAnonymous ? 'Anonymous' : (userData.name || 'Someone')} commented on your post`,
+                    postId: postId,
+                    senderId: isAnonymous ? 'anonymous' : currentUser.uid,
+                    senderName: isAnonymous ? null : (userData.name || 'User'),
+                    senderPhotoURL: isAnonymous ? null : (userData.photoURL || null),
+                    timestamp: Date.now(),
+                    read: false
+                });
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Profile picture click handler - navigates to dashboard
+            userProfilePic.addEventListener('click', () => {
+                window.location.href = 'dashboard.html';
+            });
+
+            // Create post button
+            createPostBtn.addEventListener('click', () => {
+                createPostModal.style.display = 'flex';
+            });
+            
+            // "What's on your mind" input
+            whatsOnYourMind.addEventListener('click', () => {
+                createPostModal.style.display = 'flex';
+            });
+            
+            // Close modal
+            closeModal.addEventListener('click', () => {
+                createPostModal.style.display = 'none';
+                resetPostForm();
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === createPostModal) {
+                    createPostModal.style.display = 'none';
+                    resetPostForm();
+                }
+                if (e.target === taggingModal) {
+                    taggingModal.style.display = 'none';
+                }
+                if (e.target === reportModal) {
+                    reportModal.style.display = 'none';
+                }
+                if (e.target === panicModal) {
+                    stopEmergencyRecording();
+                    panicModal.style.display = 'none';
+                }
+            });
+            
+            // Post content input
+            postContent.addEventListener('click', () => {
+                submitPost.disabled = postContent.value.trim() === '' && !selectedImageFile;
+            });
+            
+            // Form submission
+            postForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                createPost();
+            });
+            
+            // Photo/Video option
+            photoVideoOption.addEventListener('click', () => {
+                createPostModal.style.display = 'flex';
+                imageUpload.click();
+            });
+            
+            photoVideoModalOption.addEventListener('click', () => {
+                imageUpload.click();
+            });
+            
+            // Image upload
+            imageUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.type.startsWith('image/')) {
+                        selectedImageFile = file;
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            imagePreview.src = event.target.result;
+                            imagePreviewContainer.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        alert('Please select an image file (JPEG, PNG, etc.)');
+                    }
+                }
+            });
+            
+            // Remove image
+            removeImageBtn.addEventListener('click', () => {
+                selectedImageFile = null;
+                imagePreview.src = '#';
+                imagePreviewContainer.style.display = 'none';
+                imageUpload.value = '';
+            });
+            
+            // Location option
+            locationOption.addEventListener('click', () => {
+                createPostModal.style.display = 'flex';
+                getLocation();
+            });
+            
+            locationModalOption.addEventListener('click', () => {
+                getLocation();
+            });
+            
+            // Remove location
+            removeLocationBtn.addEventListener('click', () => {
+                currentLocation = null;
+                locationTag.style.display = 'none';
+            });
+            
+            // Tag someone option
+            tagSomeoneOption.addEventListener('click', () => {
+                createPostModal.style.display = 'flex';
+                showTaggingModal();
+            });
+
+            tagSomeoneModalOption.addEventListener('click', showTaggingModal);
+
+            // Close tagging modal
+            closeTaggingModal.addEventListener('click', () => {
+                taggingModal.style.display = 'none';
+            });
+
+            // Tag search input
+            tagSearchInput.addEventListener('input', () => {
+                const searchTerm = tagSearchInput.value.toLowerCase();
+                const filteredUsers = allUsers.filter(user => 
+                    (user.name && user.name.toLowerCase().includes(searchTerm)) || 
+                    (user.email && user.email.toLowerCase().includes(searchTerm))
+                );
+                renderUserTagList(filteredUsers);
+            });
+
+            // Detect @ in post content for tagging
+            postContent.addEventListener('input', (e) => {
+                const text = postContent.value;
+                const cursorPos = postContent.selectionStart;
+                
+                // Check if @ was just typed
+                if (text[cursorPos - 1] === '@') {
+                    lastAtPosition = cursorPos - 1;
+                    showTaggingModal();
+                }
+                
+                // Update submit button state
+                submitPost.disabled = text.trim() === '' && !selectedImageFile;
+            });
+            
+            // Post options
+            document.addEventListener('click', (e) => {
+                // Show/hide post options menu
+                if (e.target.classList.contains('post-options-btn')) {
+                    const menu = e.target.nextElementSibling;
+                    document.querySelectorAll('.post-options-menu').forEach(m => {
+                        if (m !== menu) m.classList.remove('show');
+                    });
+                    menu.classList.toggle('show');
+                } else {
+                    document.querySelectorAll('.post-options-menu').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                }
+
+                // Delete post
+                if (e.target.classList.contains('delete-post') || e.target.closest('.delete-post')) {
+                    const postId = e.target.closest('.post-option').dataset.postId;
+                    if (confirm("Are you sure you want to delete this post?")) {
+                        deletePost(postId);
+                    }
+                }
+
+                // Report post
+                if (e.target.classList.contains('report-post') || e.target.closest('.report-post')) {
+                    const postId = e.target.closest('.post-option').dataset.postId;
+                    showReportModal(postId);
+                }
+            });
+
+            // Report modal buttons
+            cancelReport.addEventListener('click', () => {
+                reportModal.style.display = 'none';
+            });
+
+            submitReport.addEventListener('click', () => {
+                const reason = document.querySelector('input[name="reportReason"]:checked')?.value;
+                const details = reportDetails.value.trim();
+                
+                if (!reason) {
+                    alert("Please select a reason for reporting");
+                    return;
+                }
+                
+                sendReport(currentPostToReport, reason, details);
+                reportModal.style.display = 'none';
+            });
+            
+            // Notification button
+            notificationBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('show');
+            });
+            
+            // Close notification dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                    notificationDropdown.classList.remove('show');
+                }
+            });
+            
+            // Mark notification as read
+            notificationDropdown.addEventListener('click', (e) => {
+                if (e.target.classList.contains('notification-mark-read')) {
+                    const notificationItem = e.target.closest('.notification-item');
+                    const notificationId = notificationItem.dataset.notificationId;
+                    markNotificationAsRead(notificationId);
+                }
+            });
+            
+            // Chatbot button
+            chatbotBtn.addEventListener('click', () => {
+                console.log("Chatbot clicked");
+            });
+            
+            // Wall of Honor button
+            wallOfHonorBtn.addEventListener('click', () => {
+                window.location.href = 'wall.html';
+            });
+            
+            // Panic Button Event Listeners
+            panicButton.addEventListener('mousedown', async function () {
+                this.classList.add('pressed');
+                panicModal.style.display = 'flex';
+                await startEmergencyRecording();
+            });
+
+            panicButton.addEventListener('mouseup', function () {
+                this.classList.remove('pressed');
+            });
+
+            // Cancel panic
+            cancelPanic.addEventListener('click', () => {
+                stopEmergencyRecording();
+                panicModal.style.display = 'none';
+            });
+
+            // Close alert bar
+            closeAlert.addEventListener('click', () => {
+                document.querySelector('.alert-bar').style.display = 'none';
+                document.querySelector('.main-header').style.top = '0';
+                document.body.style.paddingTop = '60px';
+            });
+        }
+
+        // Start emergency recording (camera, mic, location)
+        async function startEmergencyRecording() {
+            panicButton.classList.add('pressed');
+
+            // Reset status icons/texts
+            locationStatusIcon.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+            locationStatusIcon.className = 'panic-status-icon';
+            locationStatusText.textContent = 'Sharing location...';
+            cameraStatusIcon.innerHTML = '<i class="fas fa-camera"></i>';
+            cameraStatusIcon.className = 'panic-status-icon';
+            cameraStatusText.textContent = 'Recording video...';
+            micStatusIcon.innerHTML = '<i class="fas fa-microphone"></i>';
+            micStatusIcon.className = 'panic-status-icon';
+            micStatusText.textContent = 'Recording audio...';
+
+            // Get location
+            let locationData = null;
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject);
+                });
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const locationName = await getLocationName(lat, lng);
+                locationData = { lat, lng, name: locationName };
+
+                locationStatusIcon.innerHTML = '<i class="fas fa-check"></i>';
+                locationStatusIcon.className = 'panic-status-icon success';
+                locationStatusText.textContent = `Location: ${locationName}`;
+            } catch (error) {
+                locationStatusIcon.innerHTML = '<i class="fas fa-times"></i>';
+                locationStatusIcon.className = 'panic-status-icon error';
+                locationStatusText.textContent = 'Location access denied';
+            }
+
+            // Immediately save panic log to database
+            if (currentUser) {
+                await savePanicLog({
+                    userId: currentUser.uid,
+                    userName: userData.name || 'User',
+                    timestamp: Date.now(),
+                    status: 'active',
+                    location: locationData
+                });
+            }
+
+            // Access camera and microphone
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "user" },
+                    audio: true
+                });
+
+                // Show camera preview
+                cameraPreview.srcObject = mediaStream;
+                cameraPreview.play();
+
+                // Start recording
+                recordedChunks = [];
+                mediaRecorder = new MediaRecorder(mediaStream);
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.start(1000);
+
+                cameraStatusIcon.innerHTML = '<i class="fas fa-check"></i>';
+                cameraStatusIcon.className = 'panic-status-icon success';
+                cameraStatusText.textContent = 'Recording video';
+
+                micStatusIcon.innerHTML = '<i class="fas fa-check"></i>';
+                micStatusIcon.className = 'panic-status-icon success';
+                micStatusText.textContent = 'Recording audio';
+
+                // Create emergency alert in database
+                createEmergencyAlert();
+
+            } catch (error) {
+                cameraPreview.srcObject = null;
+                cameraStatusIcon.innerHTML = '<i class="fas fa-times"></i>';
+                cameraStatusIcon.className = 'panic-status-icon error';
+                cameraStatusText.textContent = 'Camera access denied';
+
+                micStatusIcon.innerHTML = '<i class="fas fa-times"></i>';
+                micStatusIcon.className = 'panic-status-icon error';
+                micStatusText.textContent = 'Microphone access denied';
+
+                // Still create emergency alert even if media fails
+                createEmergencyAlert();
+            }
+        }
+
+        async function stopEmergencyRecording() {
+            panicButton.classList.remove('pressed');
+
+            // Stop media recording
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                await new Promise(resolve => {
+                    mediaRecorder.onstop = resolve;
+                });
+
+                if (recordedChunks.length > 0) {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    uploadEmergencyRecording(blob);
+                }
+            }
+
+            // Stop media stream
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+
+            // Clear camera preview
+            if (cameraPreview.srcObject) {
+                cameraPreview.srcObject = null;
+            }
+
+            // Update emergency alert status
+            if (emergencyAlertId) {
+                const emergencyRef = ref(database, `emergencyAlerts/${emergencyAlertId}`);
+                await update(emergencyRef, {
+                    status: 'cancelled',
+                    endedAt: Date.now()
+                });
+
+                // Save panic log with recording URL if available
+                let recordingURL = null;
+                try {
+                    if (recordedChunks.length > 0) {
+                        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                        const storageReference = storageRef(storage, `emergencyRecordings/${emergencyAlertId}.webm`);
+                        await uploadBytes(storageReference, blob);
+                        recordingURL = await getDownloadURL(storageReference);
+                        await update(emergencyRef, { recordingURL });
+                    }
+                } catch (error) {
+                    // Save error to log
+                    await savePanicLog({
+                        userId: currentUser.uid,
+                        userName: userData.name || 'User',
+                        timestamp: Date.now(),
+                        status: 'cancelled',
+                        location: null,
+                        error: error.message
+                    });
+                }
+
+                await savePanicLog({
+                    userId: currentUser.uid,
+                    userName: userData.name || 'User',
+                    timestamp: Date.now(),
+                    status: 'cancelled',
+                    location: null,
+                    recordingURL
+                });
+
+                emergencyAlertId = null;
+            }
+        }
+
+        // Add this helper function near your other Firebase helpers:
+        async function savePanicLog({ userId, userName, timestamp, status, location, recordingURL, error }) {
+            const logsRef = ref(database, 'panicLogs');
+            const newLogRef = push(logsRef);
+            await set(newLogRef, {
+                userId,
+                userName,
+                timestamp,
+                status,
+                location,
+                recordingURL: recordingURL || null,
+                error: error || null
+            });
+        }
+
+        // Update createEmergencyAlert to save the initial panic log:
+        async function createEmergencyAlert() {
+            if (!currentUser) return;
+
+            const emergencyContacts = userData.emergencyContacts || [];
+            if (emergencyContacts.length === 0) {
+                alert("You haven't set up any emergency contacts. Please add them in your profile settings.");
+                return;
+            }
+
+            let locationData = null;
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject);
+                });
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const locationName = await getLocationName(lat, lng);
+                locationData = { lat, lng, name: locationName };
+            } catch (error) {
+                locationData = null;
+            }
+
+            const emergencyRef = ref(database, 'emergencyAlerts');
+            const newEmergencyRef = push(emergencyRef);
+            emergencyAlertId = newEmergencyRef.key;
+            const timestamp = Date.now();
+
+            const alertData = {
+                userId: currentUser.uid,
+                userName: userData.name || 'User',
+                userPhotoURL: userData.photoURL || null,
+                timestamp,
+                status: 'active',
+                contacts: emergencyContacts,
+                location: locationData,
+                lastUpdated: timestamp
+            };
+
+            await set(newEmergencyRef, alertData);
+
+            // Save panic log
+            await savePanicLog({
+                userId: currentUser.uid,
+                userName: userData.name || 'User',
+                timestamp,
+                status: 'active',
+                location: locationData
+            });
+        }
+
+        // Upload emergency recording to storage
+        async function uploadEmergencyRecording(blob) {
+            if (!emergencyAlertId) return;
+            
+            try {
+                const storageReference = storageRef(storage, `emergencyRecordings/${emergencyAlertId}.webm`);
+                await uploadBytes(storageReference, blob);
+                
+                // Get download URL
+                const downloadURL = await getDownloadURL(storageReference);
+                
+                // Update emergency alert with recording URL
+                const emergencyRef = ref(database, `emergencyAlerts/${emergencyAlertId}`);
+                update(emergencyRef, {
+                    recordingURL: downloadURL
+                });
+                
+            } catch (error) {
+                console.error("Error uploading emergency recording:", error);
+            }
+        }
+
+        // Show tagging modal
+        function showTaggingModal() {
+            taggingModal.style.display = 'flex';
+            tagSearchInput.value = '';
+            tagSearchInput.focus();
+            renderUserTagList(allUsers);
+        }
+
+        // Show report modal
+        function showReportModal(postId) {
+            currentPostToReport = postId;
+            document.querySelectorAll('input[name="reportReason"]').forEach(radio => {
+                radio.checked = false;
+            });
+            reportDetails.value = '';
+            reportModal.style.display = 'flex';
+        }
+
+        // Send report via email
+        async function sendReport(postId, reason, details) {
+            const post = postsData[postId];
+            const subject = `Reported Post on LALELA (ID: ${postId})`; // Changed from AquaSafe to LALELA
+            const body = `
+                Post ID: ${postId}
+                Reported by: ${userData.name} (${userData.email || 'No email'})
+                Reason: ${reason}
+                Additional Details: ${details}
+                
+                Post Content: ${post.content}
+                Author: ${post.authorName || 'Anonymous'} (${post.authorId})
+                Posted on: ${new Date(post.timestamp).toLocaleString()}
+                ${post.location ? `Location: ${post.location}` : ''}
+            `;
+            
+            try {
+                // In a real app, you would use a server-side function to send the email
+                // This is a simplified version that uses a mailto link as fallback
+                const response = await fetch('https://api.example.com/send-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        to: 'guyzconnect@gmail.com',
+                        subject: subject,
+                        text: body
+                    })
+                });
+                
+                if (response.ok) {
+                    alert("Your report has been submitted successfully. Thank you!");
+                } else {
+                    throw new Error('Failed to send report');
+                }
+            } catch (error) {
+                console.error("Error sending report:", error);
+                // Fallback to mailto link if API fails
+                const mailtoLink = `mailto:guyzconnect@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.open(mailtoLink, '_blank');
+            }
+        }
+
+        // Delete a post
+        function deletePost(postId) {
+            if (!currentUser) return;
+            
+            const postRef = ref(database, `posts/${postId}`);
+            remove(postRef)
+                .then(() => {
+                    alert("Post deleted successfully");
+                })
+                .catch((error) => {
+                    console.error("Error deleting post:", error);
+                    alert("Failed to delete post. Please try again.");
+                });
+        }
+
+        // Get location name from coordinates
+        async function getLocationName(lat, lng) {
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    return `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+                }
+                
+                const address = data.address;
+                let locationName = '';
+                
+                if (address.road) locationName += `${address.road}, `;
+                if (address.city || address.town || address.village) {
+                    locationName += `${address.city || address.town || address.village}, `;
+                }
+                if (address.state) locationName += `${address.state}, `;
+                if (address.country) locationName += address.country;
+                
+                return locationName || `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+            } catch (error) {
+                console.error("Error getting location name:", error);
+                return `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+            }
+        }
+
+        // Get user's current location
+        async function getLocation() {
+            if (navigator.geolocation) {
+                try {
+                    const position = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject);
+                    });
+                    
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    // Get readable location name
+                    const locationName = await getLocationName(lat, lng);
+                    
+                    currentLocation = locationName;
+                    locationText.textContent = currentLocation;
+                    locationTag.style.display = 'flex';
+                } catch (error) {
+                    console.error("Error getting location:", error);
+                    alert("Could not get your location. Please make sure location services are enabled.");
+                }
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Reset post form
+        function resetPostForm() {
+            postContent.value = '';
+            submitPost.disabled = true;
+            anonymousToggle.checked = false;
+            selectedImageFile = null;
+            currentLocation = null;
+            taggedUsers = [];
+            imagePreview.src = '#';
+            imagePreviewContainer.style.display = 'none';
+            locationTag.style.display = 'none';
+            taggedUsersContainer.innerHTML = '';
+            imageUpload.value = '';
+            lastAtPosition = -1;
+        }
+
+        // Create a new post
+        async function createPost() {
+            const content = postContent.value.trim();
+            if (!content && !selectedImageFile) {
+                alert("Please add some text or an image to your post");
+                return;
+            }
+            
+            const userId = currentUser.uid;
+            const postsRef = ref(database, 'posts');
+            const newPostRef = push(postsRef);
+            
+            // Process mentions in content
+            let processedContent = content;
+            let mentions = {};
+            
+            if (taggedUsers.length > 0) {
+                taggedUsers.forEach(user => {
+                    const mentionPattern = new RegExp(`@${user.name}`, 'g');
+                    processedContent = processedContent.replace(mentionPattern, 
+                        `<span class="mention" data-user-id="${user.id}">@${user.name}</span>`);
+                    
+                    // Add to mentions object
+                    mentions[user.id] = {
+                        name: user.name,
+                        photoURL: user.photoURL || null
+                    };
+                });
+            }
+            
+            // Get the actual anonymous state from the toggle
+            const isAnonymous = document.getElementById('anonymousToggle').checked;
+            
+            // Prepare post data
+            const postData = {
+                content: processedContent,
+                rawContent: content,
+                authorId: isAnonymous ? 'anonymous' : userId,
+                authorName: isAnonymous ? null : (userData.name || 'User'),
+                authorPhotoURL: isAnonymous ? null : (userData.photoURL || 'https://via.placeholder.com/150'),
+                anonymous: isAnonymous,
+                realAuthorId: userId,
+                timestamp: Date.now(),
+                likes: {},
+                comments: {},
+                mentions: mentions,
+                commentCount: 0
+            };
+            
+            // Add location if available
+            if (currentLocation) {
+                postData.location = currentLocation;
+            }
+            
+            // Upload image if selected
+            if (selectedImageFile) {
+                try {
+                    const imageRef = storageRef(storage, `posts/${newPostRef.key}/${selectedImageFile.name}`);
+                    const snapshot = await uploadBytes(imageRef, selectedImageFile);
+                    const downloadURL = await getDownloadURL(snapshot.ref);
+                    postData.imageUrl = downloadURL;
+                } catch (error) {
+                    console.error("Error uploading image:", error);
+                    alert("Failed to upload image. Please try again.");
+                    return;
+                }
+            }
+            
+            // Save the post to the database
+            set(newPostRef, postData)
+                .then(() => {
+                    resetPostForm();
+                    createPostModal.style.display = 'none';
+                })
+                .catch((error) => {
+                    console.error("Error creating post:", error);
+                    alert("Failed to create post. Please try again.");
+                });
+        }
+
+        // Initialize the home page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initHome);
+    </script>
+</body> 
+</html>

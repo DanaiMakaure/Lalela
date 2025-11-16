@@ -1,0 +1,3775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lalela - Advanced GBVF Panic Button</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* All previous CSS styles remain exactly the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            z-index: 10;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff8a00, #e52e71);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(229, 46, 113, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .visualization-section {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .controls-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .visualization-container {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        #panicCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .panic-button {
+            background: linear-gradient(145deg, #e52e71, #ff8a00);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 18px 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(229, 46, 113, 0.4);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+        
+        .panic-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(229, 46, 113, 0.6);
+        }
+        
+        .panic-button:active {
+            transform: translateY(1px);
+        }
+        
+        .panic-button.pressed {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(229, 46, 113, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(229, 46, 113, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(229, 46, 113, 0);
+            }
+        }
+        
+        .status {
+            font-size: 1.2rem;
+            padding: 12px 25px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .status.alert {
+            background: rgba(229, 46, 113, 0.3);
+            color: #ff8a8a;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        .panel h2 {
+            margin-bottom: 15px;
+            color: #ff8a8a;
+            font-size: 1.4rem;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #e52e71;
+        }
+        
+        .btn {
+            background: #4a9eff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #3a8eef;
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .contact-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .contact-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .contact-item:last-child {
+            border-bottom: none;
+        }
+        
+        .contact-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        
+        .btn-danger {
+            background: #e52e71;
+        }
+        
+        .btn-danger:hover {
+            background: #d41e61;
+        }
+        
+        .alert-log {
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .alert-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+        
+        .alert-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(229, 46, 113, 0.3);
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        /* New Feature Styles */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 4px solid #e52e71;
+        }
+        
+        .feature-card h3 {
+            color: #ff8a8a;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .safety-score {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .score-high { color: #4CAF50; }
+        .score-medium { color: #FF9800; }
+        .score-low { color: #f44336; }
+        
+        .stealth-mode {
+            background: #2d3748;
+            border: 1px solid #4a5568;
+        }
+        
+        .stealth-active {
+            background: #e53e3e;
+            border-color: #c53030;
+        }
+        
+        .evidence-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .network-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4CAF50;
+        }
+        
+        .status-dot.offline {
+            background: #f44336;
+        }
+        
+        /* Notification styles */
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 300px;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .notification-toast.warning {
+            background: #ff9800;
+        }
+        
+        .notification-toast.error {
+            background: #f44336;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Disguise Mode Styles */
+        .disguise-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .disguise-option {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .disguise-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .disguise-option.active {
+            background: rgba(229, 46, 113, 0.3);
+            border-color: #e52e71;
+        }
+        /* Fix for Disguise Mode Layout */
+#panicButtonContainer,
+#calculatorDisguise,
+#weatherDisguise {
+    transition: all 0.3s ease;
+}
+
+.disguise-hidden {
+    display: none !important;
+}
+
+/* Ensure only one disguise is visible at a time */
+.panel > div:not(.disguise-selector) {
+    position: relative;
+}
+        
+        .calculator-disguise {
+             background: linear-gradient(145deg, #e52e71, #ff8a00);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 18px 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(229, 46, 113, 0.4);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+        
+        .calculator-display {
+            background: #1a252f;
+            color: white;
+            font-size: 1.8rem;
+            text-align: right;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
+        }
+        
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        .calc-btn {
+            background: #34495e;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 1.2rem;
+            padding: 15px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .calc-btn:hover {
+            background: #3d566e;
+        }
+        
+        .calc-btn.operator {
+            background: #3498db;
+        }
+        
+        .calc-btn.equals {
+            background: #2ecc71;
+        }
+        
+        .calc-btn.clear {
+            background: #e74c3c;
+        }
+        
+        .weather-disguise {
+            background: linear-gradient(to bottom, #87CEEB, #1E90FF);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            transition: all 0.5s ease;
+            width: 100%;
+        }
+        
+        .weather-location {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .weather-temp {
+            font-size: 3rem;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .weather-desc {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+        
+        .weather-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .weather-detail {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .disguise-hidden {
+            display: none;
+        }
+        
+        /* Recording and Transcription Styles */
+        .recording-section {
+            margin-top: 20px;
+        }
+        
+        .recording-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .recording-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .record-btn {
+            background: #e52e71;
+        }
+        
+        .record-btn:hover {
+            background: #d41e61;
+        }
+        
+        .record-btn.recording {
+            background: #f44336;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .transcribe-btn {
+            background: #4CAF50;
+        }
+        
+        .transcribe-btn:hover {
+            background: #45a049;
+        }
+        
+        .transcribe-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .download-btn {
+            background: #2196F3;
+        }
+        
+        .download-btn:hover {
+            background: #0b7dda;
+        }
+        
+        .download-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .recording-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .recording-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #f44336;
+            animation: recording-pulse 1.5s infinite;
+        }
+        
+        @keyframes recording-pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .transcript-container {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .transcript-text {
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .audio-visualizer {
+            width: 100%;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        /* Community Network Styles */
+        .location-status {
+            transition: all 0.3s ease;
+        }
+        
+        .safe-place-item {
+            padding: 10px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .safe-place-item.police {
+            border-left-color: #2196F3;
+        }
+        
+        .safe-place-item.hospital {
+            border-left-color: #4CAF50;
+        }
+        
+        .safe-place-item.municipality {
+            border-left-color: #FF9800;
+        }
+        
+        .distance-badge {
+            background: #e52e71;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        /* AI Companion Danger Detection Styles */
+        .danger-detection-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .danger-level {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .danger-low { 
+            background: rgba(76, 175, 80, 0.2); 
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+        }
+        
+        .danger-medium { 
+            background: rgba(255, 152, 0, 0.2); 
+            color: #FF9800;
+            border: 2px solid #FF9800;
+        }
+        
+        .danger-high { 
+            background: rgba(244, 67, 54, 0.2); 
+            color: #f44336;
+            border: 2px solid #f44336;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .danger-critical { 
+            background: rgba(156, 39, 176, 0.3); 
+            color: #ff0000;
+            border: 2px solid #ff0000;
+            animation: blink 1s infinite;
+        }
+        
+        .detection-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .detection-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .start-detection {
+            background: #4CAF50;
+        }
+        
+        .start-detection:hover {
+            background: #45a049;
+        }
+        
+        .stop-detection {
+            background: #f44336;
+        }
+        
+        .stop-detection:hover {
+            background: #d32f2f;
+        }
+        
+        .danger-triggers {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .trigger-item {
+            padding: 5px;
+            margin: 3px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .trigger-high {
+            background: rgba(244, 67, 54, 0.3);
+            border-left: 3px solid #f44336;
+        }
+        
+        .trigger-medium {
+            background: rgba(255, 152, 0, 0.3);
+            border-left: 3px solid #FF9800;
+        }
+        
+        .trigger-low {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 3px solid #4CAF50;
+        }
+        
+        /* Voice Activation Panel Styles */
+        .voice-activation-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .voice-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .voice-indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: voice-pulse 2s infinite;
+        }
+        
+        .voice-indicator-dot.listening {
+            background: #FF9800;
+            animation: voice-pulse 0.5s infinite;
+        }
+        
+        .voice-indicator-dot.triggered {
+            background: #f44336;
+            animation: blink 0.3s infinite;
+        }
+        
+        @keyframes voice-pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .voice-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .voice-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .start-voice {
+            background: #4CAF50;
+        }
+        
+        .start-voice:hover {
+            background: #45a049;
+        }
+        
+        .stop-voice {
+            background: #f44336;
+        }
+        
+        .stop-voice:hover {
+            background: #d32f2f;
+        }
+        
+        .test-voice {
+            background: #2196F3;
+        }
+        
+        .test-voice:hover {
+            background: #0b7dda;
+        }
+        
+        .voice-words-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .voice-word-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .voice-word-item.active {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 3px solid #4CAF50;
+        }
+        
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+        
+        
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .visualization-container {
+                height: 300px;
+            }
+            
+            .panic-button {
+                font-size: 1.2rem;
+                padding: 15px 40px;
+            }
+            
+            .disguise-selector {
+                flex-direction: column;
+            }
+            
+            .recording-controls {
+                flex-direction: column;
+            }
+            
+            .detection-controls {
+                flex-direction: column;
+            }
+            
+            .voice-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Lalela AI</h1>
+            <p class="subtitle">Advanced GBVF Protection with Real-Time AI Features</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="visualization-section">
+                <div class="visualization-container">
+                    <canvas id="panicCanvas"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <!-- Disguise Mode Selector -->
+                    <div class="panel">
+                        <h2>🎭 Disguise Mode</h2>
+                        <div class="disguise-selector">
+                            <div class="disguise-option active" data-disguise="panic">Panic Button</div>
+                            <div class="disguise-option" data-disguise="calculator">Calculator</div>
+                            <div class="disguise-option" data-disguise="weather">Weather App</div>
+                        </div>
+                        
+                        <!-- Panic Button (Default) -->
+                        <div id="panicButtonContainer">
+                            <button class="panic-button" id="panicButton">
+                                ACTIVATE SAFETY SHIELD
+                            </button>
+                        </div>
+                        
+                        <!-- Calculator Disguise -->
+                        <div id="calculatorDisguise" class="calculator-disguise disguise-hidden">
+                            <div class="calculator-display" id="calcDisplay">0</div>
+                            <div class="calculator-buttons">
+                                <button class="calc-btn clear" data-action="clear">C</button>
+                                <button class="calc-btn operator" data-action="backspace">⌫</button>
+                                <button class="calc-btn operator" data-action="percentage">%</button>
+                                <button class="calc-btn operator" data-action="divide">÷</button>
+                                
+                                <button class="calc-btn" data-number="7">7</button>
+                                <button class="calc-btn" data-number="8">8</button>
+                                <button class="calc-btn" data-number="9">9</button>
+                                <button class="calc-btn operator" data-action="multiply">×</button>
+                                
+                                <button class="calc-btn" data-number="4">4</button>
+                                <button class="calc-btn" data-number="5">5</button>
+                                <button class="calc-btn" data-number="6">6</button>
+                                <button class="calc-btn operator" data-action="subtract">−</button>
+                                
+                                <button class="calc-btn" data-number="1">1</button>
+                                <button class="calc-btn" data-number="2">2</button>
+                                <button class="calc-btn" data-number="3">3</button>
+                                <button class="calc-btn operator" data-action="add">+</button>
+                                
+                                <button class="calc-btn" data-number="0" style="grid-column: span 2;">0</button>
+                                <button class="calc-btn" data-action="decimal">.</button>
+                                <button class="calc-btn equals" data-action="equals">=</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Weather App Disguise -->
+                        <div id="weatherDisguise" class="weather-disguise disguise-hidden">
+                            <div class="weather-location" id="weatherLocation">Current Location</div>
+                            <div class="weather-temp" id="weatherTemp">24°C</div>
+                            <div class="weather-desc" id="weatherDesc">Sunny</div>
+                            <div class="weather-details">
+                                <div class="weather-detail">
+                                    <div>Humidity</div>
+                                    <div id="weatherHumidity">65%</div>
+                                </div>
+                                <div class="weather-detail">
+                                    <div>Wind</div>
+                                    <div id="weatherWind">12 km/h</div>
+                                </div>
+                                <div class="weather-detail">
+                                    <div>Feels Like</div>
+                                    <div id="weatherFeelsLike">26°C</div>
+                                </div>
+                                <div class="weather-detail">
+                                    <div>UV Index</div>
+                                    <div id="weatherUV">6</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status" id="status">System Ready - You Are Protected</div>
+                </div>
+
+                <!-- Voice Activation Panel -->
+                <div class="voice-activation-panel">
+                    <h2>🎤 Voice-Activated Panic Button</h2>
+                    <div class="voice-status">
+                        <div class="voice-indicator-dot" id="voiceIndicator"></div>
+                        <span id="voiceStatusText">Voice monitoring ready</span>
+                    </div>
+                    
+                    <div class="voice-controls">
+                        <button class="voice-btn start-voice" id="startVoice">Start Listening</button>
+                        <button class="voice-btn stop-voice" id="stopVoice" disabled>Stop Listening</button>
+                        <button class="voice-btn test-voice" id="testVoice">Test Alert</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="triggerWord">Your Emergency Trigger Word:</label>
+                        <input type="text" id="triggerWord" class="form-control" placeholder="e.g., oranges, help, emergency" value="oranges">
+                    </div>
+                    
+                    <button class="btn btn-block" id="saveTriggerWord">Save Trigger Word</button>
+                    
+                    <div class="voice-words-list" id="voiceWordsList">
+                        <div class="voice-word-item active">
+                            <span>Current: <strong id="currentTriggerWord">oranges</strong></span>
+                            <small>Say this word aloud to trigger emergency</small>
+                        </div>
+                        <div class="voice-word-item">
+                            <span>Common words: help, emergency, panic</span>
+                            <small>You can use any word you'll remember</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Companion Danger Detection Panel -->
+                <div class="danger-detection-panel">
+                    <h2>🤖 AI Companion - Real-Time Danger Detection</h2>
+                    <div class="detection-controls">
+                        <button class="detection-btn start-detection" id="startDetection">Start Detection</button>
+                        <button class="detection-btn stop-detection" id="stopDetection" disabled>Stop Detection</button>
+                    </div>
+                    
+                    <div class="danger-level danger-low" id="dangerLevel">
+                        No threats detected
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="conversationInput">Enter conversation text for analysis:</label>
+                        <textarea id="conversationInput" class="form-control" rows="3" placeholder="Type or paste conversation text here for real-time danger analysis..."></textarea>
+                    </div>
+                    
+                    <button class="btn btn-block" id="analyzeText">Analyze Text for Danger</button>
+                    
+                    <div class="danger-triggers" id="dangerTriggers">
+                        <div class="trigger-item">No danger triggers detected yet</div>
+                    </div>
+                </div>
+
+                <!-- New Features Grid -->
+                <div class="feature-grid">
+                    <div class="panel">
+                        <h2>🛡️ Safety Assessment</h2>
+                        <div class="safety-score score-high" id="safetyScore">85%</div>
+                        <div id="safetyRecommendations">
+                            <div class="evidence-item">✅ Location: Safe area detected</div>
+                            <div class="evidence-item">✅ Network: 5 helpers nearby</div>
+                            <div class="evidence-item">⚠️ Time: Evening hours - stay alert</div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel">
+                        <h2>🎭 Stealth Mode</h2>
+                        <button class="btn btn-block" id="stealthToggle">Enable Stealth Mode</button>
+                        <div class="evidence-item" id="stealthStatus">Normal Mode Active</div>
+                        <div class="form-group">
+                            <label>Hidden Activation:</label>
+                            <select class="form-control" id="stealthMethod">
+                                <option value="volume">Volume Buttons (Press Both)</option>
+                                <option value="power">Power Button (5x Press)</option>
+                                <option value="screen">Screen Triple Tap</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Wearables Panel -->
+                    <div class="panel">
+                        <h2>⌚ Wearables & Forum</h2>
+                        <div class="network-status">
+                            <div class="status-dot" id="wearableStatus"></div>
+                            <span>Wearable Device Connection</span>
+                        </div>
+                        <a href="band.html" class="btn btn-block" style="margin-bottom: 10px;">Connect Wearable Device</a>
+                        <a href="prof.html" class="btn btn-block" style="margin-bottom: 10px;">Proffessional Help</a>
+                        <a href="forum.html" class="btn btn-block" style="background: #9C27B0;">Community Forum</a>
+                        <a href="ai2.html" class="btn btn-block" style="background: #9C27B0;">Lalela AI</a>
+                        <div id="wearableMessages">
+                            <div class="evidence-item">Connect your wearable device for enhanced safety monitoring</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Safe Places Panel -->
+                    <div class="panel">
+                        <h2>🏢 Safe Places</h2>
+                        <div class="network-status">
+                            <div class="status-dot"></div>
+                            <span id="safePlacesCount">Locating safe places...</span>
+                        </div>
+                        <button class="btn btn-block" id="findSafePlaces">Find Nearest Safe Places</button>
+                        <div id="safePlacesList">
+                            <div class="evidence-item">Click to find nearby safe locations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-section">
+                <!-- All existing panels remain exactly the same -->
+                <div class="panel">
+                    <h2>👤 User Profile</h2>
+                    <div class="form-group">
+                        <label for="userName">Your Name</label>
+                        <input type="text" id="userName" class="form-control" placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="userPhone">Your Phone</label>
+                        <input type="text" id="userPhone" class="form-control" placeholder="Enter your phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail">Your Email</label>
+                        <input type="email" id="userEmail" class="form-control" placeholder="Enter your email">
+                    </div>
+                    <button id="registerBtn" class="btn btn-block">Register / Update Profile</button>
+                </div>
+                
+                <!-- Safe Places Panel -->
+                <div class="panel">
+                    <h2>🏢 Safe Places</h2>
+                    <div class="form-group">
+                        <label>Find Nearest Safe Place:</label>
+                        <select class="form-control" id="safePlaceType">
+                            <option value="police">Police Station (SAPS)</option>
+                            <option value="hospital">Hospital/Clinic</option>
+                            <option value="municipality">Municipal Office</option>
+                            <option value="school">School</option>
+                            <option value="university">University</option>
+                            <option value="all">All Safe Places</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-block" id="findSafePlacesButton">Locate Nearest Safe Place</button>
+                    
+                    <div class="location-status" id="locationStatus" style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; display: none;">
+                        <div class="network-status">
+                            <div class="status-dot" id="locationDot"></div>
+                            <span id="locationStatusText">Getting your location...</span>
+                        </div>
+                    </div>
+                    
+                    <div id="safePlacesResults" style="margin-top: 15px; max-height: 200px; overflow-y: auto;">
+                        <div class="evidence-item">Click "Locate" to find nearest safe places</div>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h2>📞 Emergency Contacts</h2>
+                    <div class="form-group">
+                        <label for="contactName">Contact Name</label>
+                        <input type="text" id="contactName" class="form-control" placeholder="Enter contact name">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPhone">Contact Phone</label>
+                        <input type="text" id="contactPhone" class="form-control" placeholder="Enter contact phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactEmail">Contact Email</label>
+                        <input type="email" id="contactEmail" class="form-control" placeholder="Enter contact email">
+                    </div>
+                    <button id="addContactBtn" class="btn btn-block">Add Emergency Contact</button>
+                    
+                    <ul class="contact-list" id="contactList">
+                        <li class="contact-item">No contacts added yet</li>
+                    </ul>
+                </div>
+                
+                <div class="panel">
+                    <h2>🚨 Alert System</h2>
+                    <div class="form-group">
+                        <label>Alert Level:</label>
+                        <select class="form-control" id="alertLevel">
+                            <option value="discreet">Discreet Alert</option>
+                            <option value="urgent">Urgent Assistance</option>
+                            <option value="emergency">Full Emergency</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-block" id="quickAlert">Send Quick Alert</button>
+                    <button class="btn btn-block btn-danger" id="evidenceMode">Start Evidence Collection</button>
+                </div>
+                
+                <div class="panel">
+                    <h2>📊 Real-Time Activity Log</h2>
+                    <div class="alert-log" id="alertContainer">
+                        <div class="alert-item">
+                            <div class="alert-icon">⚠️</div>
+                            <div><strong>System:</strong> Lalela AI Initializing...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recording and Transcription Section -->
+                <div class="panel recording-section">
+                    <h2>🎙️ Audio Recording & Transcription</h2>
+                    <div class="audio-visualizer" id="audioVisualizer"></div>
+                    
+                    <div class="recording-controls">
+                        <button class="recording-btn record-btn" id="recordBtn">Start Recording</button>
+                        <button class="recording-btn transcribe-btn" id="transcribeBtn" disabled>Transcribe</button>
+                        <button class="recording-btn download-btn" id="downloadBtn" disabled>Download PDF</button>
+                    </div>
+                    
+                    <div class="recording-status" id="recordingStatus" style="display: none;">
+                        <div class="recording-indicator"></div>
+                        <span id="recordingTimer">00:00</span>
+                    </div>
+                    
+                    <div class="transcript-container" id="transcriptContainer" style="display: none;">
+                        <h3>Transcript</h3>
+                        <div class="transcript-text" id="transcriptText">No transcription yet. Record audio and click "Transcribe".</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Lalela AI | Real-Time GBVF Protection System | Live Firebase Integration</p>
+        </footer>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAoAEVCD6DuT67Gat0dG-ZP-l1HI-VTUsg",
+            authDomain: "visual-b2e51.firebaseapp.com",
+            projectId: "visual-b2e51",
+            storageBucket: "visual-b2e51.appspot.com",
+            messagingSenderId: "487601831022",
+            appId: "1:487601831022:web:3ace9896d613cfb45b3a7f",
+            measurementId: "G-PKJB30E7HQ"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Global variables
+        let userId = null;
+        let userData = null;
+        let isActivated = false;
+        let stealthMode = false;
+        let evidenceCollection = false;
+        let communityHelpers = [];
+        let safetyScore = 85;
+        let currentDisguise = 'panic'; // Default disguise
+
+        // Voice activation variables
+        let voiceRecognition = null;
+        let isVoiceListening = false;
+        let userTriggerWord = 'oranges'; // Default trigger word
+        let voiceActivationEnabled = false;
+        let falsePositivePrevention = {
+            lastTriggerTime: 0,
+            triggerCooldown: 5000, // 5 seconds cooldown between triggers
+            confidenceThreshold: 0.8, // Minimum confidence for trigger
+            consecutiveTriggers: 0,
+            maxConsecutiveTriggers: 2 // Max triggers in short period
+        };
+
+        // WhatsApp Configuration
+        const WHATSAPP_EMERGENCY_NUMBER = "+27617215090"; // Your emergency number
+
+        // Calculator variables
+        let calculator = {
+            displayValue: '0',
+            firstOperand: null,
+            waitingForSecondOperand: false,
+            operator: null
+        };
+
+        // Recording variables
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordingStartTime = null;
+        let recordingTimer = null;
+        let audioBlob = null;
+        let transcript = "";
+
+        // Three.js variables
+        let scene, camera, renderer, sphere, ring1, ring2, ring3, particles;
+
+        // Kimberley Safe Places Database
+        const kimberleySafePlaces = [
+            // Police Stations
+            { name: "Galeshewe Police Station", type: "police", latitude: -28.7224, longitude: 24.7642, address: "Galeshewe, Kimberley", phone: "053 839 0000" },
+            { name: "Kimberley Police Station", type: "police", latitude: -28.7389, longitude: 24.7703, address: "Cnr. Chapel & Dalham Road, Kimberley", phone: "053 839 1500" },
+            { name: "Roodepan Police Station", type: "police", latitude: -28.6867, longitude: 24.7786, address: "Roodepan, Kimberley", phone: "053 832 2222" },
+            
+            // Hospitals and Clinics
+            { name: "Robert Mangaliso Sobukwe Hospital", type: "hospital", latitude: -28.7264, longitude: 24.7739, address: "1140 Galeshewe, Kimberley", phone: "053 802 9111" },
+            { name: "Kimberley Hospital", type: "hospital", latitude: -28.7392, longitude: 24.7697, address: "1140 Du Toitspan Road, Kimberley", phone: "053 802 2111" },
+            { name: "Galeshewe Day Hospital", type: "hospital", latitude: -28.7219, longitude: 24.7631, address: "Galeshewe, Kimberley", phone: "053 839 2000" },
+            
+            // Municipal Offices
+            { name: "Sol Plaatje Municipality", type: "municipality", latitude: -28.7383, longitude: 24.7625, address: "Civic Centre, 22 Du Toitspan Road, Kimberley", phone: "053 830 6000" },
+            { name: "Galeshewe Municipal Office", type: "municipality", latitude: -28.7247, longitude: 24.7658, address: "Galeshewe, Kimberley", phone: "053 839 3000" },
+            
+            // Schools
+            { name: "Homevale Secondary School", type: "school", latitude: -28.7358, longitude: 24.7589, address: "Homevale, Kimberley", phone: "053 833 2088" },
+            { name: "Northern Cape High School", type: "school", latitude: -28.7364, longitude: 24.7714, address: "43 Chapel Street, Kimberley", phone: "053 832 2211" },
+            { name: "Florence Primary School", type: "school", latitude: -28.7397, longitude: 24.7742, address: "22 Memorial Road, Kimberley", phone: "053 832 1147" },
+            { name: "De Beers Hoërskool", type: "school", latitude: -28.7436, longitude: 24.7728, address: "43 Dalham Road, Kimberley", phone: "053 832 6102" },
+            
+            // Universities and Colleges
+            { name: "Sol Plaatje University", type: "university", latitude: -28.7353, longitude: 24.7678, address: "Chapel Street, Kimberley", phone: "053 491 0000" },
+            { name: "Northern Cape Urban TVET College", type: "university", latitude: -28.7319, longitude: 24.7619, address: "43 Barkly Road, Kimberley", phone: "053 839 2000" },
+            
+            // Additional Safe Places
+            { name: "Kimberley Fire Station", type: "other", latitude: -28.7414, longitude: 24.7681, address: "11 Dalham Road, Kimberley", phone: "053 830 6444" },
+            { name: "Kimberley Library", type: "other", latitude: -28.7372, longitude: 24.7636, address: "22 Du Toitspan Road, Kimberley", phone: "053 830 6247" },
+            { name: "Kimberley Community Hall", type: "other", latitude: -28.7325, longitude: 24.7667, address: "Memorial Road, Kimberley", phone: "053 830 6000" }
+        ];
+
+        // WhatsApp Integration System
+        class WhatsAppIntegration {
+            constructor() {
+                this.emergencyNumber = WHATSAPP_EMERGENCY_NUMBER;
+                this.baseUrl = "https://wa.me";
+            }
+
+            // Send emergency alert via WhatsApp
+            async sendEmergencyAlert(alertType, triggerSource = 'unknown', additionalInfo = '') {
+                try {
+                    // Get user location
+                    const location = await getCurrentLocation();
+                    
+                    // Get user info
+                    const userName = userData?.name || 'Unknown User';
+                    const userPhone = userData?.phone || 'Unknown';
+                    
+                    // Create emergency message
+                    let message = `🚨 Lalela EMERGENCY ALERT 🚨\n\n`;
+                    message += `🔴 ALERT TYPE: ${alertType.toUpperCase()}\n`;
+                    message += `👤 USER: ${userName}\n`;
+                    message += `📱 USER PHONE: ${userPhone}\n`;
+                    message += `📍 LOCATION: ${location}\n`;
+                    message += `🕐 TIME: ${new Date().toLocaleString()}\n`;
+                    message += `⚡ TRIGGERED BY: ${triggerSource}\n`;
+                    
+                    if (additionalInfo) {
+                        message += `📝 ADDITIONAL INFO: ${additionalInfo}\n`;
+                    }
+                    
+                    message += `\n⚠️ IMMEDIATE ASSISTANCE REQUIRED ⚠️\n`;
+                    message += `This is an automated emergency alert from Lalela GBVF Protection System.`;
+                    
+                    // Create WhatsApp URL
+                    const whatsappUrl = `${this.baseUrl}/${this.emergencyNumber}?text=${encodeURIComponent(message)}`;
+                    
+                    // Open WhatsApp in new tab
+                    window.open(whatsappUrl, '_blank');
+                    
+                    // Log to Firebase
+                    this.logWhatsAppAlert(alertType, triggerSource, message);
+                    
+                    addAlert(`📱 WhatsApp emergency alert sent to ${this.emergencyNumber}`);
+                    
+                    return true;
+                    
+                } catch (error) {
+                    console.error('Error sending WhatsApp alert:', error);
+                    addAlert("❌ Error sending WhatsApp alert");
+                    return false;
+                }
+            }
+
+            // Send voice trigger alert
+            async sendVoiceTriggerAlert(triggerWord) {
+                return this.sendEmergencyAlert(
+                    'VOICE ACTIVATION', 
+                    'Voice Command', 
+                    `Trigger word: "${triggerWord}"`
+                );
+            }
+
+            // Send manual panic alert
+            async sendManualPanicAlert() {
+                return this.sendEmergencyAlert(
+                    'MANUAL PANIC BUTTON', 
+                    'User Activated', 
+                    'User manually pressed the panic button'
+                );
+            }
+
+            // Send AI companion alert
+            async sendAICompanionAlert(dangerLevel, detectedTriggers = []) {
+                return this.sendEmergencyAlert(
+                    'AI COMPANION DETECTION', 
+                    'AI Safety System', 
+                    `Danger Level: ${dangerLevel}, Detected: ${detectedTriggers.join(', ')}`
+                );
+            }
+
+            // Send quick alert
+            async sendQuickAlert(alertLevel) {
+                return this.sendEmergencyAlert(
+                    `QUICK ALERT - ${alertLevel.toUpperCase()}`, 
+                    'Quick Alert System', 
+                    `User requested ${alertLevel} level assistance`
+                );
+            }
+
+            // Log WhatsApp alert to Firebase
+            logWhatsAppAlert(alertType, triggerSource, message) {
+                const alertData = {
+                    userId: userId,
+                    alertType: alertType,
+                    triggerSource: triggerSource,
+                    message: message,
+                    phoneNumber: this.emergencyNumber,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'sent'
+                };
+                
+                db.collection('whatsapp_alerts').add(alertData)
+                    .then(() => {
+                        console.log('WhatsApp alert logged to Firebase');
+                    })
+                    .catch(error => {
+                        console.error('Error logging WhatsApp alert:', error);
+                    });
+            }
+
+            // Test WhatsApp integration
+            async testWhatsAppIntegration() {
+                const testMessage = `🧪 Lalela TEST ALERT 🧪\n\n`;
+                testMessage += `This is a TEST alert from Lalela GBVF Protection System.\n`;
+                testMessage += `🕐 Time: ${new Date().toLocaleString()}\n`;
+                testMessage += `✅ System is functioning properly\n\n`;
+                testMessage += `No emergency - this is only a test.`;
+                
+                const whatsappUrl = `${this.baseUrl}/${this.emergencyNumber}?text=${encodeURIComponent(testMessage)}`;
+                window.open(whatsappUrl, '_blank');
+                
+                addAlert("📱 Test WhatsApp alert prepared");
+            }
+        }
+
+        // Initialize WhatsApp Integration
+        const whatsappIntegration = new WhatsAppIntegration();
+
+        // Voice Activation System
+        class VoiceActivationSystem {
+            constructor() {
+                this.isListening = false;
+                this.recognition = null;
+                this.triggerWord = 'oranges';
+                this.confidenceThreshold = 0.8;
+                this.cooldownPeriod = 5000; // 5 seconds
+                this.lastTriggerTime = 0;
+                this.consecutiveTriggers = 0;
+                this.maxConsecutiveTriggers = 2;
+                this.init();
+            }
+
+            init() {
+                this.loadTriggerWord();
+                this.setupSpeechRecognition();
+                this.autoStartListening(); // Auto-start listening on page load
+            }
+
+            loadTriggerWord() {
+                const savedWord = localStorage.getItem('Lalela_triggerWord');
+                if (savedWord) {
+                    this.triggerWord = savedWord.toLowerCase();
+                    userTriggerWord = this.triggerWord;
+                    document.getElementById('triggerWord').value = this.triggerWord;
+                    document.getElementById('currentTriggerWord').textContent = this.triggerWord;
+                }
+            }
+
+            saveTriggerWord(word) {
+                this.triggerWord = word.toLowerCase();
+                userTriggerWord = this.triggerWord;
+                localStorage.setItem('Lalela_triggerWord', this.triggerWord);
+                document.getElementById('currentTriggerWord').textContent = this.triggerWord;
+                addAlert(`✅ Voice trigger word set to: "${this.triggerWord}"`);
+            }
+
+            setupSpeechRecognition() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                
+                if (!SpeechRecognition) {
+                    addAlert("❌ Voice recognition not supported in this browser");
+                    document.getElementById('startVoice').disabled = true;
+                    return;
+                }
+
+                this.recognition = new SpeechRecognition();
+                this.recognition.continuous = true;
+                this.recognition.interimResults = true;
+                this.recognition.lang = 'en-US';
+                this.recognition.maxAlternatives = 3; // Get multiple alternatives for better accuracy
+
+                this.recognition.onstart = () => {
+                    this.isListening = true;
+                    this.updateVoiceUI('listening');
+                    addAlert("🎤 Voice monitoring activated - listening for trigger word");
+                };
+
+                this.recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+                    let highestConfidence = 0;
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        const confidence = event.results[i][0].confidence;
+                        
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                            highestConfidence = Math.max(highestConfidence, confidence);
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    if (finalTranscript.trim()) {
+                        this.processTranscript(finalTranscript.toLowerCase(), highestConfidence);
+                    }
+                };
+
+                this.recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    if (event.error === 'not-allowed') {
+                        addAlert("❌ Microphone access denied. Please allow microphone permissions.");
+                        this.stopListening();
+                    } else if (event.error === 'network') {
+                        addAlert("❌ Network error in speech recognition. Retrying...");
+                        setTimeout(() => {
+                            if (this.isListening) {
+                                this.recognition.start();
+                            }
+                        }, 2000);
+                    }
+                };
+
+                this.recognition.onend = () => {
+                    if (this.isListening) {
+                        // Restart listening if it ended unexpectedly
+                        setTimeout(() => {
+                            if (this.isListening) {
+                                this.recognition.start();
+                            }
+                        }, 1000);
+                    }
+                };
+            }
+
+            processTranscript(transcript, confidence) {
+                // Check if trigger word is in the transcript with sufficient confidence
+                if (transcript.includes(this.triggerWord) && confidence >= this.confidenceThreshold) {
+                    const currentTime = Date.now();
+                    const timeSinceLastTrigger = currentTime - this.lastTriggerTime;
+                    
+                    // Check cooldown period to prevent false positives
+                    if (timeSinceLastTrigger > this.cooldownPeriod) {
+                        this.consecutiveTriggers = 1;
+                        this.triggerEmergency();
+                    } else {
+                        this.consecutiveTriggers++;
+                        // Only trigger if we have multiple consecutive triggers (reduces false positives)
+                        if (this.consecutiveTriggers >= this.maxConsecutiveTriggers) {
+                            this.triggerEmergency();
+                        } else {
+                            addAlert(`🎤 Heard trigger word but waiting for confirmation (${this.consecutiveTriggers}/${this.maxConsecutiveTriggers})`);
+                        }
+                    }
+                    
+                    this.lastTriggerTime = currentTime;
+                }
+                
+                // Reset consecutive triggers if enough time has passed
+                if (Date.now() - this.lastTriggerTime > 10000) { // 10 seconds
+                    this.consecutiveTriggers = 0;
+                }
+            }
+
+            triggerEmergency() {
+                if (isActivated) return;
+                
+                this.updateVoiceUI('triggered');
+                addAlert(`🚨 VOICE TRIGGERED: Heard your emergency word "${this.triggerWord}"`);
+                
+                // Send WhatsApp alert
+                whatsappIntegration.sendVoiceTriggerAlert(this.triggerWord);
+                
+                // Log to Firebase
+                this.logVoiceTrigger();
+                
+                // Activate emergency
+                setTimeout(() => {
+                    if (!isActivated) {
+                        document.getElementById('panicButton').click();
+                    }
+                }, 500);
+            }
+
+            logVoiceTrigger() {
+                const triggerData = {
+                    userId: userId,
+                    triggerWord: this.triggerWord,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    type: 'voice_activation',
+                    location: 'Voice monitoring system',
+                    confidence: 'high'
+                };
+                
+                db.collection('voice_triggers').add(triggerData)
+                    .then(() => {
+                        console.log('Voice trigger logged to Firebase');
+                    })
+                    .catch(error => {
+                        console.error('Error logging voice trigger:', error);
+                    });
+            }
+
+            autoStartListening() {
+                // Auto-start voice listening when page loads
+                setTimeout(() => {
+                    if (!this.isListening) {
+                        this.startListening();
+                    }
+                }, 2000);
+            }
+
+            startListening() {
+                if (!this.recognition) {
+                    addAlert("❌ Voice recognition not available");
+                    return;
+                }
+
+                try {
+                    this.recognition.start();
+                    this.isListening = true;
+                    document.getElementById('startVoice').disabled = true;
+                    document.getElementById('stopVoice').disabled = false;
+                    voiceActivationEnabled = true;
+                    addAlert("🎤 Voice monitoring started automatically");
+                } catch (error) {
+                    console.error('Error starting voice recognition:', error);
+                    addAlert("❌ Error starting voice monitoring");
+                }
+            }
+
+            stopListening() {
+                if (this.recognition && this.isListening) {
+                    this.recognition.stop();
+                    this.isListening = false;
+                    this.updateVoiceUI('ready');
+                    document.getElementById('startVoice').disabled = false;
+                    document.getElementById('stopVoice').disabled = true;
+                    voiceActivationEnabled = false;
+                    addAlert("🎤 Voice monitoring stopped");
+                }
+            }
+
+            updateVoiceUI(status) {
+                const indicator = document.getElementById('voiceIndicator');
+                const statusText = document.getElementById('voiceStatusText');
+                
+                indicator.className = 'voice-indicator-dot';
+                statusText.className = '';
+                
+                switch(status) {
+                    case 'ready':
+                        indicator.style.background = '#4CAF50';
+                        statusText.textContent = 'Voice monitoring ready';
+                        break;
+                    case 'listening':
+                        indicator.classList.add('listening');
+                        statusText.textContent = 'Listening for trigger word...';
+                        break;
+                    case 'triggered':
+                        indicator.classList.add('triggered');
+                        statusText.textContent = `EMERGENCY! Heard: "${this.triggerWord}"`;
+                        statusText.style.color = '#ff6b6b';
+                        statusText.style.fontWeight = 'bold';
+                        break;
+                }
+            }
+
+            testAlert() {
+                this.updateVoiceUI('triggered');
+                addAlert(`🎤 TEST: Voice trigger would activate for "${this.triggerWord}"`);
+                
+                // Test WhatsApp without sending actual emergency
+                whatsappIntegration.testWhatsAppIntegration();
+                
+                setTimeout(() => {
+                    this.updateVoiceUI('listening');
+                }, 2000);
+            }
+        }
+
+        // Initialize Voice Activation System
+        const voiceSystem = new VoiceActivationSystem();
+
+        // AI Companion Danger Detection System
+        class DangerDetectionAI {
+            constructor() {
+                this.dangerWords = [
+                    // Abuse and violence-related terms
+                    'hit', 'beat', 'hurt', 'kill', 'punch', 'slap', 'kick', 'stab', 'shoot',
+                    'abuse', 'violent', 'attack', 'harm', 'threat', 'danger', 'weapon',
+                    'gun', 'knife', 'fight', 'bruise', 'injury', 'bleed', 'hospital',
+                    
+                    // Insult and derogatory terms
+                    'stupid', 'idiot', 'moron', 'fool', 'worthless', 'useless', 'ugly',
+                    'fat', 'skinny', 'disgusting', 'hate', 'despise', 'loathe', 'terrible',
+                    'awful', 'horrible', 'disgrace', 'shame', 'pathetic', 'loser',
+                    
+                    // Threatening language
+                    'kill you', 'hurt you', 'beat you', 'attack you', 'come after you',
+                    'find you', 'watch you', 'stalk', 'follow', 'waiting for you',
+                    'going to get you', 'make you pay', 'teach you a lesson',
+                    
+                    // Control and manipulation
+                    'control', 'own you', 'belong to me', 'my property', 'do as I say',
+                    'obey', 'submit', 'listen to me', 'your master', 'in charge',
+                    
+                    // Emergency situations
+                    'help', 'emergency', 'police', 'ambulance', 'rescue', 'save me',
+                    'trapped', 'locked', 'can\'t escape', 'scared', 'frightened', 'terrified'
+                ];
+                
+                this.patterns = {
+                    threats: /\b(kill|hurt|harm|attack|beat)\s+(you|me|us|them)\b/i,
+                    control: /\b(own|control|belong to|property)\s+(you|me)\b/i,
+                    emergency: /\b(help|emergency|police|save|rescue)\b/i,
+                    location: /\b(at|in|near)\s+([a-zA-Z0-9\s]+)\b/i
+                };
+                
+                this.dangerLevels = {
+                    LOW: 1,
+                    MEDIUM: 2,
+                    HIGH: 3,
+                    CRITICAL: 4
+                };
+                
+                this.isMonitoring = false;
+                this.conversationHistory = [];
+                this.dangerThreshold = this.dangerLevels.MEDIUM;
+                this.monitoringInterval = null;
+            }
+
+            startMonitoring() {
+                if (this.isMonitoring) return;
+                
+                this.isMonitoring = true;
+                console.log('AI Companion: Danger detection activated');
+                this.addAIMessage('AI: Real-time danger detection activated. Monitoring for threats, abuse, and distress patterns.');
+                
+                // Start periodic safety checks
+                this.monitoringInterval = setInterval(() => {
+                    this.performPeriodicSafetyCheck();
+                }, 30000); // Check every 30 seconds
+                
+                // Update UI
+                document.getElementById('startDetection').disabled = true;
+                document.getElementById('stopDetection').disabled = false;
+                
+                return true;
+            }
+
+            stopMonitoring() {
+                this.isMonitoring = false;
+                if (this.monitoringInterval) {
+                    clearInterval(this.monitoringInterval);
+                }
+                console.log('AI Companion: Danger detection deactivated');
+                this.addAIMessage('AI: Danger detection paused.');
+                
+                // Update UI
+                document.getElementById('startDetection').disabled = false;
+                document.getElementById('stopDetection').disabled = true;
+            }
+
+            analyzeText(text) {
+                if (!text || text.trim().length < 3) {
+                    return { dangerLevel: this.dangerLevels.LOW, detected: false };
+                }
+
+                const analysis = {
+                    text: text,
+                    dangerLevel: this.dangerLevels.LOW,
+                    detected: false,
+                    triggers: [],
+                    confidence: 0,
+                    recommendations: [],
+                    timestamp: new Date().toISOString()
+                };
+
+                // Convert to lowercase for matching
+                const lowerText = text.toLowerCase();
+                const words = lowerText.split(/\s+/);
+
+                // Check for danger words
+                let dangerWordCount = 0;
+                this.dangerWords.forEach(word => {
+                    if (lowerText.includes(word.toLowerCase())) {
+                        dangerWordCount++;
+                        analysis.triggers.push(`Danger word: "${word}"`);
+                    }
+                });
+
+                // Check for patterns
+                Object.entries(this.patterns).forEach(([type, pattern]) => {
+                    const match = text.match(pattern);
+                    if (match) {
+                        analysis.triggers.push(`${type} pattern: "${match[0]}"`);
+                        dangerWordCount += 2; // Patterns are more significant
+                    }
+                });
+
+                // Check for emotional distress indicators
+                const distressIndicators = this.detectEmotionalDistress(text);
+                analysis.triggers.push(...distressIndicators.triggers);
+                dangerWordCount += distressIndicators.score;
+
+                // Calculate danger level
+                if (dangerWordCount >= 5) {
+                    analysis.dangerLevel = this.dangerLevels.CRITICAL;
+                    analysis.confidence = 0.9;
+                } else if (dangerWordCount >= 3) {
+                    analysis.dangerLevel = this.dangerLevels.HIGH;
+                    analysis.confidence = 0.7;
+                } else if (dangerWordCount >= 1) {
+                    analysis.dangerLevel = this.dangerLevels.MEDIUM;
+                    analysis.confidence = 0.5;
+                }
+
+                analysis.detected = analysis.dangerLevel >= this.dangerThreshold;
+                analysis.recommendations = this.generateRecommendations(analysis);
+
+                // Store in conversation history
+                this.conversationHistory.push(analysis);
+
+                return analysis;
+            }
+
+            detectEmotionalDistress(text) {
+                const distressWords = [
+                    'scared', 'afraid', 'frightened', 'terrified', 'panic', 'anxious',
+                    'nervous', 'worried', 'crying', 'sobbing', 'screaming', 'yelling',
+                    'pain', 'hurt', 'alone', 'trapped', 'helpless', 'hopeless'
+                ];
+
+                const urgencyIndicators = ['!', '!!', '!!!', 'help', 'now', 'immediately', 'quick'];
+                
+                const triggers = [];
+                let score = 0;
+
+                distressWords.forEach(word => {
+                    if (text.toLowerCase().includes(word)) {
+                        triggers.push(`Distress indicator: "${word}"`);
+                        score += 1;
+                    }
+                });
+
+                urgencyIndicators.forEach(indicator => {
+                    if (text.includes(indicator)) {
+                        triggers.push(`Urgency indicator: "${indicator}"`);
+                        score += 0.5;
+                    }
+                });
+
+                // Check for excessive punctuation (emotional intensity)
+                const exclamationCount = (text.match(/!/g) || []).length;
+                if (exclamationCount > 2) {
+                    triggers.push(`High emotional intensity: ${exclamationCount} exclamation marks`);
+                    score += exclamationCount * 0.3;
+                }
+
+                // Check for capitalization (shouting)
+                const upperCaseWords = text.split(/\s+/).filter(word => 
+                    word === word.toUpperCase() && word.length > 2
+                ).length;
+                if (upperCaseWords > 0) {
+                    triggers.push(`Possible shouting: ${upperCaseWords} fully capitalized words`);
+                    score += upperCaseWords * 0.4;
+                }
+
+                return { triggers, score };
+            }
+
+            generateRecommendations(analysis) {
+                const recommendations = [];
+
+                if (analysis.dangerLevel >= this.dangerLevels.CRITICAL) {
+                    recommendations.push('🚨 CRITICAL: Immediate danger detected! Activate emergency protocol.');
+                    recommendations.push('🆘 Send emergency alert to contacts and authorities');
+                    recommendations.push('📞 Contact emergency services immediately');
+                    recommendations.push('📍 Share your location with trusted contacts');
+                    recommendations.push('🎙️ Start evidence collection if safe to do so');
+                } else if (analysis.dangerLevel >= this.dangerLevels.HIGH) {
+                    recommendations.push('⚠️ HIGH: Potential danger detected. Increase vigilance.');
+                    recommendations.push('📱 Keep phone accessible and charged');
+                    recommendations.push('👥 Stay in public areas with people around');
+                    recommendations.push('🗣️ Consider discreetly informing someone you trust');
+                } else if (analysis.dangerLevel >= this.dangerLevels.MEDIUM) {
+                    recommendations.push('🔶 MEDIUM: Concerning language detected. Stay alert.');
+                    recommendations.push('👀 Be aware of your surroundings');
+                    recommendations.push('📞 Keep emergency contacts readily available');
+                    recommendations.push('🚶 Have an exit strategy planned');
+                }
+
+                return recommendations;
+            }
+
+            performPeriodicSafetyCheck() {
+                if (!this.isMonitoring) return;
+                
+                // Simulate checking recent conversations for danger patterns
+                const recentConversations = this.conversationHistory.slice(-5);
+                let dangerScore = 0;
+                
+                recentConversations.forEach(conv => {
+                    dangerScore += conv.dangerLevel;
+                });
+                
+                const averageDanger = dangerScore / recentConversations.length;
+                
+                if (averageDanger >= this.dangerLevels.HIGH) {
+                    this.addAIMessage('AI: Elevated danger patterns detected in recent conversations. Stay vigilant.');
+                    showNotification('AI Companion: Elevated danger detected', 'warning');
+                }
+            }
+
+            addAIMessage(message) {
+                const aiMessages = document.getElementById('aiMessages');
+                if (aiMessages) {
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'evidence-item';
+                    messageElement.textContent = message;
+                    aiMessages.appendChild(messageElement);
+                    
+                    // Keep only last 5 messages
+                    while (aiMessages.children.length > 5) {
+                        aiMessages.removeChild(aiMessages.firstChild);
+                    }
+                }
+            }
+
+            updateDangerDisplay(analysis) {
+                const dangerLevelElement = document.getElementById('dangerLevel');
+                const triggersContainer = document.getElementById('dangerTriggers');
+                
+                // Update danger level display
+                dangerLevelElement.className = 'danger-level ';
+                switch(analysis.dangerLevel) {
+                    case this.dangerLevels.CRITICAL:
+                        dangerLevelElement.classList.add('danger-critical');
+                        dangerLevelElement.textContent = '🚨 CRITICAL DANGER DETECTED!';
+                        break;
+                    case this.dangerLevels.HIGH:
+                        dangerLevelElement.classList.add('danger-high');
+                        dangerLevelElement.textContent = '⚠️ HIGH DANGER DETECTED';
+                        break;
+                    case this.dangerLevels.MEDIUM:
+                        dangerLevelElement.classList.add('danger-medium');
+                        dangerLevelElement.textContent = '🔶 MEDIUM DANGER DETECTED';
+                        break;
+                    default:
+                        dangerLevelElement.classList.add('danger-low');
+                        dangerLevelElement.textContent = '✅ No threats detected';
+                }
+                
+                // Update triggers display
+                triggersContainer.innerHTML = '';
+                if (analysis.triggers.length > 0) {
+                    analysis.triggers.forEach(trigger => {
+                        const triggerElement = document.createElement('div');
+                        triggerElement.className = 'trigger-item';
+                        
+                        if (analysis.dangerLevel >= this.dangerLevels.HIGH) {
+                            triggerElement.classList.add('trigger-high');
+                        } else if (analysis.dangerLevel >= this.dangerLevels.MEDIUM) {
+                            triggerElement.classList.add('trigger-medium');
+                        } else {
+                            triggerElement.classList.add('trigger-low');
+                        }
+                        
+                        triggerElement.textContent = trigger;
+                        triggersContainer.appendChild(triggerElement);
+                    });
+                } else {
+                    triggersContainer.innerHTML = '<div class="trigger-item">No danger triggers detected</div>';
+                }
+                
+                // Add recommendations to AI messages
+                analysis.recommendations.forEach(rec => {
+                    this.addAIMessage(rec);
+                });
+                
+                // Trigger alerts if danger is high or critical
+                if (analysis.dangerLevel >= this.dangerLevels.HIGH) {
+                    showNotification(`AI Companion: ${analysis.dangerLevel >= this.dangerLevels.CRITICAL ? 'CRITICAL' : 'HIGH'} danger detected!`, 'error');
+                    
+                    // Auto-activate emergency response for critical danger
+                    if (analysis.dangerLevel >= this.dangerLevels.CRITICAL && !isActivated) {
+                        setTimeout(() => {
+                            if (confirm('CRITICAL DANGER DETECTED! Activate emergency response?')) {
+                                // Send WhatsApp alert for AI-detected critical danger
+                                whatsappIntegration.sendAICompanionAlert(
+                                    'CRITICAL', 
+                                    analysis.triggers.slice(0, 3) // Send top 3 triggers
+                                );
+                                document.getElementById('panicButton').click();
+                            }
+                        }, 1000);
+                    }
+                }
+            }
+        }
+
+        // Initialize AI Companion
+        const dangerAI = new DangerDetectionAI();
+
+        // Initialize the application
+        function initApp() {
+            userId = getUserId();
+            loadUserData();
+            initFirebaseListeners();
+            initThreeJS();
+            initEventListeners();
+            initDisguiseMode();
+            initRecording();
+            initAIDetection(); // Initialize AI detection
+            initSafePlaces(); // Initialize safe places functionality
+            initVoiceActivation(); // Initialize voice activation
+            requestNotificationPermission();
+            
+            addAlert("🚀 Lalela AI initialized with real-time features");
+            showNotification("Lalela is ready! All systems operational.", "success");
+        }
+
+        // Initialize Voice Activation
+        function initVoiceActivation() {
+            document.getElementById('startVoice').addEventListener('click', () => {
+                voiceSystem.startListening();
+            });
+            
+            document.getElementById('stopVoice').addEventListener('click', () => {
+                voiceSystem.stopListening();
+            });
+            
+            document.getElementById('testVoice').addEventListener('click', () => {
+                voiceSystem.testAlert();
+            });
+            
+            document.getElementById('saveTriggerWord').addEventListener('click', () => {
+                const newWord = document.getElementById('triggerWord').value.trim();
+                if (newWord) {
+                    voiceSystem.saveTriggerWord(newWord);
+                } else {
+                    alert('Please enter a trigger word');
+                }
+            });
+            
+            // Load saved trigger word on page load
+            voiceSystem.loadTriggerWord();
+        }
+
+        // Initialize AI Detection
+        function initAIDetection() {
+            document.getElementById('startDetection').addEventListener('click', () => {
+                dangerAI.startMonitoring();
+                addAlert("🤖 AI Companion: Real-time danger detection activated");
+            });
+            
+            document.getElementById('stopDetection').addEventListener('click', () => {
+                dangerAI.stopMonitoring();
+                addAlert("🤖 AI Companion: Danger detection paused");
+            });
+            
+            document.getElementById('analyzeText').addEventListener('click', () => {
+                const text = document.getElementById('conversationInput').value;
+                if (text.trim()) {
+                    const analysis = dangerAI.analyzeText(text);
+                    dangerAI.updateDangerDisplay(analysis);
+                    addAlert(`🤖 AI analyzed text: ${analysis.dangerLevel >= dangerAI.dangerLevels.MEDIUM ? 'Danger detected' : 'No significant danger'}`);
+                    
+                    // Save analysis to Firebase
+                    saveAnalysisToFirebase(analysis);
+                }
+            });
+            
+            // Auto-analyze text as user types (with debounce)
+            let analyzeTimeout;
+            document.getElementById('conversationInput').addEventListener('input', (e) => {
+                clearTimeout(analyzeTimeout);
+                analyzeTimeout = setTimeout(() => {
+                    if (e.target.value.trim() && dangerAI.isMonitoring) {
+                        const analysis = dangerAI.analyzeText(e.target.value);
+                        dangerAI.updateDangerDisplay(analysis);
+                    }
+                }, 1000);
+            });
+        }
+
+        function saveAnalysisToFirebase(analysis) {
+            const analysisData = {
+                userId: userId,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                text: analysis.text,
+                dangerLevel: analysis.dangerLevel,
+                triggers: analysis.triggers,
+                confidence: analysis.confidence,
+                recommendations: analysis.recommendations
+            };
+            
+            db.collection('ai_analyses').add(analysisData)
+                .then(() => {
+                    console.log('AI analysis saved to Firebase');
+                })
+                .catch(error => {
+                    console.error('Error saving AI analysis:', error);
+                });
+        }
+
+        // Safe Places Locator
+        function initSafePlaces() {
+            document.getElementById('findSafePlacesButton').addEventListener('click', findNearestSafePlaces);
+        }
+
+        // Find nearest safe places based on current location
+        async function findNearestSafePlaces() {
+            const placeType = document.getElementById('safePlaceType').value;
+            const locationStatus = document.getElementById('locationStatus');
+            const locationStatusText = document.getElementById('locationStatusText');
+            const locationDot = document.getElementById('locationDot');
+            const resultsContainer = document.getElementById('safePlacesResults');
+            
+            // Show location status
+            locationStatus.style.display = 'block';
+            locationStatusText.textContent = 'Getting your current location...';
+            locationDot.style.background = '#FF9800'; // Orange for loading
+            
+            try {
+                // Get current location
+                const position = await getCurrentPosition();
+                const userLocation = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
+                
+                locationStatusText.textContent = 'Location found! Searching for safe places...';
+                locationDot.style.background = '#4CAF50'; // Green for success
+                
+                // Find nearest safe places
+                const safePlaces = await findSafePlaces(userLocation, placeType);
+                
+                // Display results
+                displaySafePlacesResults(safePlaces, userLocation, resultsContainer);
+                
+                // Log to activity
+                addAlert(`📍 Found ${safePlaces.length} safe places nearby`);
+                
+            } catch (error) {
+                console.error('Error finding safe places:', error);
+                locationStatusText.textContent = 'Error getting location: ' + error.message;
+                locationDot.style.background = '#f44336'; // Red for error
+                
+                resultsContainer.innerHTML = `
+                    <div class="evidence-item" style="color: #ff6b6b;">
+                        ❌ Could not get your location. Please ensure location services are enabled.
+                    </div>
+                    <div class="evidence-item">
+                        Tip: Allow location access in your browser settings for this feature to work.
+                    </div>
+                `;
+            }
+        }
+
+        // Get current position with better error handling
+        function getCurrentPosition() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocation is not supported by this browser'));
+                    return;
+                }
+                
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                });
+            });
+        }
+
+        // Find safe places using the Kimberley database
+        async function findSafePlaces(userLocation, placeType) {
+            try {
+                // Filter safe places by type
+                let filteredPlaces = kimberleySafePlaces;
+                if (placeType !== 'all') {
+                    filteredPlaces = kimberleySafePlaces.filter(place => place.type === placeType);
+                }
+                
+                // Calculate distances and add to each place
+                const placesWithDistance = filteredPlaces.map(place => {
+                    const distance = calculateDistance(
+                        userLocation.latitude,
+                        userLocation.longitude,
+                        place.latitude,
+                        place.longitude
+                    );
+                    
+                    return {
+                        ...place,
+                        distance: distance
+                    };
+                });
+                
+                // Sort by distance
+                placesWithDistance.sort((a, b) => a.distance - b.distance);
+                
+                return placesWithDistance.slice(0, 8); // Return top 8 nearest
+                
+            } catch (error) {
+                console.error('Error finding safe places:', error);
+                // Fallback to local emergency services database
+                return getFallbackSafePlaces(userLocation, placeType);
+            }
+        }
+
+        // Fallback safe places in case of errors
+        function getFallbackSafePlaces(userLocation, placeType) {
+            const fallbackPlaces = [];
+            const types = placeType === 'all' ? ['police', 'hospital', 'municipality', 'school', 'university'] : [placeType];
+            
+            types.forEach(type => {
+                for (let i = 1; i <= 3; i++) {
+                    // Generate places in different directions around user
+                    const angle = (i * 120) * (Math.PI / 180); // 120 degrees apart
+                    const distance = 1 + (i * 0.5); // 1km, 1.5km, 2km
+                    
+                    const latOffset = distance * 0.009 * Math.cos(angle); // ~1km per 0.009 degrees
+                    const lonOffset = distance * 0.009 * Math.sin(angle);
+                    
+                    fallbackPlaces.push({
+                        name: `${type.charAt(0).toUpperCase() + type.slice(1)} ${i}`,
+                        type: type,
+                        latitude: userLocation.latitude + latOffset,
+                        longitude: userLocation.longitude + lonOffset,
+                        address: `Approximate location - ${distance.toFixed(1)}km away`,
+                        distance: distance,
+                        phone: getEmergencyPhone(type)
+                    });
+                }
+            });
+            
+            return fallbackPlaces;
+        }
+
+        // Get emergency phone numbers based on location and type
+        function getEmergencyPhone(placeType) {
+            // South Africa emergency numbers
+            const emergencyNumbers = {
+                'police': '10111',
+                'hospital': '10177',
+                'municipality': '053 830 6000',
+                'school': '053 839 3000',
+                'university': '053 491 0000',
+                'default': '112'
+            };
+            
+            return emergencyNumbers[placeType] || emergencyNumbers.default;
+        }
+
+        // Calculate distance between two coordinates (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distance = R * c;
+            return distance;
+        }
+
+        // Get icon for place type
+        function getPlaceIcon(type) {
+            const icons = {
+                'police': '👮',
+                'hospital': '🏥',
+                'municipality': '🏢',
+                'school': '🏫',
+                'university': '🎓',
+                'other': '📍'
+            };
+            return icons[type] || icons.other;
+        }
+
+        // Get border color for place type
+        function getPlaceBorderColor(type) {
+            const colors = {
+                'police': '#2196F3',
+                'hospital': '#4CAF50',
+                'municipality': '#FF9800',
+                'school': '#9C27B0',
+                'university': '#795548',
+                'other': '#607D8B'
+            };
+            return colors[type] || colors.other;
+        }
+
+        // Truncate long addresses
+        function truncateAddress(address, maxLength = 60) {
+            if (address.length <= maxLength) return address;
+            return address.substring(0, maxLength) + '...';
+        }
+
+        // Display safe places results
+        function displaySafePlacesResults(places, userLocation, container) {
+            if (places.length === 0) {
+                container.innerHTML = `
+                    <div class="evidence-item" style="color: #ff6b6b;">
+                        ❌ No safe places found in your immediate area.
+                    </div>
+                    <div class="evidence-item">
+                        Try expanding your search or contact emergency services directly.
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            // Add nearest place with special highlighting
+            const nearestPlace = places[0];
+            const placeIcon = getPlaceIcon(nearestPlace.type);
+            
+            html += `
+                <div class="safe-place-item ${nearestPlace.type}" style="background: rgba(76, 175, 80, 0.2); border-left: 4px solid #4CAF50; margin-bottom: 10px;">
+                    <div style="font-weight: bold; color: #4CAF50;">
+                        ${placeIcon} NEAREST ${nearestPlace.type.toUpperCase()} 
+                        <span class="distance-badge">${nearestPlace.distance.toFixed(1)} km</span>
+                    </div>
+                    <div><strong>${nearestPlace.name}</strong></div>
+                    <div style="font-size: 0.9rem; opacity: 0.8; margin: 5px 0;">${truncateAddress(nearestPlace.address)}</div>
+                    <div style="font-size: 0.9rem;">📞 ${nearestPlace.phone}</div>
+                    <div style="margin-top: 8px; display: flex; gap: 5px;">
+                        <button class="btn btn-sm" style="background: #4CAF50;" onclick="navigateToPlace(${nearestPlace.latitude}, ${nearestPlace.longitude})">
+                            🗺️ Get Directions
+                        </button>
+                        <button class="btn btn-sm" style="background: #2196F3;" onclick="callEmergency('${nearestPlace.phone}')">
+                            📞 Call Now
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add other places
+            places.slice(1).forEach(place => {
+                const icon = getPlaceIcon(place.type);
+                const borderColor = getPlaceBorderColor(place.type);
+                
+                html += `
+                    <div class="safe-place-item ${place.type}" style="border-left: 4px solid ${borderColor};">
+                        <div style="display: flex; justify-content: between; align-items: center;">
+                            <div>${icon} <strong>${place.name}</strong></div>
+                            <span class="distance-badge">${place.distance.toFixed(1)} km</span>
+                        </div>
+                        <div style="font-size: 0.85rem; opacity: 0.8; margin: 3px 0;">${truncateAddress(place.address)}</div>
+                        <div style="font-size: 0.85rem;">📞 ${place.phone}</div>
+                        <div style="margin-top: 5px; display: flex; gap: 5px;">
+                            <button class="btn btn-sm" onclick="navigateToPlace(${place.latitude}, ${place.longitude})">
+                                Directions
+                            </button>
+                            <button class="btn btn-sm" onclick="callEmergency('${place.phone}')">
+                                Call
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Add emergency contact information
+            html += `
+                <div class="evidence-item" style="background: rgba(229, 46, 113, 0.2); border-left: 4px solid #e52e71; margin-top: 15px;">
+                    <div style="font-weight: bold; color: #e52e71;">🚨 EMERGENCY CONTACTS</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 8px;">
+                        <button class="btn btn-sm" style="background: #ff4444;" onclick="callEmergency('10111')">
+                            🚓 Police: 10111
+                        </button>
+                        <button class="btn btn-sm" style="background: #ff4444;" onclick="callEmergency('10177')">
+                            🚑 Ambulance: 10177
+                        </button>
+                        <button class="btn btn-sm" style="background: #ff4444; grid-column: span 2;" onclick="callEmergency('112')">
+                            📱 Cell Emergency: 112
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="evidence-item" style="background: rgba(255, 193, 7, 0.2); border-left: 4px solid #ffc107; margin-top: 10px;">
+                    <div style="font-size: 0.9rem;">
+                        <strong>📍 Your Current Location:</strong><br>
+                        Lat: ${userLocation.latitude.toFixed(4)}, Lng: ${userLocation.longitude.toFixed(4)}
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // Navigate to place (opens in maps)
+        function navigateToPlace(latitude, longitude) {
+            // Open in Google Maps
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=driving`;
+            window.open(url, '_blank');
+            
+            addAlert(`🗺️ Opening navigation to selected location`);
+            showNotification("Navigation opened in new tab", "success");
+        }
+
+        // Call emergency number
+        function callEmergency(phoneNumber) {
+            // Create a phone link
+            const telLink = `tel:${phoneNumber}`;
+            window.location.href = telLink;
+            
+            addAlert(`📞 Calling emergency number: ${phoneNumber}`);
+        }
+
+        // Recording and Transcription Functionality
+        function initRecording() {
+            const recordBtn = document.getElementById('recordBtn');
+            const transcribeBtn = document.getElementById('transcribeBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            recordBtn.addEventListener('click', toggleRecording);
+            transcribeBtn.addEventListener('click', transcribeAudio);
+            downloadBtn.addEventListener('click', downloadTranscript);
+            
+            // Check for browser support
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                recordBtn.disabled = true;
+                recordBtn.textContent = "Recording Not Supported";
+                addAlert("❌ Audio recording is not supported in this browser");
+            }
+        }
+
+        async function toggleRecording() {
+            if (!isRecording) {
+                // Start recording
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        document.getElementById('transcribeBtn').disabled = false;
+                        addAlert("✅ Recording completed");
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordingStartTime = new Date();
+                    
+                    // Update UI
+                    document.getElementById('recordBtn').textContent = "Stop Recording";
+                    document.getElementById('recordBtn').classList.add('recording');
+                    document.getElementById('recordingStatus').style.display = 'flex';
+                    document.getElementById('transcribeBtn').disabled = true;
+                    document.getElementById('downloadBtn').disabled = true;
+                    
+                    // Start timer
+                    startRecordingTimer();
+                    
+                    addAlert("🎙️ Recording started");
+                    showNotification("Recording started", "success");
+                    
+                } catch (error) {
+                    console.error('Error starting recording:', error);
+                    addAlert("❌ Error starting recording: " + error.message);
+                    showNotification("Recording failed", "error");
+                }
+            } else {
+                // Stop recording
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                    isRecording = false;
+                    
+                    // Stop all tracks
+                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                    
+                    // Update UI
+                    document.getElementById('recordBtn').textContent = "Start Recording";
+                    document.getElementById('recordBtn').classList.remove('recording');
+                    document.getElementById('recordingStatus').style.display = 'none';
+                    
+                    // Stop timer
+                    clearInterval(recordingTimer);
+                    
+                    addAlert("⏹️ Recording stopped");
+                }
+            }
+        }
+
+        function startRecordingTimer() {
+            recordingTimer = setInterval(() => {
+                const now = new Date();
+                const elapsed = Math.floor((now - recordingStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('recordingTimer').textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function transcribeAudio() {
+            if (!audioBlob) {
+                addAlert("❌ No recording available to transcribe");
+                return;
+            }
+            
+            addAlert("🔄 Transcribing audio...");
+            document.getElementById('transcribeBtn').disabled = true;
+            
+            // In a real implementation, you would send the audio to a transcription service
+            // For this demo, we'll simulate transcription with a timeout
+            setTimeout(() => {
+                // Simulated transcription result
+                transcript = `This is a simulated transcription of the recorded audio. In a real implementation, this would be the actual transcribed text from the audio recording.
+                
+                Lalela would integrate with a speech-to-text API like Google Cloud Speech-to-Text, Azure Speech Services, or AWS Transcribe to convert the audio to text.
+                
+                The transcription would include timestamps and confidence scores for each segment of the conversation.`;
+                
+                // Update UI
+                document.getElementById('transcriptText').textContent = transcript;
+                document.getElementById('transcriptContainer').style.display = 'block';
+                document.getElementById('downloadBtn').disabled = false;
+                
+                addAlert("✅ Transcription completed");
+                showNotification("Transcription ready", "success");
+                
+                // Save transcription to Firebase
+                saveTranscriptionToFirebase(transcript);
+                
+                // Auto-analyze transcription for danger
+                if (dangerAI.isMonitoring) {
+                    const analysis = dangerAI.analyzeText(transcript);
+                    dangerAI.updateDangerDisplay(analysis);
+                    addAlert("🤖 AI automatically analyzed transcription for danger patterns");
+                }
+                
+            }, 2000); // Simulate processing time
+        }
+
+        function saveTranscriptionToFirebase(transcriptText) {
+            const transcriptionData = {
+                userId: userId,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                transcript: transcriptText,
+                duration: Math.floor((new Date() - recordingStartTime) / 1000),
+                type: 'audio_transcription'
+            };
+            
+            db.collection('transcriptions').add(transcriptionData)
+                .then(() => {
+                    addAlert("✅ Transcription saved to secure cloud storage");
+                })
+                .catch(error => {
+                    console.error('Error saving transcription:', error);
+                    addAlert("❌ Error saving transcription to cloud");
+                });
+        }
+
+        function downloadTranscript() {
+            if (!transcript) {
+                addAlert("❌ No transcription available to download");
+                return;
+            }
+            
+            // Create PDF using jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.setTextColor(40, 40, 40);
+            doc.text('Lalela - Audio Transcription', 20, 30);
+            
+            // Add metadata
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            const date = new Date().toLocaleString();
+            doc.text(`Generated on: ${date}`, 20, 45);
+            doc.text(`User: ${userData?.name || 'Unknown'}`, 20, 55);
+            doc.text(`Duration: ${Math.floor((new Date() - recordingStartTime) / 1000)} seconds`, 20, 65);
+            
+            // Add transcript
+            doc.setFontSize(11);
+            doc.setTextColor(20, 20, 20);
+            const lines = doc.splitTextToSize(transcript, 170);
+            doc.text(lines, 20, 80);
+            
+            // Add footer
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Confidential - Lalela GBVF Protection System', 20, 280);
+            
+            // Save the PDF
+            doc.save(`Lalela-transcription-${Date.now()}.pdf`);
+            
+            addAlert("📄 Transcript downloaded as PDF");
+            showNotification("PDF downloaded", "success");
+        }
+
+        // Disguise Mode Functionality
+        function initDisguiseMode() {
+            const disguiseOptions = document.querySelectorAll('.disguise-option');
+            
+            disguiseOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove active class from all options
+                    disguiseOptions.forEach(opt => opt.classList.remove('active'));
+                    
+                    // Add active class to clicked option
+                    this.classList.add('active');
+                    
+                    // Get the selected disguise
+                    currentDisguise = this.getAttribute('data-disguise');
+                    
+                    // Apply the selected disguise
+                    applyDisguise(currentDisguise);
+                    
+                    // Log disguise change
+                    addAlert(`🎭 Disguise mode changed to: ${currentDisguise}`);
+                });
+            });
+            
+            // Initialize calculator functionality
+            initCalculator();
+            
+            // Initialize weather functionality
+            initWeather();
+        }
+
+        function applyDisguise(disguise) {
+    // Hide all disguise containers with force
+    document.getElementById('panicButtonContainer').style.display = 'none';
+    document.getElementById('calculatorDisguise').style.display = 'none';
+    document.getElementById('weatherDisguise').style.display = 'none';
+    
+    // Remove any leftover classes
+    document.getElementById('panicButtonContainer').classList.add('disguise-hidden');
+    document.getElementById('calculatorDisguise').classList.add('disguise-hidden');
+    document.getElementById('weatherDisguise').classList.add('disguise-hidden');
+    
+    // Show the selected disguise
+    switch(disguise) {
+        case 'panic':
+            document.getElementById('panicButtonContainer').style.display = 'block';
+            document.getElementById('panicButtonContainer').classList.remove('disguise-hidden');
+            document.title = 'Lalela - GBVF Panic Button';
+            break;
+        case 'calculator':
+            document.getElementById('calculatorDisguise').style.display = 'block';
+            document.getElementById('calculatorDisguise').classList.remove('disguise-hidden');
+            document.title = 'Calculator';
+            break;
+        case 'weather':
+            document.getElementById('weatherDisguise').style.display = 'block';
+            document.getElementById('weatherDisguise').classList.remove('disguise-hidden');
+            document.title = 'Weather App';
+            break;
+    }
+    
+    // Update stealth mode status if needed
+    updateStealthStatus();
+
+}
+
+        function updateStealthStatus() {
+            const stealthStatus = document.getElementById('stealthStatus');
+            if (currentDisguise !== 'panic') {
+                stealthStatus.textContent = `🕵️ Stealth Mode Active - App disguised as ${currentDisguise}`;
+            } else {
+                stealthStatus.textContent = '👁️ Normal Mode Active';
+            }
+        }
+
+        // Calculator Functionality
+        function initCalculator() {
+            const calcButtons = document.querySelectorAll('.calc-btn');
+            
+            calcButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const action = this.getAttribute('data-action');
+                    const number = this.getAttribute('data-number');
+                    
+                    if (number !== null) {
+                        inputDigit(number);
+                    } else if (action !== null) {
+                        handleAction(action);
+                    }
+                    
+                    updateCalculatorDisplay();
+                });
+            });
+            
+            // Add calculator panic activation (hidden) - triple click equals button
+            let clickCount = 0;
+            let clickTimer;
+            
+            document.querySelector('.calc-btn.equals').addEventListener('click', function() {
+                clickCount++;
+                
+                if (clickCount === 1) {
+                    clickTimer = setTimeout(() => {
+                        clickCount = 0;
+                    }, 1000);
+                } else if (clickCount === 3) {
+                    clearTimeout(clickTimer);
+                    clickCount = 0;
+                    activatePanicFromDisguise();
+                }
+            });
+            
+            // Also allow long press on the calculator display
+            const calcDisplay = document.getElementById('calcDisplay');
+            let pressTimer;
+            
+            calcDisplay.addEventListener('mousedown', function() {
+                pressTimer = setTimeout(() => {
+                    activatePanicFromDisguise();
+                }, 2000); // 2 second long press
+            });
+            
+            calcDisplay.addEventListener('mouseup', function() {
+                clearTimeout(pressTimer);
+            });
+            
+            calcDisplay.addEventListener('touchstart', function() {
+                pressTimer = setTimeout(() => {
+                    activatePanicFromDisguise();
+                }, 2000);
+            });
+            
+            calcDisplay.addEventListener('touchend', function() {
+                clearTimeout(pressTimer);
+            });
+        }
+
+        function inputDigit(digit) {
+            const { displayValue, waitingForSecondOperand } = calculator;
+            
+            if (waitingForSecondOperand === true) {
+                calculator.displayValue = digit;
+                calculator.waitingForSecondOperand = false;
+            } else {
+                calculator.displayValue = displayValue === '0' ? digit : displayValue + digit;
+            }
+        }
+
+        function handleAction(action) {
+            const { displayValue, firstOperand, operator } = calculator;
+            const inputValue = parseFloat(displayValue);
+            
+            switch(action) {
+                case 'clear':
+                    calculator.displayValue = '0';
+                    calculator.firstOperand = null;
+                    calculator.waitingForSecondOperand = false;
+                    calculator.operator = null;
+                    break;
+                    
+                case 'backspace':
+                    if (displayValue.length > 1) {
+                        calculator.displayValue = displayValue.slice(0, -1);
+                    } else {
+                        calculator.displayValue = '0';
+                    }
+                    break;
+                    
+                case 'percentage':
+                    calculator.displayValue = (parseFloat(displayValue) / 100).toString();
+                    break;
+                    
+                case 'decimal':
+                    if (!displayValue.includes('.')) {
+                        calculator.displayValue += '.';
+                    }
+                    break;
+                    
+                case 'add':
+                case 'subtract':
+                case 'multiply':
+                case 'divide':
+                    if (firstOperand === null) {
+                        calculator.firstOperand = parseFloat(displayValue);
+                    } else if (operator) {
+                        const result = performCalculation();
+                        calculator.displayValue = `${parseFloat(result.toFixed(7))}`;
+                        calculator.firstOperand = result;
+                    }
+                    
+                    calculator.waitingForSecondOperand = true;
+                    calculator.operator = action;
+                    break;
+                    
+                case 'equals':
+                    if (operator && firstOperand !== null) {
+                        const result = performCalculation();
+                        calculator.displayValue = `${parseFloat(result.toFixed(7))}`;
+                        calculator.firstOperand = null;
+                        calculator.operator = null;
+                        calculator.waitingForSecondOperand = false;
+                    }
+                    break;
+            }
+        }
+
+        function performCalculation() {
+            const { firstOperand, displayValue, operator } = calculator;
+            const secondOperand = parseFloat(displayValue);
+            
+            switch(operator) {
+                case 'add': return firstOperand + secondOperand;
+                case 'subtract': return firstOperand - secondOperand;
+                case 'multiply': return firstOperand * secondOperand;
+                case 'divide': return firstOperand / secondOperand;
+                default: return secondOperand;
+            }
+        }
+
+        function updateCalculatorDisplay() {
+            const display = document.getElementById('calcDisplay');
+            display.textContent = calculator.displayValue;
+        }
+
+        // Weather Functionality
+        function initWeather() {
+            // Simulate weather data (in a real app, this would come from an API)
+            updateWeatherData();
+            
+            // Update weather every 30 seconds
+            setInterval(updateWeatherData, 30000);
+            
+            // Add weather panic activation (hidden) - triple tap on temperature
+            const weatherTemp = document.getElementById('weatherTemp');
+            let tapCount = 0;
+            let tapTimer;
+            
+            weatherTemp.addEventListener('click', function() {
+                tapCount++;
+                
+                if (tapCount === 1) {
+                    tapTimer = setTimeout(() => {
+                        tapCount = 0;
+                    }, 1000);
+                } else if (tapCount === 3) {
+                    clearTimeout(tapTimer);
+                    tapCount = 0;
+                    activatePanicFromDisguise();
+                }
+            });
+            
+            // Also allow long press on weather display
+            let pressTimer;
+            
+            weatherTemp.addEventListener('mousedown', function() {
+                pressTimer = setTimeout(() => {
+                    activatePanicFromDisguise();
+                }, 2000);
+            });
+            
+            weatherTemp.addEventListener('mouseup', function() {
+                clearTimeout(pressTimer);
+            });
+            
+            weatherTemp.addEventListener('touchstart', function() {
+                pressTimer = setTimeout(() => {
+                    activatePanicFromDisguise();
+                }, 2000);
+            });
+            
+            weatherTemp.addEventListener('touchend', function() {
+                clearTimeout(pressTimer);
+            });
+        }
+
+        function updateWeatherData() {
+            const weatherData = {
+                location: "Current Location",
+                temperature: Math.floor(Math.random() * 30) + 10, // Random temp between 10-40°C
+                description: ["Sunny", "Cloudy", "Partly Cloudy", "Rainy"][Math.floor(Math.random() * 4)],
+                humidity: Math.floor(Math.random() * 40) + 40, // 40-80%
+                wind: Math.floor(Math.random() * 20) + 5, // 5-25 km/h
+                feelsLike: null,
+                uvIndex: Math.floor(Math.random() * 10) + 1 // 1-10
+            };
+            
+            // Calculate feels like temperature
+            weatherData.feelsLike = weatherData.temperature + Math.floor(Math.random() * 5) - 2;
+            
+            // Update weather display
+            document.getElementById('weatherLocation').textContent = weatherData.location;
+            document.getElementById('weatherTemp').textContent = `${weatherData.temperature}°C`;
+            document.getElementById('weatherDesc').textContent = weatherData.description;
+            document.getElementById('weatherHumidity').textContent = `${weatherData.humidity}%`;
+            document.getElementById('weatherWind').textContent = `${weatherData.wind} km/h`;
+            document.getElementById('weatherFeelsLike').textContent = `${weatherData.feelsLike}°C`;
+            document.getElementById('weatherUV').textContent = weatherData.uvIndex;
+        }
+
+        function activatePanicFromDisguise() {
+            // Trigger the panic button functionality
+            if (!isActivated) {
+                isActivated = true;
+                document.getElementById('status').textContent = "ALERT SENT! Help is on the way!";
+                document.getElementById('status').classList.add('alert');
+                
+                // Change sphere color
+                if (sphere) sphere.material.color.set(0xff0000);
+                
+                // Send WhatsApp alert for manual panic
+                whatsappIntegration.sendManualPanicAlert();
+                
+                sendMultiTierAlert('emergency');
+                
+                addAlert("🚨 Emergency alert activated from disguise mode");
+                showNotification("Emergency Alert Sent!", "warning");
+                
+                // Briefly show the panic button animation in the disguise
+                if (currentDisguise === 'calculator') {
+                    const calcDisplay = document.getElementById('calcDisplay');
+                    const originalText = calcDisplay.textContent;
+                    calcDisplay.textContent = "HELP SENT!";
+                    calcDisplay.style.background = '#e52e71';
+                    setTimeout(() => {
+                        calcDisplay.textContent = originalText;
+                        calcDisplay.style.background = '#1a252f';
+                    }, 2000);
+                } else if (currentDisguise === 'weather') {
+                    const weatherTemp = document.getElementById('weatherTemp');
+                    const originalText = weatherTemp.textContent;
+                    weatherTemp.textContent = "HELP!";
+                    weatherTemp.style.color = '#ff0000';
+                    setTimeout(() => {
+                        weatherTemp.textContent = originalText;
+                        weatherTemp.style.color = 'white';
+                    }, 2000);
+                }
+            }
+        }
+
+        // User Management
+        function getUserId() {
+            if (localStorage.getItem('Lalela_userId')) {
+                return localStorage.getItem('Lalela_userId');
+            } else {
+                const newUserId = 'user_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('Lalela_userId', newUserId);
+                return newUserId;
+            }
+        }
+
+        function loadUserData() {
+            db.collection('users').doc(userId).get().then(doc => {
+                if (doc.exists) {
+                    userData = doc.data();
+                    document.getElementById('userName').value = userData.name || '';
+                    document.getElementById('userPhone').value = userData.phone || '';
+                    document.getElementById('userEmail').value = userData.email || '';
+                    loadContacts();
+                    addAlert('✅ User profile loaded successfully');
+                } else {
+                    addAlert('📝 Please register your profile to enable all features');
+                }
+            }).catch(error => {
+                console.error('Error loading user data:', error);
+                addAlert('❌ Error loading user data');
+            });
+        }
+
+        // Real-time Firebase Listeners
+        function initFirebaseListeners() {
+            // Listen for alerts in real-time
+            db.collection('alerts')
+                .where('userId', '==', userId)
+                .orderBy('timestamp', 'desc')
+                .limit(10)
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const alert = change.doc.data();
+                            addAlert(`📨 New alert: ${alert.message}`);
+                            showNotification(`Lalela Alert: ${alert.type.toUpperCase()}`, "warning");
+                        }
+                    });
+                });
+
+            // Real-time community helpers
+            db.collection('community_helpers')
+                .where('status', '==', 'available')
+                .onSnapshot(snapshot => {
+                    communityHelpers = [];
+                    snapshot.forEach(doc => {
+                        communityHelpers.push({ id: doc.id, ...doc.data() });
+                    });
+                    updateCommunityDisplay();
+                });
+
+            // Real-time safety updates
+            db.collection('safety_updates')
+                .where('userId', '==', userId)
+                .orderBy('timestamp', 'desc')
+                .limit(5)
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const update = change.doc.data();
+                            handleSafetyUpdate(update);
+                        }
+                    });
+                });
+
+            // Real-time voice triggers
+            db.collection('voice_triggers')
+                .where('userId', '==', userId)
+                .orderBy('timestamp', 'desc')
+                .limit(5)
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const trigger = change.doc.data();
+                            addAlert(`🎤 Voice trigger detected: "${trigger.triggerWord}"`);
+                        }
+                    });
+                });
+        }
+
+        // Community Network - Real-time
+        function updateCommunityDisplay() {
+            const availableHelpers = communityHelpers.length;
+            document.getElementById('safePlacesCount').textContent = `${availableHelpers} Safe Places Available`;
+            
+            const safePlacesList = document.getElementById('safePlacesList');
+            safePlacesList.innerHTML = '';
+            
+            communityHelpers.slice(0, 3).forEach(helper => {
+                const safePlaceItem = document.createElement('div');
+                safePlaceItem.className = 'evidence-item';
+                safePlaceItem.innerHTML = `${helper.name} - ${helper.distance}km ${helper.status === 'available' ? '✅' : '⏸️'}`;
+                safePlacesList.appendChild(safePlaceItem);
+            });
+
+            // Update safety score based on helper availability
+            updateSafetyScore(availableHelpers * 2);
+        }
+
+        // Safety Scoring System - Real-time
+        function updateSafetyScore(change = 0) {
+            safetyScore = Math.max(0, Math.min(100, safetyScore + change));
+            
+            const scoreElement = document.getElementById('safetyScore');
+            scoreElement.textContent = `${safetyScore}%`;
+            
+            // Update score color
+            scoreElement.className = 'safety-score ';
+            if (safetyScore >= 70) scoreElement.classList.add('score-high');
+            else if (safetyScore >= 40) scoreElement.classList.add('score-medium');
+            else scoreElement.classList.add('score-low');
+            
+            // Save to Firebase for real-time sync
+            db.collection('user_safety').doc(userId).set({
+                score: safetyScore,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        }
+
+        function handleSafetyUpdate(update) {
+            addAlert(`🤖 Safety Update: ${update.message}`);
+            if (update.scoreChange) {
+                updateSafetyScore(update.scoreChange);
+            }
+        }
+
+        // Enhanced Alert System - Real-time
+        async function sendMultiTierAlert(level = 'emergency') {
+            const alertLevels = {
+                discreet: {
+                    message: "I might need help, please check on me discreetly",
+                    sound: false,
+                    priority: 'low'
+                },
+                urgent: {
+                    message: "URGENT: I need assistance immediately",
+                    sound: true,
+                    priority: 'medium'
+                },
+                emergency: {
+                    message: "EMERGENCY: Immediate danger! Send help with location!",
+                    sound: true,
+                    priority: 'high'
+                }
+            };
+
+            const alertConfig = alertLevels[level];
+            const location = await getCurrentLocation();
+
+            const alertData = {
+                userId: userId,
+                userName: userData?.name || 'Unknown User',
+                userPhone: userData?.phone || 'Unknown',
+                type: level,
+                message: alertConfig.message,
+                location: location,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'active',
+                priority: alertConfig.priority
+            };
+
+            try {
+                // Save to Firebase for real-time sync
+                await db.collection('alerts').add(alertData);
+                
+                // Send to community helpers in real-time
+                await notifyCommunityHelpers(alertData);
+                
+                // Start evidence collection for emergencies
+                if (level === 'emergency') {
+                    startEvidenceCollection();
+                }
+
+                addAlert(`🚨 ${level.toUpperCase()} alert sent to ${communityHelpers.length} helpers`);
+                showNotification(`Alert Sent: ${level.toUpperCase()}`, "success");
+
+            } catch (error) {
+                console.error('Error sending alert:', error);
+                addAlert('❌ Error sending alert');
+            }
+        }
+
+        async function notifyCommunityHelpers(alertData) {
+            // Notify all available helpers in real-time
+            communityHelpers.forEach(async (helper) => {
+                const notification = {
+                    helperId: helper.id,
+                    helperName: helper.name,
+                    alertId: alertData.id,
+                    message: alertData.message,
+                    userName: alertData.userName,
+                    userPhone: alertData.userPhone,
+                    location: alertData.location,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'pending'
+                };
+                
+                await db.collection('helper_notifications').add(notification);
+            });
+        }
+
+        // Evidence Collection - Real-time
+        function startEvidenceCollection() {
+            evidenceCollection = true;
+            addAlert("📹 Evidence collection started - recording incident data");
+            
+            // Create evidence session in Firebase
+            const evidenceSession = {
+                userId: userId,
+                startTime: new Date().toISOString(),
+                status: 'active',
+                evidenceCount: 0
+            };
+            
+            db.collection('evidence_sessions').add(evidenceSession).then(docRef => {
+                const sessionId = docRef.id;
+                
+                // Simulate real-time evidence collection
+                const evidenceTypes = [
+                    'Audio recording started',
+                    'Location history logged',
+                    'Timestamp verification enabled',
+                    'Screenshot captured',
+                    'Network data recorded'
+                ];
+
+                evidenceTypes.forEach((evidence, index) => {
+                    setTimeout(() => {
+                        if (evidenceCollection) {
+                            storeEvidence(evidence, sessionId);
+                        }
+                    }, index * 2000);
+                });
+
+                // Auto-stop after 2 minutes
+                setTimeout(() => {
+                    if (evidenceCollection) {
+                        stopEvidenceCollection(sessionId);
+                    }
+                }, 120000);
+            });
+        }
+
+        function storeEvidence(evidence, sessionId) {
+            const evidenceData = {
+                sessionId: sessionId,
+                userId: userId,
+                type: 'incident_evidence',
+                evidence: evidence,
+                timestamp: new Date().toISOString(),
+                location: 'Simulated location data'
+            };
+
+            // Store in Firebase in real-time
+            db.collection('evidence').add(evidenceData);
+            addAlert(`📸 Evidence: ${evidence}`);
+        }
+
+        function stopEvidenceCollection(sessionId) {
+            evidenceCollection = false;
+            addAlert("📹 Evidence collection stopped - data secured");
+            
+            // Update session status in Firebase
+            db.collection('evidence_sessions').doc(sessionId).update({
+                status: 'completed',
+                endTime: new Date().toISOString()
+            });
+        }
+
+        // Stealth Mode - Real-time
+        function toggleStealthMode() {
+            stealthMode = !stealthMode;
+            const stealthToggle = document.getElementById('stealthToggle');
+            const stealthStatus = document.getElementById('stealthStatus');
+
+            if (stealthMode) {
+                stealthToggle.textContent = 'Disable Stealth Mode';
+                stealthToggle.classList.add('stealth-active');
+                stealthStatus.textContent = '🕵️ Stealth Mode Active - App disguised';
+                document.title = 'Calculator';
+                addAlert("🎭 Stealth mode activated - app is now disguised");
+                
+                // Log stealth activation in Firebase
+                db.collection('user_actions').add({
+                    userId: userId,
+                    action: 'stealth_mode_activated',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                stealthToggle.textContent = 'Enable Stealth Mode';
+                stealthToggle.classList.remove('stealth-active');
+                stealthStatus.textContent = '👁️ Normal Mode Active';
+                document.title = 'Lalela - GBVF Panic Button';
+                addAlert("🎭 Stealth mode deactivated");
+            }
+        }
+
+        // Location Services
+        function getCurrentLocation() {
+            return new Promise((resolve) => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const location = {
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude,
+                                accuracy: position.coords.accuracy
+                            };
+                            resolve(`Lat: ${location.latitude.toFixed(4)}, Lng: ${location.longitude.toFixed(4)}`);
+                        },
+                        () => {
+                            resolve('Location unavailable - using last known location');
+                        }
+                    );
+                } else {
+                    resolve('Geolocation not supported');
+                }
+            });
+        }
+
+        // Event Listeners
+        function initEventListeners() {
+            // Panic button
+            document.getElementById('panicButton').addEventListener('click', function(e) {
+                createRipple(e);
+                
+                if (!isActivated) {
+                    isActivated = true;
+                    this.classList.add('pressed');
+                    document.getElementById('status').textContent = "ALERT SENT! Help is on the way!";
+                    document.getElementById('status').classList.add('alert');
+                    
+                    // Change sphere color
+                    if (sphere) sphere.material.color.set(0xff0000);
+                    
+                    // Send WhatsApp alert for manual panic
+                    whatsappIntegration.sendManualPanicAlert();
+                    
+                    sendMultiTierAlert('emergency');
+                    
+                } else {
+                    isActivated = false;
+                    this.classList.remove('pressed');
+                    document.getElementById('status').textContent = "System Ready - You Are Protected";
+                    document.getElementById('status').classList.remove('alert');
+                    
+                    // Reset sphere color
+                    if (sphere) sphere.material.color.set(0xe52e71);
+                    
+                    sendAllClearAlert();
+                }
+            });
+
+            // Quick alert button - now sends WhatsApp
+            document.getElementById('quickAlert').addEventListener('click', () => {
+                const level = document.getElementById('alertLevel').value;
+                whatsappIntegration.sendQuickAlert(level);
+                addAlert(`📱 Quick ${level} alert sent via WhatsApp`);
+            });
+
+            // Stealth mode
+            document.getElementById('stealthToggle').addEventListener('click', toggleStealthMode);
+
+            // Find safe places
+            document.getElementById('findSafePlaces').addEventListener('click', () => {
+                addAlert("🔄 Searching for nearby safe places...");
+                updateCommunityDisplay();
+            });
+
+            // Evidence mode
+            document.getElementById('evidenceMode').addEventListener('click', () => {
+                if (evidenceCollection) {
+                    stopEvidenceCollection();
+                    this.textContent = 'Start Evidence Collection';
+                } else {
+                    startEvidenceCollection();
+                    this.textContent = 'Stop Evidence Collection';
+                }
+            });
+
+            // User registration
+            document.getElementById('registerBtn').addEventListener('click', registerUser);
+
+            // Add contact
+            document.getElementById('addContactBtn').addEventListener('click', addEmergencyContact);
+
+            // Hidden activation (spacebar)
+            document.addEventListener('keydown', function(e) {
+                if (e.code === 'Space' && !isActivated) {
+                    e.preventDefault();
+                    document.getElementById('panicButton').click();
+                }
+            });
+
+            // Test WhatsApp integration
+            document.getElementById('testVoice').addEventListener('click', () => {
+                whatsappIntegration.testWhatsAppIntegration();
+            });
+        }
+
+        // User Registration
+        function registerUser() {
+            const name = document.getElementById('userName').value;
+            const phone = document.getElementById('userPhone').value;
+            const email = document.getElementById('userEmail').value;
+            
+            if (!name || !phone) {
+                alert('Please enter both name and phone number');
+                return;
+            }
+            
+            userData = {
+                name: name,
+                phone: phone,
+                email: email,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                safetyScore: safetyScore
+            };
+            
+            db.collection('users').doc(userId).set(userData, { merge: true })
+                .then(() => {
+                    addAlert('✅ Profile updated successfully');
+                    loadContacts();
+                })
+                .catch(error => {
+                    console.error('Error updating profile:', error);
+                    addAlert('❌ Error updating profile');
+                });
+        }
+
+        // Emergency Contacts
+        function loadContacts() {
+            db.collection('users').doc(userId).collection('contacts').get().then(snapshot => {
+                const contactList = document.getElementById('contactList');
+                contactList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    contactList.innerHTML = '<li class="contact-item">No emergency contacts added yet</li>';
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const contact = doc.data();
+                    const contactItem = document.createElement('li');
+                    contactItem.className = 'contact-item';
+                    contactItem.innerHTML = `
+                        <div>
+                            <strong>${contact.name}</strong><br>
+                            <small>${contact.phone}</small>
+                            ${contact.email ? `<br><small>${contact.email}</small>` : ''}
+                        </div>
+                        <div class="contact-actions">
+                            <button class="btn btn-sm btn-danger" onclick="deleteContact('${doc.id}')">Delete</button>
+                        </div>
+                    `;
+                    contactList.appendChild(contactItem);
+                });
+            });
+        }
+
+        function addEmergencyContact() {
+            const name = document.getElementById('contactName').value;
+            const phone = document.getElementById('contactPhone').value;
+            const email = document.getElementById('contactEmail').value;
+            
+            if (!name || !phone) {
+                alert('Please enter at least contact name and phone number');
+                return;
+            }
+            
+            const contactData = {
+                name: name,
+                phone: phone,
+                email: email,
+                added: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            db.collection('users').doc(userId).collection('contacts').add(contactData)
+            .then(() => {
+                addAlert('✅ Emergency contact added successfully');
+                document.getElementById('contactName').value = '';
+                document.getElementById('contactPhone').value = '';
+                document.getElementById('contactEmail').value = '';
+                loadContacts();
+            })
+            .catch(error => {
+                console.error('Error adding contact:', error);
+                addAlert('❌ Error adding contact');
+            });
+        }
+
+        function deleteContact(contactId) {
+            db.collection('users').doc(userId).collection('contacts').doc(contactId).delete().then(() => {
+                addAlert('✅ Contact deleted successfully');
+                loadContacts();
+            }).catch(error => {
+                console.error('Error deleting contact:', error);
+                addAlert('❌ Error deleting contact');
+            });
+        }
+
+        // All Clear Alert
+        function sendAllClearAlert() {
+            const alertData = {
+                userId: userId,
+                userName: userData ? userData.name : 'Unknown User',
+                type: 'all_clear',
+                message: 'ALL CLEAR: The emergency has been resolved.',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'resolved'
+            };
+            
+            db.collection('alerts').add(alertData)
+                .then(() => {
+                    addAlert('✅ All clear signal sent to contacts');
+                })
+                .catch(error => {
+                    console.error('Error sending all clear:', error);
+                    addAlert('❌ Error sending all clear signal');
+                });
+        }
+
+        // Three.js Visualization
+        function initThreeJS() {
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a1a);
+            
+            // Create camera
+            const canvas = document.getElementById('panicCanvas');
+            camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            
+            // Add ambient light
+            const ambientLight = new THREE.AmbientLight(0x333366, 0.6);
+            scene.add(ambientLight);
+            
+            // Add directional light
+            const directionalLight = new THREE.DirectionalLight(0xff8a00, 0.8);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+            
+            // Add point light for dramatic effect
+            const pointLight = new THREE.PointLight(0xe52e71, 1, 100);
+            pointLight.position.set(0, 0, 5);
+            scene.add(pointLight);
+            
+            // Create central sphere (the button)
+            const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+            const sphereMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xe52e71,
+                shininess: 100,
+                transparent: true,
+                opacity: 0.9
+            });
+            sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            scene.add(sphere);
+            
+            // Create protective rings
+            const ringGeometry = new THREE.TorusGeometry(1.5, 0.05, 16, 100);
+            const ringMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x4a9eff,
+                transparent: true,
+                opacity: 0.7
+            });
+            
+            ring1 = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring1.rotation.x = Math.PI / 2;
+            scene.add(ring1);
+            
+            ring2 = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring2.rotation.y = Math.PI / 2;
+            scene.add(ring2);
+            
+            ring3 = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring3.rotation.z = Math.PI / 2;
+            scene.add(ring3);
+            
+            // Create particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1000;
+            const posArray = new Float32Array(particlesCount * 3);
+            
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 10;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.02,
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+            
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+            
+            // Start animation
+            animate();
+        }
+
+        function onWindowResize() {
+            const canvas = document.getElementById('panicCanvas');
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate rings
+            if (ring1) ring1.rotation.z += 0.01;
+            if (ring2) ring2.rotation.x += 0.01;
+            if (ring3) ring3.rotation.y += 0.01;
+            
+            // Rotate particles
+            if (particles) particles.rotation.y += 0.001;
+            
+            // Pulsate sphere if activated
+            if (isActivated && sphere) {
+                sphere.scale.x = 1 + 0.1 * Math.sin(Date.now() * 0.01);
+                sphere.scale.y = 1 + 0.1 * Math.sin(Date.now() * 0.01);
+                sphere.scale.z = 1 + 0.1 * Math.sin(Date.now() * 0.01);
+                
+                // Expand rings
+                if (ring1) ring1.scale.x = ring1.scale.y = ring1.scale.z = 1 + 0.5 * Math.sin(Date.now() * 0.005);
+                if (ring2) ring2.scale.x = ring2.scale.y = ring2.scale.z = 1 + 0.5 * Math.sin(Date.now() * 0.005 + 1);
+                if (ring3) ring3.scale.x = ring3.scale.y = ring3.scale.z = 1 + 0.5 * Math.sin(Date.now() * 0.005 + 2);
+            }
+            
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        // Utility Functions
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const circle = document.createElement("span");
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+            
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - button.getBoundingClientRect().left - radius}px`;
+            circle.style.top = `${event.clientY - button.getBoundingClientRect().top - radius}px`;
+            circle.classList.add("ripple");
+            
+            const ripple = button.getElementsByClassName("ripple")[0];
+            if (ripple) ripple.remove();
+            
+            button.appendChild(circle);
+        }
+
+        function addAlert(message) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertItem = document.createElement("div");
+            alertItem.className = "alert-item";
+            
+            const icon = document.createElement("div");
+            icon.className = "alert-icon";
+            icon.innerHTML = "⚠️";
+            
+            const text = document.createElement("div");
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            text.innerHTML = `<strong>${timeString}:</strong> ${message}`;
+            
+            alertItem.appendChild(icon);
+            alertItem.appendChild(text);
+            alertContainer.appendChild(alertItem);
+            
+            // Auto-scroll to bottom
+            alertContainer.scrollTop = alertContainer.scrollHeight;
+        }
+
+        function showNotification(message, type = "success") {
+            if (!("Notification" in window)) return;
+            
+            if (Notification.permission === "granted") {
+                new Notification('Lalela Alert', {
+                    body: message,
+                    icon: '/favicon.ico',
+                    tag: 'Lalela-alert'
+                });
+            }
+            
+            // Also show visual toast
+            const notification = document.createElement('div');
+            notification.className = `notification-toast ${type}`;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2rem;">
+                        ${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌'}
+                    </span>
+                    <div>${message}</div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.5s ease-in';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 500);
+            }, 5000);
+        }
+
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+        }
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

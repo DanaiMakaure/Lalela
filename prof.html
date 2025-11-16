@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GBVF - Professional Support Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-orange: #ff6b35;
+            --primary-purple: #7b2cbf;
+            --light-orange: #ffb399;
+            --light-purple: #c77dff;
+            --dark-purple: #5a189a;
+            --white: #ffffff;
+            --dark-gray: #343a40;
+            --gray: #6c757d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--dark-gray);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-purple), var(--primary-orange));
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(123, 44, 191, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2.2rem;
+            font-weight: bold;
+        }
+
+        .back-to-dashboard {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-to-dashboard:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Main Dashboard */
+        .dashboard {
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .dashboard-title {
+            font-size: 3rem;
+            color: var(--primary-purple);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.3rem;
+            color: var(--gray);
+            margin-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Support Grid */
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .support-card {
+            background: var(--white);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .support-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-orange), var(--primary-purple));
+            transition: all 0.4s ease;
+        }
+
+        .support-card:hover::before {
+            left: 0;
+        }
+
+        .support-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(123, 44, 191, 0.15);
+            border-color: var(--primary-purple);
+        }
+
+        .support-card:nth-child(even):hover {
+            border-color: var(--primary-orange);
+        }
+
+        .support-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .support-card:hover .support-icon {
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(123, 44, 191, 0.3);
+        }
+
+        .support-card h3 {
+            color: var(--primary-purple);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .support-card p {
+            color: var(--gray);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-info {
+            font-size: 0.9rem;
+            color: var(--primary-orange);
+            font-weight: 600;
+        }
+
+        /* Emergency Banner */
+        .emergency-section {
+            background: var(--primary-orange);
+            color: white;
+            padding: 2rem 0;
+            margin: 3rem 0;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .emergency-section h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .emergency-section p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .emergency-button {
+            background: white;
+            color: var(--primary-orange);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .emergency-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark-gray);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-title {
+                font-size: 2.2rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .support-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Click feedback */
+        .support-card:active {
+            transform: translateY(-5px);
+        }
+
+        /* Focus styles for accessibility */
+        .support-card:focus,
+        .emergency-button:focus,
+        .back-to-dashboard:focus {
+            outline: 3px solid var(--primary-orange);
+            outline-offset: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">GBVF Professional Support</div>
+                <button class="back-to-dashboard" onclick="goToDashboard()">← Back to Dashboard</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard">
+        <div class="container">
+            <h1 class="dashboard-title">Professional Support Network</h1>
+            <p class="dashboard-subtitle">Connect directly with qualified professionals who specialize in gender-based violence support and advocacy.</p>
+
+            <!-- Emergency Section -->
+            <div class="emergency-section">
+                <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; margin-right: 0.5rem; vertical-align: middle;">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    Emergency Support
+                </h3>
+                <p>If you're in immediate danger, don't wait - get help now</p>
+                <a href="tel:911" class="emergency-button" onclick="handleEmergencyCall()">Call Emergency Services</a>
+            </div>
+
+            <!-- Support Grid -->
+            <div class="support-grid">
+                <div class="support-card" onclick="connectToCounselor()" tabindex="0">
+                    <div class="support-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4"/>
+                            <path d="M21 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"/>
+                            <path d="M3 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"/>
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                            <circle cx="9" cy="9" r="1"/>
+                            <circle cx="15" cy="9" r="1"/>
+                        </svg>
+                    </div>
+                    <h3>Licensed Counselors</h3>
+                    <p>Trauma-informed therapists specializing in GBV recovery and mental health support</p>
+                    <div class="contact-info">Click to connect with a counselor</div>
+                </div>
+
+                <div class="support-card" onclick="connectToAdvocate()" tabindex="0">
+                    <div class="support-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 16v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10c0-1.1.9-2 2-2h1V6a5 5 0 1 1 10 0v2h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2z"/>
+                            <path d="M9 16v-4"/>
+                            <path d="M15 16v-4"/>
+                        </svg>
+                    </div>
+                    <h3>Legal Advocates</h3>
+                    <p>Legal professionals providing advocacy, court support, and rights protection</p>
+                    <div class="contact-info">Click to connect with legal advocate</div>
+                </div>
+
+                <div class="support-card" onclick="connectToSocialWorker()" tabindex="0">
+                    <div class="support-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <h3>Social Workers</h3>
+                    <p>Licensed social workers for case management, resources, and family support</p>
+                    <div class="contact-info">Click to connect with social worker</div>
+                </div>
+
+                <div class="support-card" onclick="connectToCrisisWorker()" tabindex="0">
+                    <div class="support-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                    </div>
+                    <h3>Crisis Intervention</h3>
+                    <p>24/7 crisis counselors trained in immediate support and safety planning</p>
+                    <div class="contact-info">Click for immediate crisis support</div>
+                </div>
+
+                <div class="support-card" onclick="connectToMedicalProfessional()" tabindex="0">
+                    <div class="support-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/>
+                            <path d="M12 5L8 21l4-7 4 7-4-16z"/>
+                        </svg>
+                    </div>
+                    <h3>Medical Professionals</h3>
+                    <p>Healthcare providers with expertise in trauma-informed medical care</p>
+                    <div class="contact-info">Click to connect with medical professional</div>
+                </div>
+
+                <div class="support-card" onclick="connectToShelterCoordinator()" tabindex="0">
+                    <div class="support-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9,22 9,12 15,12 15,22"/>
+                        </svg>
+                    </div>
+                    <h3>Housing Coordinators</h3>
+                    <p>Specialists in emergency shelter, transitional housing, and housing advocacy</p>
+                    <div class="contact-info">Click for housing assistance</div>
+                </div>
+
+                <div class="support-card" onclick="connectToFinancialAdvisor()" tabindex="0">
+                    <div class="support-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                    </div>
+                    <h3>Financial Advocates</h3>
+                    <p>Financial counselors specializing in economic empowerment and resource navigation</p>
+                    <div class="contact-info">Click for financial guidance</div>
+                </div>
+
+                <div class="support-card" onclick="connectToChildSpecialist()" tabindex="0">
+                    <div class="support-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                            <path d="M12 14v7"/>
+                            <path d="M8 21h8"/>
+                        </svg>
+                    </div>
+                    <h3>Child & Family Specialists</h3>
+                    <p>Professionals trained in supporting children and families affected by GBV</p>
+                    <div class="contact-info">Click for family support services</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p><strong>All connections are confidential and secure</strong></p>
+            <p>&copy; 2025 GBVF Professional Support Network</p>
+        </div>
+    </footer>
+
+    <script>
+        function goToDashboard() {
+            // In a real application, this would navigate to the main dashboard
+            alert('Returning to main dashboard...');
+            // window.location.href = '/dashboard';
+        }
+
+        function handleEmergencyCall() {
+            if (confirm('This will call emergency services. Continue?')) {
+                // In a real app, this would initiate the call
+                window.location.href = 'tel:911';
+            }
+        }
+
+        function connectToCounselor() {
+            showConnectionModal('Licensed Counselor', 'Connecting you with a trauma-informed licensed counselor...', 'counselor@gbvf.org', '+1-555-COUNSEL');
+        }
+
+        function connectToAdvocate() {
+            showConnectionModal('Legal Advocate', 'Connecting you with a legal advocacy specialist...', 'legal@gbvf.org', '+1-555-LEGAL');
+        }
+
+        function connectToSocialWorker() {
+            showConnectionModal('Social Worker', 'Connecting you with a licensed social worker...', 'socialwork@gbvf.org', '+1-555-SOCIAL');
+        }
+
+        function connectToCrisisWorker() {
+            showConnectionModal('Crisis Counselor', 'Connecting you with 24/7 crisis support...', 'crisis@gbvf.org', '+1-555-CRISIS');
+        }
+
+        function connectToMedicalProfessional() {
+            showConnectionModal('Medical Professional', 'Connecting you with trauma-informed healthcare...', 'medical@gbvf.org', '+1-555-MEDICAL');
+        }
+
+        function connectToShelterCoordinator() {
+            showConnectionModal('Housing Coordinator', 'Connecting you with housing assistance...', 'housing@gbvf.org', '+1-555-HOUSING');
+        }
+
+        function connectToFinancialAdvisor() {
+            showConnectionModal('Financial Advocate', 'Connecting you with financial guidance...', 'financial@gbvf.org', '+1-555-FINANCE');
+        }
+
+        function connectToChildSpecialist() {
+            showConnectionModal('Child & Family Specialist', 'Connecting you with family support services...', 'family@gbvf.org', '+1-555-FAMILY');
+        }
+
+        function showConnectionModal(professionalType, message, email, phone) {
+            const modalContent = `
+${message}
+
+Contact Information:
+📧 Email: ${email}
+📞 Phone: ${phone}
+
+Would you like to:
+1. Call now
+2. Send email
+3. Schedule appointment
+
+All communications are confidential.
+            `;
+            
+            const choice = confirm(modalContent + '\n\nClick OK to call, Cancel to send email');
+            
+            if (choice) {
+                window.location.href = `tel:${phone}`;
+            } else {
+                window.location.href = `mailto:${email}?subject=${encodeURIComponent('Professional Support Request - ' + professionalType)}`;
+            }
+        }
+
+        // Keyboard navigation for cards
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.classList.contains('support-card')) {
+                e.target.click();
+            }
+        });
+
+        // Add visual feedback for card interactions
+        document.querySelectorAll('.support-card').forEach(card => {
+            card.addEventListener('mousedown', function() {
+                this.style.transform = 'translateY(-5px) scale(0.98)';
+            });
+            
+            card.addEventListener('mouseup', function() {
+                this.style.transform = 'translateY(-10px) scale(1)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

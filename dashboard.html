@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Lalela</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    /* Global Styles */
+    :root {
+        /* Primary Colors - Blue Theme */
+        --primary-blue:  #0f0c29;
+        --primary-indigo: #4a6ee0;
+        --dark-blue: #2980b9;
+        --light-blue: #5dade2;
+        --dark-indigo: #3a56b0;
+        --light-indigo: #6b8ce8;
+        
+        /* Enhanced Gradients */
+        --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-indigo) 100%);
+        --gradient-secondary: linear-gradient(135deg, var(--light-blue) 0%, var(--light-indigo) 100%);
+        --gradient-soft: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(74, 110, 224, 0.1) 100%);
+        
+        /* Neutrals */
+        --black: #1A1A1A;
+        --dark-gray: #2D2D2D;
+        --medium-gray: #4A4A4A;
+        --light-gray: #F8F9FA;
+        --border-light: #E8ECEF;
+        --white: #FFFFFF;
+        
+        /* Text Colors */
+        --text-primary: #1A1A1A;
+        --text-secondary: #4A4A4A;
+        --text-tertiary: #6C757D;
+        --text-on-dark: #FFFFFF;
+        --text-on-dark-secondary: #E8ECEF;
+        
+        /* Shadows */
+        --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.08);
+        --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+        --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.16);
+        --shadow-colored: 0 4px 20px rgba(52, 152, 219, 0.2);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+        background: var(--light-gray);
+        color: var(--text-primary);
+        line-height: 1.6;
+        font-size: 16px;
+        overflow-x: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Dark Mode Styles */
+    body.dark-mode {
+        background: var(--dark-gray);
+        --light-gray: #2D2D2D;
+        --white: #1A1A1A;
+        --text-primary: #FFFFFF;
+        --text-secondary: #E8ECEF;
+        --text-tertiary: #ADB5BD;
+        --border-light: #404040;
+    }
+
+    body.dark-mode .sidebar,
+    body.dark-mode .top-nav,
+    body.dark-mode .profile-card,
+    body.dark-mode .post-card,
+    body.dark-mode .notification-dropdown {
+        background: var(--black);
+        border-color: var(--border-light);
+    }
+
+    /* Typography */
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text-primary);
+        font-weight: 700;
+        margin-bottom: 0.75em;
+        letter-spacing: -0.025em;
+    }
+
+    /* Dashboard Layout */
+    .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        background: var(--light-gray);
+    }
+
+    /* Enhanced Sidebar */
+    .sidebar {
+        width: 280px;
+        background: var(--white);
+        box-shadow: var(--shadow-medium);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+        position: fixed;
+        height: 100vh;
+        border-right: 1px solid var(--border-light);
+    }
+
+    .sidebar.collapsed {
+        width: 80px;
+    }
+
+    .sidebar-header {
+        padding: 24px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid transparent;
+        background: var(--gradient-soft);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sidebar-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-primary);
+    }
+
+    .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        object-fit: cover;
+        flex-shrink: 0;
+        box-shadow: var(--shadow-light);
+        background: var(--gradient-primary);
+    }
+
+    .sidebar-header h3 {
+        color: var(--text-primary);
+        font-size: 20px;
+        font-weight: 800;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .sidebar.collapsed .sidebar-header h3 {
+        display: none;
+    }
+
+    .toggle-btn {
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        padding: 8px;
+        border-radius: 8px;
+    }
+
+    .toggle-btn:hover {
+        color: var(--primary-blue);
+        background: rgba(52, 152, 219, 0.1);
+    }
+
+  .sidebar-menu {
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+    .menu-section {
+        margin-bottom: 24px;
+    }
+
+    .menu-section-title {
+        padding: 0 20px 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+
+    .sidebar.collapsed .menu-section-title {
+        display: none;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 14px 20px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        white-space: nowrap;
+        overflow: hidden;
+        position: relative;
+        margin: 0 12px;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+
+    .menu-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: var(--gradient-primary);
+        transition: width 0.3s ease;
+        border-radius: 12px;
+        z-index: -1;
+    }
+
+    .menu-item:hover::before {
+        width: 100%;
+    }
+
+    .menu-item:hover {
+        color: var(--white);
+        transform: translateX(4px);
+        box-shadow: var(--shadow-colored);
+    }
+
+    .menu-item.active {
+        background: var(--gradient-primary);
+        color: var(--white);
+        box-shadow: var(--shadow-colored);
+    }
+
+    .menu-item i {
+        margin-right: 12px;
+        font-size: 18px;
+        width: 24px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar.collapsed .menu-item {
+        justify-content: center;
+        margin: 0 8px;
+    }
+
+    .sidebar.collapsed .menu-item span {
+        display: none;
+    }
+
+    .sidebar.collapsed .menu-item i {
+        margin-right: 0;
+        font-size: 20px;
+    }
+
+    /* Enhanced Main Content */
+    .main-content {
+        flex: 1;
+        margin-left: 280px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        min-height: 100vh;
+    }
+
+    .main-content.expanded {
+        margin-left: 80px;
+    }
+
+    /* Enhanced Top Navigation */
+    .top-nav {
+        background: var(--white);
+        padding: 20px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--shadow-light);
+        position: sticky;
+        top: 0;
+        z-index: 90;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .welcome-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .welcome-message h2 {
+        font-size: 24px;
+        color: var(--text-primary);
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .welcome-message .greeting-text {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+
+    /* Enhanced Dark mode toggle */
+    .dark-mode-toggle {
+        position: relative;
+        display: inline-block;
+        width: 56px;
+        height: 28px;
+    }
+
+    .dark-mode-toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .dark-mode-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--border-light);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 28px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark-mode-slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 4px;
+        background: var(--white);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 50%;
+        box-shadow: var(--shadow-light);
+    }
+
+    input:checked + .dark-mode-slider {
+        background: var(--gradient-primary);
+    }
+
+    input:checked + .dark-mode-slider:before {
+        transform: translateX(28px);
+    }
+
+    /* Enhanced Notification Bell */
+    .notification-bell {
+        position: relative;
+        cursor: pointer;
+        padding: 12px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        background: rgba(52, 152, 219, 0.05);
+    }
+
+    .notification-bell:hover {
+        background: rgba(52, 152, 219, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .notification-bell i {
+        font-size: 20px;
+        color: var(--primary-blue);
+        transition: all 0.3s ease;
+    }
+
+    .notification-count {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background: var(--gradient-primary);
+        color: var(--white);
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.4);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    /* Enhanced User Profile Button */
+    .user-profile-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        padding: 8px 16px;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        background: var(--gradient-soft);
+    }
+
+    .user-profile-btn:hover {
+        background: rgba(52, 152, 219, 0.1);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-light);
+    }
+
+    .user-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: var(--gradient-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: var(--shadow-light);
+        position: relative;
+    }
+
+    .user-avatar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 12px;
+        border: 2px solid rgba(52, 152, 219, 0.2);
+    }
+
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+
+    /* Enhanced Content Area */
+    .content-area {
+        padding: 32px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--border-light);
+    }
+
+    .section-header h2 {
+        font-size: 28px;
+        color: var(--text-primary);
+        margin: 0;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Enhanced Profile Card */
+    .profile-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: var(--shadow-medium);
+        padding: 32px;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--border-light);
+    }
+
+    .profile-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-primary);
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 32px;
+        gap: 24px;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 20px;
+        background: var(--gradient-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+        box-shadow: var(--shadow-heavy);
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-upload {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background: var(--gradient-primary);
+        color: var(--white);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow-medium);
+        transition: all 0.3s ease;
+    }
+
+    .avatar-upload:hover {
+        transform: scale(1.1);
+    }
+
+    .avatar-upload input {
+        display: none;
+    }
+
+    .profile-info h3 {
+        font-size: 24px;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+
+    .profile-info p {
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+        font-size: 16px;
+    }
+
+    /* Enhanced Posts Container */
+    .posts-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .post-card {
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: var(--shadow-light);
+        padding: 24px;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-light);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .post-card:hover {
+        box-shadow: var(--shadow-medium);
+        transform: translateY(-4px);
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+        gap: 12px;
+    }
+
+    .post-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-light);
+    }
+
+    .post-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .post-author {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 16px;
+    }
+
+    .post-time {
+        font-size: 12px;
+        color: var(--text-tertiary);
+        font-weight: 500;
+    }
+
+    .post-content {
+        margin-bottom: 16px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-size: 15px;
+    }
+
+    .post-image {
+        width: 100%;
+        max-height: 400px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        box-shadow: var(--shadow-light);
+    }
+
+    .post-actions {
+        display: flex;
+        border-top: 1px solid var(--border-light);
+        padding-top: 16px;
+        gap: 24px;
+    }
+
+    .post-action {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-tertiary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .post-action:hover {
+        color: var(--primary-blue);
+        background: rgba(52, 152, 219, 0.1);
+    }
+
+    .post-action i {
+        font-size: 16px;
+    }
+
+    /* Enhanced No Posts Message */
+    .no-posts {
+        text-align: center;
+        padding: 48px;
+        background: var(--white);
+        border-radius: 16px;
+        color: var(--text-tertiary);
+        border: 2px dashed var(--border-light);
+    }
+
+    .no-posts i {
+        font-size: 48px;
+        color: var(--text-tertiary);
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    /* Enhanced Notification Dropdown */
+    .notification-dropdown {
+        position: absolute;
+        top: 60px;
+        right: 0;
+        width: 360px;
+        max-height: 500px;
+        overflow-y: auto;
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: var(--shadow-heavy);
+        z-index: 100;
+        transform: translateY(10px);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid var(--border-light);
+    }
+
+    .notification-dropdown.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .notification-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .notification-title {
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 16px;
+    }
+
+    .mark-all-read {
+        background: none;
+        border: none;
+        color: var(--primary-blue);
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .mark-all-read:hover {
+        background: rgba(52, 152, 219, 0.1);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .content-area {
+            padding: 24px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .sidebar {
+            width: 80px;
+        }
+        
+        .sidebar-header h3,
+        .menu-section-title,
+        .menu-item span {
+            display: none;
+        }
+        
+        .menu-item {
+            justify-content: center;
+            margin: 0 8px;
+        }
+        
+        .menu-item i {
+            margin-right: 0;
+            font-size: 20px;
+        }
+        
+        .main-content {
+            margin-left: 80px;
+        }
+        
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .top-nav {
+            padding: 16px 20px;
+        }
+        
+        .welcome-message h2 {
+            font-size: 20px;
+        }
+        
+        .nav-actions {
+            gap: 16px;
+        }
+        
+        .content-area {
+            padding: 20px 16px;
+        }
+        
+        .notification-dropdown {
+            width: calc(100vw - 32px);
+            right: -16px;
+        }
+    }
+
+    /* Accessibility and Focus States */
+    :focus-visible {
+        outline: 2px solid var(--primary-blue);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+
+    /* Text Selection */
+    ::selection {
+        background: var(--primary-blue);
+        color: var(--white);
+    }
+
+    /* Enhanced Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--border-light);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--gradient-primary);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--dark-blue);
+    }
+</style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Enhanced Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="logo.jpg" alt="Lalela Logo" class="logo">
+                    <h3>Lalela</h3>
+                </div>
+                <button class="toggle-btn" id="toggleSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <!-- Main Section -->
+                <div class="menu-section">
+                    <div class="menu-section-title">Main</div>
+                    <a href="forum.html" class="menu-item">
+                        <i class="fas fa-home"></i>
+                        <span>CommunityForum</span>
+                    </a>
+                    <a href="#" class="menu-item active">
+                        <i class="fas fa-user-circle"></i>
+                        <span>My Profile</span>
+                    </a>
+              
+                                        <a href="visual.html" class="menu-item">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Lalela Panic Button</span>
+                    </a>
+                </div>
+                
+                <!-- Support Section -->
+                <div class="menu-section">
+                    <div class="menu-section-title">Support</div>
+                    <a href="prof.html" class="menu-item">
+                        <i class="fas fa-user-md"></i>
+                        <span>Professional Support</span>
+                    </a>
+                   
+                    <a href="ai2.html" class="menu-item">
+                        <i class="fas fa-robot"></i>
+                        <span>Lalela AI</span>
+                    </a>
+                </div>
+                
+                <!-- Tools Section -->
+                <div class="menu-section">
+                    <div class="menu-section-title">Tools</div>
+                    <a href="band.html" class="menu-item">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>Lalela Band</span>
+                    </a>
+                   
+                </div>
+                
+                <!-- Settings Section -->
+                <div class="menu-section">
+                    <div class="menu-section-title">Settings</div>
+                    <a href="settings.html" class="menu-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="login.html" class="menu-item">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Enhanced Top Navigation -->
+            <div class="top-nav">
+                <div class="welcome-section">
+                    <div class="welcome-message">
+                        <h2>Welcome back, <span class="greeting-text" id="userFullName">Loading...</span></h2>
+                    </div>
+                </div>
+                <div class="nav-actions">
+                    <div class="dark-mode-toggle">
+                        <input type="checkbox" id="darkModeToggle">
+                        <label for="darkModeToggle" class="dark-mode-slider"></label>
+                    </div>
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">0</span>
+                        <div class="notification-dropdown">
+                            <div class="notification-header">
+                                <span class="notification-title">Notifications</span>
+                                <button class="mark-all-read">Mark all as read</button>
+                            </div>
+                            <ul class="notification-list">
+                                <li class="no-notifications">No new notifications</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="user-profile-btn">
+                        <div class="user-avatar">
+                            <img src="https://via.placeholder.com/150" alt="User Avatar" id="userAvatar">
+                        </div>
+                        <span class="user-name" id="userName">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Content Area -->
+            <div class="content-area">
+                <div class="section-header">
+                    <h2>My Profile & Posts</h2>
+                </div>
+
+                <!-- Enhanced Profile Card -->
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/150" alt="Profile Picture" id="profilePicture">
+                            <label class="avatar-upload" for="avatarInput">
+                                <i class="fas fa-camera"></i>
+                                <input type="file" id="avatarInput" accept="image/*">
+                            </label>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profileName">Loading...</h3>
+                            <p id="profileEmail">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Posts Container -->
+                <div class="posts-container" id="postsContainer">
+                    <!-- Posts will be loaded here dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+    // Import Firebase functions
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { 
+        getAuth, 
+        onAuthStateChanged,
+        updateProfile
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { 
+        getDatabase, 
+        ref, 
+        get, 
+        onValue,
+        set,
+        update,
+        query,
+        orderByChild,
+        equalTo
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        // Firebase configuration
+  const firebaseConfig = {
+  apiKey: "AIzaSyDVVNN0hHrR90FiEaPoJt8H4MVR8KBkWZw",
+  authDomain: "community-forum-75dc6.firebaseapp.com",
+  databaseURL: "https://community-forum-75dc6-default-rtdb.firebaseio.com",
+  projectId: "community-forum-75dc6",
+  storageBucket: "community-forum-75dc6.appspot.com",
+  messagingSenderId: "524182558257",
+  appId: "1:524182558257:web:3612faacdd8fbcb288a710",
+  measurementId: "G-JGMRZDKTG2"
+};
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+    const storage = getStorage(app);
+
+    // DOM Elements
+    const toggleSidebarBtn = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const userFullName = document.getElementById('userFullName');
+    const userName = document.getElementById('userName');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profilePicture = document.getElementById('profilePicture');
+    const userAvatar = document.getElementById('userAvatar');
+    const avatarInput = document.getElementById('avatarInput');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const postsContainer = document.getElementById('postsContainer');
+
+    // State variables
+    let currentUser = null;
+    let userData = {};
+
+    // Initialize the dashboard
+    function initDashboard() {
+        setupEventListeners();
+        checkAuthState();
+        initDarkMode();
+    }
+
+    // Check authentication state
+    function checkAuthState() {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loadUserData(user.uid);
+                loadUserPosts(user.uid);
+                setupNotifications(user.uid);
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+    }
+
+    // Load user data from Firebase
+    function loadUserData(userId) {
+        const userRef = ref(database, `users/${userId}`);
+        
+        onValue(userRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                userData = data;
+                updateUI(data);
+                
+                // Apply dark mode if enabled
+                if (data.darkMode) {
+                    document.body.classList.add('dark-mode');
+                    darkModeToggle.checked = true;
+                }
+            } else {
+                initializeUserData(userId);
+            }
+        });
+    }
+
+    // Load posts made by the user from Firebase
+    function loadUserPosts(userId) {
+        const postsRef = ref(database, 'posts');
+        const userPostsQuery = query(postsRef, orderByChild('realAuthorId'), equalTo(userId));
+        
+        onValue(userPostsQuery, (snapshot) => {
+            const posts = snapshot.val() || {};
+            renderPosts(posts);
+        });
+    }
+
+    // Render posts to the page
+    function renderPosts(posts) {
+        postsContainer.innerHTML = '';
+        
+        if (Object.keys(posts).length === 0) {
+            postsContainer.innerHTML = `
+                <div class="no-posts">
+                    <i class="fas fa-edit"></i>
+                    <h3>No posts yet</h3>
+                    <p>You haven't shared anything yet. Start sharing your thoughts and connect with the community!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Convert posts object to array and sort by timestamp (newest first)
+        const postsArray = Object.entries(posts).map(([id, post]) => ({ id, ...post }));
+        postsArray.sort((a, b) => b.timestamp - a.timestamp);
+        
+        postsArray.forEach(post => {
+            const postElement = createPostElement(post);
+            postsContainer.appendChild(postElement);
+        });
+    }
+
+    // Create a post element
+    function createPostElement(post) {
+        const postElement = document.createElement('div');
+        postElement.className = 'post-card';
+        
+        // Format timestamp
+        const postDate = new Date(post.timestamp);
+        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const formattedDate = postDate.toLocaleDateString('en-US', options);
+        
+        // Check if the post is anonymous
+        const isAnonymous = post.anonymous;
+        const displayName = isAnonymous ? 'Anonymous' : (post.authorName || 'You');
+        const displayAvatar = isAnonymous ? 
+            'https://ui-avatars.com/api/?name=A&background=4a6ee0&color=fff' : 
+            (post.authorPhotoURL || 'https://via.placeholder.com/150');
+        
+        // Check if current user has liked this post
+        const hasLiked = post.likes && post.likes[currentUser?.uid] === true;
+        const likeCount = post.likes ? Object.keys(post.likes).length : 0;
+        
+        // Create post HTML
+        postElement.innerHTML = `
+            <div class="post-header">
+                <div class="post-avatar">
+                    <img src="${displayAvatar}" alt="User Avatar">
+                </div>
+                <div>
+                    <div class="post-author">${displayName}</div>
+                    <div class="post-time">${formattedDate}</div>
+                </div>
+            </div>
+            <div class="post-content">${post.content || ''}</div>
+            ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image" class="post-image">` : ''}
+            <div class="post-actions">
+                <div class="post-action ${hasLiked ? 'liked' : ''}">
+                    <i class="fas fa-heart"></i>
+                    <span>${likeCount} Likes</span>
+                </div>
+                <div class="post-action">
+                    <i class="fas fa-comment"></i>
+                    <span>Comment</span>
+                </div>
+                <div class="post-action">
+                    <i class="fas fa-share"></i>
+                    <span>Share</span>
+                </div>
+            </div>
+        `;
+        
+        return postElement;
+    }
+
+    // Initialize dark mode from user preference
+    function initDarkMode() {
+        const userId = auth.currentUser?.uid;
+        if (!userId) return;
+
+        const darkModeRef = ref(database, `users/${userId}/darkMode`);
+        
+        onValue(darkModeRef, (snapshot) => {
+            const darkModeEnabled = snapshot.val() || false;
+            darkModeToggle.checked = darkModeEnabled;
+            document.body.classList.toggle('dark-mode', darkModeEnabled);
+        });
+    }
+
+    // Toggle dark mode
+    function toggleDarkMode() {
+        const userId = auth.currentUser?.uid;
+        if (!userId) return;
+
+        const darkModeEnabled = darkModeToggle.checked;
+        document.body.classList.toggle('dark-mode', darkModeEnabled);
+        
+        // Save preference to database
+        set(ref(database, `users/${userId}/darkMode`), darkModeEnabled)
+            .catch(error => {
+                console.error("Error saving dark mode preference:", error);
+                // Revert UI if save fails
+                darkModeToggle.checked = !darkModeEnabled;
+                document.body.classList.toggle('dark-mode', !darkModeEnabled);
+            });
+    }
+
+    // Update UI with user data
+    function updateUI(data) {
+        const isAnonymous = data.anonymousMode || false;
+        
+        // Handle name display
+        const displayName = isAnonymous ? 'Anonymous' : (data.name || 'User');
+        const shortName = isAnonymous ? 'A' : displayName.split(' ')[0];
+        
+        // Update all name displays
+        userFullName.textContent = displayName;
+        userName.textContent = shortName;
+        profileName.textContent = displayName;
+        profileEmail.textContent = data.email || 'No email provided';
+        
+        // Handle avatar (force generic avatar in anonymous mode)
+        if (data.photoURL && !isAnonymous) {
+            profilePicture.src = data.photoURL;
+            userAvatar.src = data.photoURL;
+        } else {
+            const initial = isAnonymous ? 'A' : (data.name ? data.name.charAt(0).toUpperCase() : 'U');
+            const placeholder = `https://ui-avatars.com/api/?name=${initial}&background=3498db&color=fff`;
+            profilePicture.src = placeholder;
+            userAvatar.src = placeholder;
+        }
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+        // Sidebar toggle
+        toggleSidebarBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        });
+        
+        // Avatar upload
+        avatarInput.addEventListener('change', handleAvatarUpload);
+        
+        // Dark mode toggle
+        darkModeToggle.addEventListener('change', toggleDarkMode);
+    }
+
+    // Handle avatar upload
+    function handleAvatarUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const userId = auth.currentUser.uid;
+        const storageReference = storageRef(storage, `profile_pictures/${userId}`);
+        
+        uploadBytes(storageReference, file)
+            .then((snapshot) => getDownloadURL(snapshot.ref))
+            .then((downloadURL) => {
+                // Update UI only if not in anonymous mode
+                if (!userData.anonymousMode) {
+                    profilePicture.src = downloadURL;
+                    userAvatar.src = downloadURL;
+                }
+                
+                // Always update in Firebase (even if anonymous)
+                return Promise.all([
+                    updateProfile(auth.currentUser, { photoURL: downloadURL }),
+                    update(ref(database, `users/${userId}`), { photoURL: downloadURL })
+                ]);
+            })
+            .catch((error) => {
+                console.error("Error uploading avatar:", error);
+                alert("Failed to upload profile picture. Please try again.");
+            });
+    }
+
+    // Notification system
+    function setupNotifications(userId) {
+        const notificationBell = document.querySelector('.notification-bell');
+        const notificationDropdown = document.querySelector('.notification-dropdown');
+        const markAllReadBtn = document.querySelector('.mark-all-read');
+        
+        // Toggle dropdown
+        notificationBell.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('active');
+        });
+        
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!notificationBell.contains(e.target)) {
+                notificationDropdown.classList.remove('active');
+            }
+        });
+        
+        // Mark all as read
+        markAllReadBtn.addEventListener('click', () => markAllNotificationsAsRead(userId));
+        
+        // Real-time listener
+        onValue(ref(database, `users/${userId}/notifications`), (snapshot) => {
+            const notifications = snapshot.val() || {};
+            updateNotificationUI(notifications);
+        });
+    }
+
+    function updateNotificationUI(notifications) {
+        const notificationList = document.querySelector('.notification-list');
+        const notificationCount = document.querySelector('.notification-count');
+        
+        let unreadCount = 0;
+        notificationList.innerHTML = '';
+        
+        Object.entries(notifications).forEach(([id, notification]) => {
+            if (!notification.read) unreadCount++;
+            
+            const item = document.createElement('li');
+            item.className = `notification-item ${notification.read ? '' : 'unread'}`;
+            item.innerHTML = `
+                <div class="notification-content">${notification.message}</div>
+                <div class="notification-time">${formatTime(notification.timestamp)}</div>
+            `;
+            item.addEventListener('click', () => markNotificationAsRead(currentUser.uid, id));
+            notificationList.appendChild(item);
+        });
+        
+        notificationCount.textContent = unreadCount;
+        notificationCount.style.display = unreadCount > 0 ? 'flex' : 'none';
+        
+        if (notificationList.children.length === 0) {
+            notificationList.innerHTML = '<li class="no-notifications">No new notifications</li>';
+        }
+    }
+
+    function markNotificationAsRead(userId, notificationId) {
+        const notificationRef = ref(database, `users/${userId}/notifications/${notificationId}/read`);
+        set(notificationRef, true);
+    }
+
+    function markAllNotificationsAsRead(userId) {
+        const notificationsRef = ref(database, `users/${userId}/notifications`);
+        get(notificationsRef).then((snapshot) => {
+            const updates = {};
+            const notifications = snapshot.val() || {};
+            
+            Object.keys(notifications).forEach(id => {
+                updates[`users/${userId}/notifications/${id}/read`] = true;
+            });
+            
+            if (Object.keys(updates).length > 0) {
+                update(ref(database), updates);
+            }
+        });
+    }
+
+    function formatTime(timestamp) {
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diff = Math.floor((now - time) / 1000);
+        
+        if (diff < 60) return 'Just now';
+        if (diff < 3600) return `${Math.floor(diff/60)} minutes ago`;
+        if (diff < 86400) return `${Math.floor(diff/3600)} hours ago`;
+        return `${Math.floor(diff/86400)} days ago`;
+    }
+
+    function initializeUserData(userId) {
+        const user = auth.currentUser;
+        const initialData = {
+            name: user.displayName || '',
+            email: user.email || '',
+            anonymousMode: false,
+            darkMode: false,
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString()
+        };
+        
+        set(ref(database, `users/${userId}`), initialData)
+            .then(() => userData = initialData)
+            .catch(console.error);
+    }
+
+    // Initialize the dashboard
+    document.addEventListener('DOMContentLoaded', initDashboard);
+</script>
+
+</body>
+</html>

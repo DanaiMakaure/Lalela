@@ -1,0 +1,2010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lalela</title>
+
+  <!-- Import Google Font - Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Material Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    :root {
+      /* Dark mode colors */
+      --text-color: #E3E3E3;
+      --subheading-color: #828282;
+      --placeholder-color: #A6A6A6;
+      --primary-color: #242424;
+      --secondary-color: #383838;
+      --secondary-hover-color: #444;
+      --header-bg: #242424;
+      --font-family: "Poppins", sans-serif;
+    }
+
+    .light_mode {
+      /* Light mode colors */
+      --text-color: #222;
+      --subheading-color: #A0A0A0;
+      --placeholder-color: #6C6C6C;
+      --primary-color: #FFF;
+      --secondary-color: #E9EEF6;
+      --secondary-hover-color: #DBE1EA;
+      --header-bg: #FFF;
+    }
+
+    /* Interface themes */
+    .theme-calm {
+      --primary-color: #f0f8ff;
+      --secondary-color: #d1e7ff;
+      --secondary-hover-color: #b3d6ff;
+      --text-color: #1a365d;
+      --subheading-color: #2c5282;
+      --placeholder-color: #5f8bdb;
+      --header-bg: #f0f8ff;
+    }
+
+    .theme-support {
+      --primary-color: #fff5f5;
+      --secondary-color: #fed7d7;
+      --secondary-hover-color: #feb2b2;
+      --text-color: #63171b;
+      --subheading-color: #9b2c2c;
+      --placeholder-color: #e53e3e;
+      --header-bg: #fff5f5;
+    }
+
+    .theme-empower {
+      --primary-color: #f8f9fa;
+      --secondary-color: #d1e7dd;
+      --secondary-hover-color: #a3cfbb;
+      --text-color: #0a3622;
+      --subheading-color: #1a936f;
+      --placeholder-color: #2ec4b6;
+      --header-bg: #f8f9fa;
+    }
+
+    body {
+      background: var(--primary-color);
+      transition: all 0.3s ease;
+    }
+
+    .header, .chat-list .message, .typing-form {
+      margin: 0 auto;
+      max-width: 980px;
+    }
+
+    .header {
+      margin-top: 6vh;
+      padding: 1rem;
+      overflow-x: hidden;
+      background: var(--header-bg);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    body.hide-header .header {
+      margin: 0;
+      display: none;
+    }
+
+    .header :where(.title, .subtitle) {
+      color: var(--text-color);
+      font-weight: 50;
+      line-height: 4rem;
+      transition: all 0.3s ease;
+    }
+
+    .header .title {
+      width: fit-content;
+      font-size: 3rem;
+      background-clip: text;
+      background: linear-gradient(to right, #d96570, #8a2be2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header .subtitle {
+      font-size: 1.6rem;
+      color: var(--subheading-color);
+    }
+
+    .chat-list {
+      padding: 2rem 1rem 12rem;
+      max-height: 100vh;
+      overflow-y: auto;
+      scrollbar-color: #999 transparent;
+    }
+
+    .chat-list .message {
+      margin-top: 1.5rem;
+    }
+
+    .chat-list .message .message-content {
+      display: flex;
+      gap: 1.5rem;
+      width: 100%;
+      align-items: flex-start;
+    }
+
+    .chat-list .message .text {
+      color: var(--text-color);
+      white-space: pre-wrap;
+      flex: 1;
+    }
+
+    .avatar {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .loading-indicator {
+      display: flex;
+      gap: 8px;
+    }
+
+    .loading-indicator .loading-bar {
+      width: 5px;
+      height: 18px;
+      background: var(--secondary-color);
+      border-radius: 10px;
+      animation: loading 1s infinite;
+    }
+
+    .loading-indicator .loading-bar:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .loading-indicator .loading-bar:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    @keyframes loading {
+      0%, 100% { height: 15px; }
+      50% { height: 25px; }
+    }
+
+    .message .icon {
+      visibility: hidden;
+      cursor: pointer;
+      color: var(--subheading-color);
+    }
+
+    .message:hover .icon {
+      visibility: visible;
+    }
+
+    .message.error .text {
+      color: #e55865;
+    }
+
+    .message.loading .loading-indicator {
+      display: flex;
+    }
+
+    .message.loading .text {
+      display: none;
+    }
+
+    .hide {
+      display: none !important;
+    }
+
+    .typing-area {
+      position: fixed;
+      width: 100%;
+      left: 0;
+      bottom: 0;
+      padding: 1rem;
+      background: var(--primary-color);
+      transition: all 0.3s ease;
+    }
+
+    .typing-form .input-wrapper {
+      width: 100%;
+      height: 56px;
+      display: flex;
+      position: relative;
+    }
+
+    .typing-form .typing-input {
+      height: 100%;
+      width: 100%;
+      border: none;
+      outline: none;
+      resize: none;
+      font-size: 1rem;
+      color: var(--text-color);
+      padding: 1.1rem 4rem 1.1rem 1.5rem;
+      border-radius: 100px;
+      background: var(--secondary-color);
+      transition: all 0.3s ease;
+    }
+
+    .typing-form .typing-input::placeholder {
+      color: var(--placeholder-color);
+    }
+
+    .typing-form .typing-input:focus {
+      background: var(--secondary-hover-color);
+    }
+
+    #send-message-button {
+      position: absolute;
+      right: 0;
+      height: 56px;
+      width: 56px;
+      border: none;
+      cursor: pointer;
+      border-radius: 0 28px 28px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--secondary-color);
+      transition: 0.2s ease;
+    }
+
+    #send-message-button:hover {
+      background: var(--secondary-hover-color);
+    }
+
+    .voice-button {
+      position: absolute;
+      right: 56px;
+      height: 56px;
+      width: 56px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--secondary-color);
+      transition: 0.2s ease;
+      color: var(--text-color);
+    }
+
+    .voice-button:hover {
+      background: var(--secondary-hover-color);
+    }
+
+    .voice-button.recording {
+      color: #d96570;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .control-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin: 0 auto;
+      max-width: 980px;
+      padding: 1rem;
+    }
+
+    .control-button {
+      background: var(--secondary-color);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .control-button:hover {
+      background: var(--secondary-hover-color);
+    }
+
+    /* Debug log panel */
+    #debug-panel {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #0f0;
+      padding: 10px;
+      border-radius: 5px;
+      max-width: 400px;
+      max-height: 200px;
+      overflow: auto;
+      font-family: monospace;
+      font-size: 12px;
+      z-index: 1000;
+      display: none;
+    }
+
+    #debug-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--secondary-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    /* Mood Tracker Styles */
+    .mood-tracker {
+      position: fixed;
+      left: 20px;
+      bottom: 80px;
+      background: var(--secondary-color);
+      padding: 15px;
+      border-radius: 15px;
+      z-index: 1000;
+      max-width: 300px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      transform: translateY(150%);
+    }
+
+    .mood-tracker.show {
+      transform: translateY(0);
+    }
+
+    .mood-tracker-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .mood-tracker-title {
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .mood-close {
+      cursor: pointer;
+      color: var(--text-color);
+    }
+
+    .mood-emojis {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .mood-emoji {
+      cursor: pointer;
+      font-size: 24px;
+      transition: transform 0.2s;
+      position: relative;
+    }
+
+    .mood-emoji:hover {
+      transform: scale(1.2);
+    }
+
+    .mood-emoji.selected {
+      transform: scale(1.3);
+    }
+
+    .mood-emoji .tooltip {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--secondary-hover-color);
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+      color: var(--text-color);
+    }
+
+    .mood-emoji:hover .tooltip {
+      opacity: 1;
+    }
+
+    .mood-notes {
+      width: 100%;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--secondary-hover-color);
+      background: var(--primary-color);
+      color: var(--text-color);
+      font-size: 14px;
+      resize: none;
+      margin-bottom: 10px;
+    }
+
+    .mood-save {
+      background: linear-gradient(to right, #d96570, #8a2be2);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: 500;
+    }
+
+    .mood-toggle {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      background: linear-gradient(to right, #d96570, #8a2be2);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .mood-history {
+      margin-top: 10px;
+      max-height: 100px;
+      overflow-y: auto;
+      border-top: 1px solid var(--secondary-hover-color);
+      padding-top: 10px;
+    }
+
+    .mood-entry {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+      padding: 5px;
+      border-radius: 5px;
+      background: var(--secondary-color);
+    }
+
+    .mood-entry-emoji {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+
+    .mood-entry-text {
+      font-size: 12px;
+      color: var(--text-color);
+      flex: 1;
+    }
+
+    .mood-entry-date {
+      font-size: 10px;
+      color: var(--subheading-color);
+    }
+
+    /* Emergency Button */
+    .emergency-button {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 20px;
+      background: #d96570;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 10px 20px;
+      cursor: pointer;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .emergency-button:hover {
+      background: #c0392b;
+      transform: translateX(-50%) scale(1.05);
+    }
+
+    /* Emergency Modal */
+    .emergency-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .emergency-modal.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .emergency-modal-content {
+      background: var(--primary-color);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .emergency-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .emergency-modal-title {
+      color: var(--text-color);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .emergency-modal-close {
+      cursor: pointer;
+      color: var(--text-color);
+      font-size: 1.5rem;
+    }
+
+    .emergency-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .emergency-option {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      background: var(--secondary-color);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .emergency-option:hover {
+      background: var(--secondary-hover-color);
+    }
+
+    .emergency-option-icon {
+      margin-right: 15px;
+      font-size: 1.5rem;
+    }
+
+    .emergency-option-text {
+      flex: 1;
+      color: var(--text-color);
+    }
+
+    /* Interface customization */
+    .interface-panel {
+      position: fixed;
+      right: 80px;
+      bottom: 80px;
+      background: var(--secondary-color);
+      padding: 15px;
+      border-radius: 15px;
+      z-index: 1000;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      transform: translateY(150%);
+      width: 250px;
+    }
+
+    .interface-panel.show {
+      transform: translateY(0);
+    }
+
+    .interface-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .interface-title {
+      color: var(--text-color);
+      font-weight: 600;
+    }
+
+    .interface-close {
+      cursor: pointer;
+      color: var(--text-color);
+    }
+
+    .interface-option {
+      margin-bottom: 15px;
+    }
+
+    .interface-label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text-color);
+      font-size: 14px;
+    }
+
+    .interface-select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--secondary-hover-color);
+      background: var(--primary-color);
+      color: var(--text-color);
+    }
+
+    .font-size-slider {
+      width: 100%;
+    }
+
+    .interface-toggle {
+      position: fixed;
+      right: 80px;
+      bottom: 20px;
+      background: var(--secondary-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Resources Panel */
+    .resources-panel {
+      position: fixed;
+      left: 20px;
+      top: 20px;
+      background: var(--secondary-color);
+      padding: 15px;
+      border-radius: 15px;
+      z-index: 1000;
+      max-width: 300px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      transform: translateX(-150%);
+    }
+
+    .resources-panel.show {
+      transform: translateX(0);
+    }
+
+    .resources-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .resources-title {
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .resources-close {
+      cursor: pointer;
+      color: var(--text-color);
+    }
+
+    .resources-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .resource-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--primary-color);
+    }
+
+    .resource-title {
+      font-weight: 500;
+      color: var(--text-color);
+      margin-bottom: 5px;
+    }
+
+    .resource-link {
+      color: #d96570;
+      text-decoration: none;
+      font-size: 14px;
+      word-break: break-all;
+    }
+
+    .resource-link:hover {
+      text-decoration: underline;
+    }
+
+    .resources-toggle {
+      position: fixed;
+      left: 20px;
+      top: 20px;
+      background: linear-gradient(to right, #d96570, #8a2be2);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Speech Controls */
+    .speech-controls {
+      position: fixed;
+      right: 130px;
+      bottom: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 1001;
+    }
+
+    .speech-button {
+      background: var(--secondary-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .speech-button:hover {
+      background: var(--secondary-hover-color);
+    }
+
+    /* Quote Modal */
+    .quote-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .quote-modal.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .quote-modal-content {
+      background: var(--primary-color);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    .quote-text {
+      font-size: 1.2rem;
+      color: var(--text-color);
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .quote-author {
+      font-size: 1rem;
+      color: var(--subheading-color);
+      margin-bottom: 20px;
+    }
+
+    .quote-close {
+      background: linear-gradient(to right, #d96570, #8a2be2);
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .header :is(.title, .subtitle) {
+        font-size: 2rem;
+        line-height: 2.6rem;
+      }
+
+      .header .subtitle {
+        font-size: 1rem;
+      }
+
+      .mood-tracker {
+        left: 10px;
+        right: 10px;
+        max-width: calc(100% - 20px);
+      }
+
+      .interface-panel {
+        left: 10px;
+        right: 10px;
+        max-width: calc(100% - 20px);
+      }
+
+      .resources-panel {
+        left: 10px;
+        right: 10px;
+        max-width: calc(100% - 20px);
+      }
+
+      .speech-controls {
+        right: 80px;
+        bottom: 80px;
+      }
+
+      .emergency-button {
+        width: 90%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Chat Header -->
+  <div class="header">
+    <div class="title">Lalela</div>
+    <div class="subtitle">Your confidential support system for gender-based violence concerns.Giving Power Back To The Silenced.</div>
+  </div>
+
+  <!-- Control Buttons -->
+  <div class="control-buttons">
+    <button id="theme-toggle-button" class="control-button material-symbols-rounded">light_mode</button>
+    <button id="delete-chat-button" class="control-button material-symbols-rounded">delete</button>
+  </div>
+
+  <!-- Chat List -->
+  <div class="chat-list"></div>
+
+  <!-- Typing Area -->
+  <div class="typing-area">
+    <form class="typing-form">
+      <div class="input-wrapper">
+        <textarea class="typing-input" placeholder="Type your message..."></textarea>
+        <button type="button" id="voice-button" class="voice-button material-symbols-rounded">mic</button>
+        <button type="submit" id="send-message-button" class="material-symbols-rounded">send</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Emergency Button -->
+  <button class="emergency-button" id="emergency-button">
+    <span class="material-symbols-rounded" style="margin-right: 5px;">emergency</span>
+    Emergency Help
+  </button>
+
+  <!-- Emergency Modal -->
+  <div class="emergency-modal" id="emergency-modal">
+    <div class="emergency-modal-content">
+      <div class="emergency-modal-header">
+        <div class="emergency-modal-title">Emergency Assistance</div>
+        <span class="emergency-modal-close material-symbols-rounded" id="emergency-modal-close">close</span>
+      </div>
+      <div class="emergency-options">
+        <div class="emergency-option" id="emergency-call">
+          <span class="emergency-option-icon material-symbols-rounded">call</span>
+          <div class="emergency-option-text">Call GBV Emergency Line (0800 428 428)</div>
+        </div>
+        <div class="emergency-option" id="emergency-whatsapp">
+          <span class="emergency-option-icon material-symbols-rounded">chat</span>
+          <div class="emergency-option-text">WhatsApp Help (+27 87 163 2030)</div>
+        </div>
+        <div class="emergency-option" id="emergency-sms">
+          <span class="emergency-option-icon material-symbols-rounded">sms</span>
+          <div class="emergency-option-text">SMS 'help' to 31531</div>
+        </div>
+        <div class="emergency-option" id="emergency-shelter">
+          <span class="emergency-option-icon material-symbols-rounded">home</span>
+          <div class="emergency-option-text">Find Nearest Shelter</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mood Tracker -->
+  <div class="mood-tracker">
+    <div class="mood-tracker-header">
+      <div class="mood-tracker-title">How are you feeling today?</div>
+      <span class="mood-close material-symbols-rounded">close</span>
+    </div>
+    <div class="mood-emojis">
+      <div class="mood-emoji" data-mood="safe">😌
+        <span class="tooltip">Safe</span>
+      </div>
+      <div class="mood-emoji" data-mood="anxious">😟
+        <span class="tooltip">Anxious</span>
+      </div>
+      <div class="mood-emoji" data-mood="scared">😨
+        <span class="tooltip">Scared</span>
+      </div>
+      <div class="mood-emoji" data-mood="angry">😠
+        <span class="tooltip">Angry</span>
+      </div>
+      <div class="mood-emoji" data-mood="hurt">🤕
+        <span class="tooltip">Hurt</span>
+      </div>
+    </div>
+    <textarea class="mood-notes" placeholder="Add some notes about how you're feeling..."></textarea>
+    <button class="mood-save">Save Mood</button>
+    
+    <div class="mood-history">
+      <!-- Mood history entries will be added here -->
+    </div>
+  </div>
+  <button class="mood-toggle material-symbols-rounded">mood</button>
+
+  <!-- Quote Modal -->
+  <div class="quote-modal" id="quote-modal">
+    <div class="quote-modal-content">
+      <div class="quote-text" id="quote-text"></div>
+      <div class="quote-author" id="quote-author"></div>
+      <button class="quote-close" id="quote-close">Close</button>
+    </div>
+  </div>
+
+  <!-- Resources Panel -->
+  <div class="resources-panel">
+    <div class="resources-header">
+      <div class="resources-title">GBV Resources</div>
+      <span class="resources-close material-symbols-rounded">close</span>
+    </div>
+    <div class="resources-list">
+      <div class="resource-item">
+        <div class="resource-title">GBV Emergency Line (South Africa)</div>
+        <a href="tel:0800428428" class="resource-link">0800 428 428</a>
+      </div>
+      <div class="resource-item">
+        <div class="resource-title">GBV WhatsApp Helpline</div>
+        <a href="https://wa.me/27871632030" target="_blank" class="resource-link">0871632030</a>
+      </div>
+      <div class="resource-item">
+        <div class="resource-title">SMS Line</div>
+        <div class="resource-link">Text 'help' to 31531</div>
+      </div>
+      <div class="resource-item">
+        <div class="resource-title">People Opposed to Woman Abuse (POWA)</div>
+        <a href="tel:0116424345" class="resource-link">011 642 4345</a>
+      </div>
+      <div class="resource-item">
+        <div class="resource-title">TEARS Foundation</div>
+        <a href="tel:0105905920" class="resource-link">010 590 5920</a>
+      </div>
+      <div class="resource-item">
+        <div class="resource-title">Lifeline South Africa</div>
+        <a href="tel:0861322322" class="resource-link">0861 322 322</a>
+      </div>
+    </div>
+  </div>
+  <button class="resources-toggle material-symbols-rounded">help</button>
+
+  <!-- Interface Customization -->
+  <div class="interface-panel">
+    <div class="interface-header">
+      <div class="interface-title">Customize Interface</div>
+      <span class="interface-close material-symbols-rounded">close</span>
+    </div>
+    <div class="interface-option">
+      <label class="interface-label">Language</label>
+      <select class="interface-select" id="language-select">
+        <option value="en">English</option>
+        <option value="zu">isiZulu</option>
+        <option value="xh">isiXhosa</option>
+        <option value="af">Afrikaans</option>
+        <option value="nso">Sepedi</option>
+        <option value="tn">Setswana</option>
+        <option value="st">Sesotho</option>
+        <option value="ts">Xitsonga</option>
+        <option value="ss">siSwati</option>
+        <option value="ve">Tshivenda</option>
+        <option value="nr">isiNdebele</option>
+      </select>
+    </div>
+    <div class="interface-option">
+      <label class="interface-label">Theme</label>
+      <select class="interface-select" id="theme-select">
+        <option value="default">Default</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="calm">Calm</option>
+        <option value="support">Support</option>
+        <option value="empower">Empower</option>
+      </select>
+    </div>
+    <div class="interface-option">
+      <label class="interface-label">Font Family</label>
+      <select class="interface-select" id="font-family-select">
+        <option value="'Poppins', sans-serif">Poppins</option>
+        <option value="'Arial', sans-serif">Arial</option>
+        <option value="'Georgia', serif">Georgia</option>
+        <option value="'Courier New', monospace">Courier New</option>
+        <option value="'Comic Sans MS', cursive">Comic Sans</option>
+      </select>
+    </div>
+    <div class="interface-option">
+      <label class="interface-label">Font Size: <span id="font-size-value">16</span>px</label>
+      <input type="range" min="12" max="24" value="16" class="font-size-slider" id="font-size-slider">
+    </div>
+  </div>
+  <button class="interface-toggle material-symbols-rounded">palette</button>
+
+  <!-- Speech Controls -->
+  <div class="speech-controls">
+    <button id="speak-button" class="speech-button material-symbols-rounded">volume_up</button>
+    <button id="stop-speech-button" class="speech-button material-symbols-rounded">stop</button>
+  </div>
+
+  <!-- Debug Panel -->
+  <div id="debug-panel"></div>
+  <button id="debug-toggle" class="material-symbols-rounded">bug_report</button>
+
+  <script>
+    // Debug functions
+    const debugPanel = document.getElementById('debug-panel');
+    const debugToggle = document.getElementById('debug-toggle');
+    
+    function debugLog(message) {
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = document.createElement('div');
+      logEntry.innerHTML = `<span style="color:#aaa">[${timestamp}]</span> ${message}`;
+      debugPanel.appendChild(logEntry);
+      debugPanel.scrollTop = debugPanel.scrollHeight;
+      console.log(`[DEBUG] ${message}`);
+    }
+    
+    debugToggle.addEventListener('click', () => {
+      debugPanel.style.display = debugPanel.style.display === 'block' ? 'none' : 'block';
+    });
+
+    const typingForm = document.querySelector(".typing-form");
+    const chatContainer = document.querySelector(".chat-list");
+    const toggleThemeButton = document.querySelector("#theme-toggle-button");
+    const deleteChatButton = document.querySelector("#delete-chat-button");
+    const typingInput = document.querySelector(".typing-input");
+    const voiceButton = document.querySelector("#voice-button");
+    const emergencyButton = document.getElementById("emergency-button");
+    const emergencyModal = document.getElementById("emergency-modal");
+    const emergencyModalClose = document.getElementById("emergency-modal-close");
+    const speakButton = document.getElementById("speak-button");
+    const stopSpeechButton = document.getElementById("stop-speech-button");
+    const quoteModal = document.getElementById("quote-modal");
+    const quoteText = document.getElementById("quote-text");
+    const quoteAuthor = document.getElementById("quote-author");
+    const quoteClose = document.getElementById("quote-close");
+    const languageSelect = document.getElementById("language-select");
+
+    let userMessage = null;
+    let isResponseGenerating = false;
+    let isRecording = false;
+    let recognition = null;
+    let speechSynthesis = window.speechSynthesis;
+    let currentUtterance = null;
+
+    // Replace with your actual API key
+    const API_KEY = "AIzaSyAdvGxmQUJ6NEcjB0WQoTTUNIsBcFwMvc4"; 
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+
+    // Motivational quotes in all 11 languages
+    const motivationalQuotes = {
+      en: [
+        { text: "You are stronger than you think, braver than you believe, and more capable than you imagine.", author: "Unknown" },
+        { text: "The human spirit is stronger than anything that can happen to it.", author: "C.C. Scott" },
+        { text: "You have survived 100% of your worst days. You're doing great.", author: "Unknown" }
+      ],
+      zu: [
+        { text: "Uqine kunalokho ucabanga, ubesabele kunalokho ukholwa ngakho, futhi uyakwazi okungaphezu kwalokho ocabanga.", author: "Unknown" },
+        { text: "Umoya womuntu uqine kunanoma yini engase yenzeke kuwona.", author: "C.C. Scott" },
+        { text: "Usindile ku-100% yezinsuku zakho ezimbi kakhulu. Uyakwenza kahle.", author: "Unknown" }
+      ],
+      xh: [
+        { text: "Uqine ngaphezu kokuba ucinga, nesibindi ngaphezu kokuba ukholelwa, kwaye unako ngaphezu kokuba ucinga.", author: "Unknown" },
+        { text: "Umphefumlo womntu uqine ngaphezu kwanoma yintoni enokwenzeka kuwo.", author: "C.C. Scott" },
+        { text: "Usindile kwi-100% yemini yakho embi kakhulu. Uyenza kakuhle.", author: "Unknown" }
+      ],
+      af: [
+        { text: "Jy is sterker as wat jy dink, dapperder as wat jy glo, en meer bekwaam as wat jy jou kan indink.", author: "Unknown" },
+        { text: "Die menslike gees is sterker as enigiets wat daarmee kan gebeur.", author: "C.C. Scott" },
+        { text: "Jy het 100% van jou slegste dae oorleef. Jy doen goed.", author: "Unknown" }
+      ],
+      nso: [
+        { text: "O maatla go feta se o se nagane, o bopelokgale go feta se o se dumelago, gomme o kgona go feta se o se nagane.", author: "Unknown" },
+        { text: "Moya wa motho o maatla go feta se sengwe le se sengwe se se ka mo direlago.", author: "C.C. Scott" },
+        { text: "O phelile 100% ya matšatši a gago a mabe kudu. O a dira gabotse.", author: "Unknown" }
+      ],
+      tn: [
+        { text: "O maatla go feta se o se nagane, o bopelokgale go feta se o se dumelago, gomme o kgona go feta se o se nagane.", author: "Unknown" },
+        { text: "Moya wa motho o maatla go feta se sengwe le se sengwe se se ka mo direlago.", author: "C.C. Scott" },
+        { text: "O phelile 100% ya matšatši a gago a mabe kudu. O a dira gabotse.", author: "Unknown" }
+      ],
+      st: [
+        { text: "U matla ho feta seo u se nahang, u sebete ho feta seo u se lumelang, 'me u khona ho feta seo u se nahang.", author: "Unknown" },
+        { text: "Moea oa motho o matla ho feta sohle se se ka mo etsahalang.", author: "C.C. Scott" },
+        { text: "U phetse 100% ea matsatsi a hau a mabe. U etsa hantle.", author: "Unknown" }
+      ],
+      ts: [
+        { text: "U nga ni matimba ku tlula leswi u swi ehleketa, u ni xivindzi ku tlula leswi u swi tshemba, naswona u ni vuswikoti bya le xikarhi ka sweswo.", author: "Unknown" },
+        { text: "Moya wa munhu u ni matimba ku tlula yin'wana ni yin'wana leyi nga humelela eka wona.", author: "C.C. Scott" },
+        { text: "U hanyise 100% wa masiku ya wena yo biha. U endla kahle.", author: "Unknown" }
+      ],
+      ss: [
+        { text: "Uqine kunalokho ucabanga, ubesabele kunalokho ukholwa ngakho, futhi uyakwazi okungaphezu kwalokho ocabanga.", author: "Unknown" },
+        { text: "Umoya womuntu uqine kunanoma yini engase yenzeke kuwona.", author: "C.C. Scott" },
+        { text: "Usindile ku-100% yezinsuku zakho ezimbi kakhulu. Uyakwenza kahle.", author: "Unknown" }
+      ],
+      ve: [
+        { text: "Vha na maanḓa u fhira ha vha nga humbula, vha na tshihwavhokoa u fhira ha vha tenda, na u kona u fhira ha vha nga humbula.", author: "Unknown" },
+        { text: "Muya wa muthu u na maanḓa u fhira zwithu zwoṱhe zwi nga itea kha zwone.", author: "C.C. Scott" },
+        { text: "Vho pfa 100% ya masiḓo a vho a vhi. Vho ita zwavhuḓi.", author: "Unknown" }
+      ],
+      nr: [
+        { text: "Uqine kunalokho ucabanga, ubesabele kunalokho ukholwa ngakho, futhi uyakwazi okungaphezu kwalokho ocabanga.", author: "Unknown" },
+        { text: "Umoya womuntu uqine kunanoma yini engase yenzeke kuwona.", author: "C.C. Scott" },
+        { text: "Usindile ku-100% yezinsuku zakho ezimbi kakhulu. Uyakwenza kahle.", author: "Unknown" }
+      ]
+    };
+
+    // Emergency options
+    document.getElementById('emergency-call').addEventListener('click', () => {
+      window.open('tel:0800428428');
+      emergencyModal.classList.remove('show');
+    });
+
+    document.getElementById('emergency-whatsapp').addEventListener('click', () => {
+      window.open('https://wa.me/27767158971');
+      emergencyModal.classList.remove('show');
+    });
+
+    document.getElementById('emergency-sms').addEventListener('click', () => {
+      window.open('sms:31531?body=help');
+      emergencyModal.classList.remove('show');
+    });
+
+    document.getElementById('emergency-shelter').addEventListener('click', () => {
+      window.open('https://www.domesticshelters.org/help#?page=1&country=South%20Africa');
+      emergencyModal.classList.remove('show');
+    });
+
+    emergencyButton.addEventListener('click', () => {
+      emergencyModal.classList.add('show');
+    });
+
+    emergencyModalClose.addEventListener('click', () => {
+      emergencyModal.classList.remove('show');
+    });
+
+    // Quote modal
+    quoteClose.addEventListener('click', () => {
+      quoteModal.classList.remove('show');
+    });
+
+    function showRandomQuote() {
+      const selectedLanguage = localStorage.getItem('language') || 'en';
+      const quotes = motivationalQuotes[selectedLanguage] || motivationalQuotes['en'];
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      
+      quoteText.textContent = randomQuote.text;
+      quoteAuthor.textContent = `— ${randomQuote.author}`;
+      quoteModal.classList.add('show');
+    }
+
+    // Mood Tracker Functionality
+    const moodTracker = document.querySelector('.mood-tracker');
+    const moodToggle = document.querySelector('.mood-toggle');
+    const moodClose = document.querySelector('.mood-close');
+    const moodEmojis = document.querySelectorAll('.mood-emoji');
+    const moodNotes = document.querySelector('.mood-notes');
+    const moodSave = document.querySelector('.mood-save');
+    const moodHistory = document.querySelector('.mood-history');
+    
+    let selectedMood = null;
+    
+    moodToggle.addEventListener('click', () => {
+      moodTracker.classList.toggle('show');
+    });
+    
+    moodClose.addEventListener('click', () => {
+      moodTracker.classList.remove('show');
+    });
+    
+    moodEmojis.forEach(emoji => {
+      emoji.addEventListener('click', () => {
+        moodEmojis.forEach(e => e.classList.remove('selected'));
+        emoji.classList.add('selected');
+        selectedMood = emoji.getAttribute('data-mood');
+      });
+    });
+    
+    moodSave.addEventListener('click', () => {
+      if (!selectedMood) {
+        alert('Please select a mood first!');
+        return;
+      }
+      
+      const notes = moodNotes.value.trim();
+      const timestamp = new Date();
+      const formattedDate = timestamp.toLocaleString();
+      
+      const existingMoods = JSON.parse(localStorage.getItem('mood-entries') || '[]');
+      
+      const moodEntry = {
+        mood: selectedMood,
+        notes: notes,
+        timestamp: timestamp.getTime(),
+        date: formattedDate
+      };
+      
+      existingMoods.push(moodEntry);
+      localStorage.setItem('mood-entries', JSON.stringify(existingMoods));
+      
+      updateMoodHistory();
+      
+      moodEmojis.forEach(e => e.classList.remove('selected'));
+      moodNotes.value = '';
+      selectedMood = null;
+      
+      debugLog(`Mood saved: ${moodEntry.mood} - ${moodEntry.notes}`);
+      
+      showRandomQuote();
+      moodTracker.classList.remove('show');
+    });
+    
+    function updateMoodHistory() {
+      const moodEntries = JSON.parse(localStorage.getItem('mood-entries') || '[]');
+      moodHistory.innerHTML = '';
+      
+      const recentEntries = moodEntries.sort((a, b) => b.timestamp - a.timestamp).slice(0, 5);
+      
+      recentEntries.forEach(entry => {
+        const entryElement = document.createElement('div');
+        entryElement.classList.add('mood-entry');
+        
+        let emoji = '😐';
+        switch (entry.mood) {
+          case 'safe': emoji = '😌'; break;
+          case 'anxious': emoji = '😟'; break;
+          case 'scared': emoji = '😨'; break;
+          case 'angry': emoji = '😠'; break;
+          case 'hurt': emoji = '🤕'; break;
+        }
+        
+        entryElement.innerHTML = `
+          <div class="mood-entry-emoji">${emoji}</div>
+          <div class="mood-entry-text">${entry.notes || entry.mood}</div>
+          <div class="mood-entry-date">${entry.date}</div>
+        `;
+        
+        moodHistory.appendChild(entryElement);
+      });
+    }
+
+    // Resources Panel Functionality
+    const resourcesPanel = document.querySelector('.resources-panel');
+    const resourcesToggle = document.querySelector('.resources-toggle');
+    const resourcesClose = document.querySelector('.resources-close');
+    
+    resourcesToggle.addEventListener('click', () => {
+      resourcesPanel.classList.toggle('show');
+    });
+    
+    resourcesClose.addEventListener('click', () => {
+      resourcesPanel.classList.remove('show');
+    });
+
+    // Speech Synthesis Functions
+    function speakText(text) {
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+      
+      currentUtterance = new SpeechSynthesisUtterance(text);
+      currentUtterance.rate = 0.9;
+      currentUtterance.pitch = 1;
+      currentUtterance.volume = 1;
+      
+      const voices = speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => 
+        voice.name.includes('Female') || voice.name.includes('Woman') || voice.name.includes('Zira')
+      );
+      
+      if (femaleVoice) {
+        currentUtterance.voice = femaleVoice;
+      }
+      
+      currentUtterance.onend = () => {
+        debugLog("Speech synthesis completed");
+      };
+      
+      currentUtterance.onerror = (event) => {
+        debugLog("Speech synthesis error: " + event.error);
+      };
+      
+      speechSynthesis.speak(currentUtterance);
+      debugLog("Speaking text: " + text.substring(0, 50) + "...");
+    }
+    
+    function stopSpeaking() {
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+        debugLog("Speech stopped");
+      }
+    }
+    
+    speakButton.addEventListener('click', () => {
+      const lastAiMessage = document.querySelector('.message.incoming:last-child .text');
+      if (lastAiMessage) {
+        speakText(lastAiMessage.textContent);
+      } else {
+        alert("No AI response available to read.");
+      }
+    });
+    
+    stopSpeechButton.addEventListener('click', stopSpeaking);
+
+    // Interface Customization Functionality
+    const interfacePanel = document.querySelector('.interface-panel');
+    const interfaceToggle = document.querySelector('.interface-toggle');
+    const interfaceClose = document.querySelector('.interface-close');
+    const themeSelect = document.getElementById('theme-select');
+    const fontFamilySelect = document.getElementById('font-family-select');
+    const fontSizeSlider = document.getElementById('font-size-slider');
+    const fontSizeValue = document.getElementById('font-size-value');
+    
+    interfaceToggle.addEventListener('click', () => {
+      interfacePanel.classList.toggle('show');
+    });
+    
+    interfaceClose.addEventListener('click', () => {
+      interfacePanel.classList.remove('show');
+    });
+    
+    // Theme changes
+    themeSelect.addEventListener('change', () => {
+      const selectedTheme = themeSelect.value;
+      document.body.className = '';
+      
+      switch (selectedTheme) {
+        case 'light':
+          document.body.classList.add('light_mode');
+          toggleThemeButton.innerText = "dark_mode";
+          break;
+        case 'dark':
+          toggleThemeButton.innerText = "light_mode";
+          break;
+        case 'calm':
+          document.body.classList.add('theme-calm');
+          break;
+        case 'support':
+          document.body.classList.add('theme-support');
+          break;
+        case 'empower':
+          document.body.classList.add('theme-empower');
+          break;
+      }
+      
+      localStorage.setItem('theme', selectedTheme);
+      debugLog(`Theme changed to: ${selectedTheme}`);
+    });
+    
+    // Font family changes
+    fontFamilySelect.addEventListener('change', () => {
+      const selectedFont = fontFamilySelect.value;
+      document.documentElement.style.setProperty('--font-family', selectedFont);
+      document.body.style.fontFamily = selectedFont;
+      localStorage.setItem('fontFamily', selectedFont);
+      debugLog(`Font changed to: ${selectedFont}`);
+    });
+    
+    // Font size changes
+    fontSizeSlider.addEventListener('input', () => {
+      const size = fontSizeSlider.value;
+      fontSizeValue.textContent = size;
+      document.documentElement.style.fontSize = `${size}px`;
+      localStorage.setItem('fontSize', size);
+      debugLog(`Font size changed to: ${size}px`);
+    });
+
+    // Language changes
+    languageSelect.addEventListener('change', () => {
+      localStorage.setItem('language', languageSelect.value);
+      debugLog(`Language changed to: ${languageSelect.value}`);
+    });
+
+    // Voice Recognition Setup with "Hey Lalela" detection
+    function setupSpeechRecognition() {
+      try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+          recognition = new SpeechRecognition();
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          
+          recognition.onstart = () => {
+            debugLog("Voice recognition started");
+            isRecording = true;
+            voiceButton.classList.add('recording');
+            typingInput.placeholder = "Listening...";
+          };
+          
+          recognition.onresult = (event) => {
+            let interimTranscript = '';
+            let finalTranscript = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              const transcript = event.results[i][0].transcript;
+              if (event.results[i].isFinal) {
+                finalTranscript += transcript;
+              } else {
+                interimTranscript += transcript;
+              }
+            }
+            
+            typingInput.value = finalTranscript || interimTranscript;
+            debugLog("Voice recognition result: " + typingInput.value);
+            
+            // Check if the user said "Hey Lalela" or similar wake phrase
+            const userInput = typingInput.value.toLowerCase();
+            if (userInput.includes('hey Lalela') || 
+                userInput.includes('hey kwe') ||
+                userInput.includes('hello Lalela') ||
+                userInput.includes('hi Lalela')) {
+              debugLog("Detected wake phrase");
+              
+              // Visual feedback
+              const feedback = document.createElement('div');
+              feedback.className = 'wake-feedback';
+              feedback.textContent = 'Listening...';
+              document.body.appendChild(feedback);
+              setTimeout(() => feedback.remove(), 2000);
+              
+              // Play a subtle sound
+              const audio = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU...');
+              audio.volume = 0.3;
+              audio.play().catch(e => debugLog("Audio play error: " + e));
+              
+              // Automatically submit the message after short delay
+              setTimeout(() => {
+                if (!isResponseGenerating) {
+                  handleOutgoingChat();
+                }
+              }, 800);
+            }
+          };
+          
+          recognition.onend = () => {
+            debugLog("Voice recognition ended");
+            if (isRecording) {
+              recognition.start();
+            } else {
+              voiceButton.classList.remove('recording');
+              typingInput.placeholder = "Type your message...";
+            }
+          };
+          
+          recognition.onerror = (event) => {
+            debugLog("Voice recognition error: " + event.error);
+            isRecording = false;
+            voiceButton.classList.remove('recording');
+            typingInput.placeholder = "Type your message...";
+          };
+          
+          return true;
+        } else {
+          debugLog("Speech recognition not supported");
+          return false;
+        }
+      } catch(e) {
+        debugLog("Error setting up speech recognition: " + e.message);
+        return false;
+      }
+    }
+    
+    // Voice button click handler
+    voiceButton.addEventListener('click', () => {
+      if (!recognition && !setupSpeechRecognition()) {
+        alert("Speech recognition is not supported in your browser.");
+        return;
+      }
+      
+      if (isRecording) {
+        isRecording = false;
+        recognition.stop();
+      } else {
+        isRecording = true;
+        recognition.start();
+      }
+    });
+
+    // Function to load data from localStorage
+    const loadDataFromLocalstorage = () => {
+      debugLog("Loading data from localStorage");
+      const savedChats = localStorage.getItem("saved-chats");
+      const themeMode = localStorage.getItem("themeMode");
+      const customTheme = localStorage.getItem("theme");
+      const fontFamily = localStorage.getItem("fontFamily");
+      const fontSize = localStorage.getItem("fontSize");
+      const language = localStorage.getItem("language");
+      
+      // Load theme
+      if (customTheme) {
+        themeSelect.value = customTheme;
+        document.body.className = '';
+        
+        switch (customTheme) {
+          case 'light':
+            document.body.classList.add('light_mode');
+            toggleThemeButton.innerText = "dark_mode";
+            break;
+          case 'dark':
+            toggleThemeButton.innerText = "light_mode";
+            break;
+          case 'calm':
+            document.body.classList.add('theme-calm');
+            break;
+          case 'support':
+            document.body.classList.add('theme-support');
+            break;
+          case 'empower':
+            document.body.classList.add('theme-empower');
+            break;
+        }
+      } else if (themeMode === "light") {
+        document.body.classList.add("light_mode");
+        toggleThemeButton.innerText = "dark_mode";
+        debugLog("Light mode applied");
+      } else {
+        document.body.classList.remove("light_mode");
+        toggleThemeButton.innerText = "light_mode";
+        debugLog("Dark mode applied");
+      }
+      
+      // Load font family
+      if (fontFamily) {
+        fontFamilySelect.value = fontFamily;
+        document.documentElement.style.setProperty('--font-family', fontFamily);
+        document.body.style.fontFamily = fontFamily;
+      }
+      
+      // Load font size
+      if (fontSize) {
+        fontSizeSlider.value = fontSize;
+        fontSizeValue.textContent = fontSize;
+        document.documentElement.style.fontSize = `${fontSize}px`;
+      }
+
+      // Load language
+      if (language) {
+        languageSelect.value = language;
+      }
+
+      if (savedChats) {
+        debugLog("Restoring saved chats");
+        chatContainer.innerHTML = savedChats;
+        document.querySelectorAll(".message .icon").forEach(btn => {
+          btn.addEventListener("click", () => copyMessage(btn));
+        });
+      } else {
+        debugLog("No saved chats found");
+      }
+      chatContainer.scrollTo(0, chatContainer.scrollHeight);
+      
+      // Load mood history
+      updateMoodHistory();
+      
+      // Load voices for speech synthesis
+      speechSynthesis.onvoiceschanged = () => {
+        debugLog("Voices loaded for speech synthesis");
+      };
+    }
+
+    // Function to create message element
+    const createMessageElement = (content, className) => {
+      debugLog(`Creating ${className} message element`);
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add("message", className);
+      messageDiv.innerHTML = content;
+      
+      const copyButton = messageDiv.querySelector(".icon");
+      if (copyButton) {
+        copyButton.addEventListener("click", () => copyMessage(copyButton));
+      }
+      
+      return messageDiv;
+    }
+
+    // Function to show typing effect for AI responses
+    const showTypingEffect = (text, textElement, incomingMessageDiv) => {
+      debugLog("Starting typing effect");
+      const typingSpeed = 30;
+      const loadingIndicator = incomingMessageDiv.querySelector(".loading-indicator");
+      
+      loadingIndicator.style.display = "none";
+      textElement.style.display = "block";
+      
+      let i = 0;
+      const typeText = () => {
+        if (i < text.length) {
+          textElement.textContent += text.charAt(i);
+          i++;
+          chatContainer.scrollTo(0, chatContainer.scrollHeight);
+          setTimeout(typeText, typingSpeed);
+        } else {
+          debugLog("Typing effect complete");
+          isResponseGenerating = false;
+          localStorage.setItem("saved-chats", chatContainer.innerHTML);
+          
+          if (text.toLowerCase().includes('emergency') || text.toLowerCase().includes('safety') || 
+              text.toLowerCase().includes('help') || text.toLowerCase().includes('danger')) {
+            speakText(text);
+          }
+        }
+      };
+      
+      typeText();
+    }
+
+    // Function to generate API response with GBV context
+    const generateAPIResponse = async (incomingMessageDiv) => {
+      debugLog("Generating API response for message: " + userMessage);
+      const textElement = document.createElement("p");
+      textElement.classList.add("text");
+      textElement.style.display = "none";
+      
+      const messageContent = incomingMessageDiv.querySelector(".message-content");
+      messageContent.appendChild(textElement);
+
+      try {
+        debugLog("Preparing API request");
+        
+        const moodEntries = JSON.parse(localStorage.getItem('mood-entries') || '[]');
+        let moodContext = "";
+        
+        if (moodEntries.length > 0) {
+          const latestMood = moodEntries[moodEntries.length - 1];
+          moodContext = `[User's current mood: ${latestMood.mood}${latestMood.notes ? ' - ' + latestMood.notes : ''}] `;
+        }
+        
+        const selectedLanguage = localStorage.getItem('language') || 'en';
+        const languageNames = {
+          'en': 'English',
+          'zu': 'isiZulu',
+          'xh': 'isiXhosa',
+          'af': 'Afrikaans',
+          'nso': 'Sepedi',
+          'tn': 'Setswana',
+          'st': 'Sesotho',
+          'ts': 'Xitsonga',
+          'ss': 'siSwati',
+          've': 'Tshivenda',
+          'nr': 'isiNdebele'
+        };
+        
+        const gbvContext = `
+          You are a compassionate, knowledgeable Gender-Based Violence (GBV) support assistant. 
+          Your role is to provide emotional support, information about GBV, safety planning, 
+          and resources to survivors and those concerned about GBV. Always respond with empathy, 
+          non-judgment, and care. Prioritize safety and confidentiality. 
+          For emergency situations, clearly state that the user should contact local authorities 
+          or a helpline immediately. Provide phone numbers and links when appropriate.
+          
+          Key principles:
+          1. Believe and validate the survivor's experience
+          2. Prioritize safety above all else
+          3. Maintain confidentiality
+          4. Provide accurate information
+          5. Offer emotional support without pressure
+          6. Respect the survivor's autonomy
+          
+          Important: Respond in ${languageNames[selectedLanguage]} (${selectedLanguage}) language unless the user specifically asks for another language.
+          Keep the response culturally appropriate and sensitive to South African context.
+          
+          ${moodContext}
+        `;
+        
+        const requestBody = {
+          contents: [{
+            parts: [{
+              text: gbvContext + userMessage
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024
+          }
+        };
+
+        debugLog("Sending request to: " + API_URL);
+        debugLog("Request body: " + JSON.stringify(requestBody));
+        
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        debugLog("Received response with status: " + response.status);
+        const data = await response.json();
+        debugLog("Response data: " + JSON.stringify(data));
+        
+        if (data.error) {
+          throw new Error(data.error.message || "Failed to get response from API");
+        }
+
+        const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+          "I'm sorry, I'm having trouble responding right now. Please try again later or contact a helpline directly if you need immediate assistance.";
+        debugLog("AI response extracted: " + aiResponse.substring(0, 50) + "...");
+        
+        showTypingEffect(aiResponse, textElement, incomingMessageDiv);
+        
+      } catch (error) {
+        debugLog("API Error: " + error.message);
+        console.error("API Error:", error);
+        isResponseGenerating = false;
+        
+        const loadingIndicator = incomingMessageDiv.querySelector(".loading-indicator");
+        loadingIndicator.style.display = "none";
+        textElement.style.display = "block";
+        textElement.innerText = `I'm having trouble connecting right now. For immediate help, please contact the GBV Emergency Line at 0800 428 428 or WhatsApp 076 715 8971.`;
+        incomingMessageDiv.classList.add("error");
+        
+        localStorage.setItem("saved-chats", chatContainer.innerHTML);
+      }
+    }
+
+    // Function to show loading animation
+    const showLoadingAnimation = () => {
+      debugLog("Showing loading animation");
+      const html = `
+        <div class="message-content">
+          <div class="avatar" style="background-color: #8a2be2; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">GBV</div>
+          <div class="loading-indicator">
+            <div class="loading-bar"></div>
+            <div class="loading-bar"></div>
+            <div class="loading-bar"></div>
+          </div>
+        </div>
+        <span class="icon material-symbols-rounded">content_copy</span>
+      `;
+
+      const incomingMessageDiv = createMessageElement(html, "incoming");
+      chatContainer.appendChild(incomingMessageDiv);
+      chatContainer.scrollTo(0, chatContainer.scrollHeight);
+      
+      generateAPIResponse(incomingMessageDiv);
+    }
+
+    // Function to copy message text
+    const copyMessage = (copyButton) => {
+      const messageText = copyButton.parentElement.querySelector(".text").innerText;
+      navigator.clipboard.writeText(messageText);
+      debugLog("Message copied to clipboard");
+      
+      const originalText = copyButton.innerText;
+      copyButton.innerText = "done";
+      setTimeout(() => copyButton.innerText = originalText, 1500);
+    }
+
+    // Function to handle outgoing chat (user message)
+    const handleOutgoingChat = () => {
+      userMessage = typingInput.value.trim();
+      debugLog("Handling outgoing message: " + userMessage);
+      
+      if (!userMessage) {
+        debugLog("Empty message, doing nothing");
+        return;
+      }
+      
+      if (isResponseGenerating) {
+        debugLog("Response already generating, ignoring new message");
+        return;
+      }
+
+      isResponseGenerating = true;
+      typingInput.value = "";
+
+      const html = `
+        <div class="message-content">
+          <div class="avatar" style="background-color: #d96570; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">YOU</div>
+          <p class="text">${userMessage}</p>
+        </div>
+        <span class="icon material-symbols-rounded">content_copy</span>
+      `;
+
+      const outgoingMessageDiv = createMessageElement(html, "outgoing");
+      chatContainer.appendChild(outgoingMessageDiv);
+      chatContainer.scrollTo(0, chatContainer.scrollHeight);
+      
+      localStorage.setItem("saved-chats", chatContainer.innerHTML);
+      
+      const emergencyKeywords = ['help', 'emergency', 'danger', 'hurt', 'abuse', 'violence', 'scared', 'afraid'];
+      const isEmergency = emergencyKeywords.some(keyword => 
+        userMessage.toLowerCase().includes(keyword)
+      );
+      
+      if (isEmergency) {
+        setTimeout(() => {
+          const emergencyResponse = createMessageElement(`
+            <div class="message-content">
+              <div class="avatar" style="background-color: #8a2be2; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">GBV</div>
+              <p class="text">I notice you may be in distress. For immediate help, please contact:\n\nGBV Emergency Line: 0800 428 428\nWhatsApp Help: 076 715 8971\nSMS 'help' to 31531\n\nYou can also press the EMERGENCY HELP button below.</p>
+            </div>
+            <span class="icon material-symbols-rounded">content_copy</span>
+          `, "incoming");
+          
+          chatContainer.appendChild(emergencyResponse);
+          chatContainer.scrollTo(0, chatContainer.scrollHeight);
+          localStorage.setItem("saved-chats", chatContainer.innerHTML);
+          speakText("I notice you may be in distress. For immediate help, please contact the GBV Emergency Line at 0800 428 428 or WhatsApp 076 715 8971. You can also press the emergency help button below.");
+        }, 500);
+      }
+      
+      showLoadingAnimation();
+    }
+
+    // Function to toggle theme
+    const toggleTheme = () => {
+      const isLightMode = document.body.classList.toggle("light_mode");
+      localStorage.setItem("themeMode", isLightMode ? "light" : "dark");
+      toggleThemeButton.innerText = isLightMode ? "dark_mode" : "light_mode";
+      debugLog("Theme toggled to: " + (isLightMode ? "light" : "dark"));
+      
+      localStorage.removeItem("theme");
+      themeSelect.value = isLightMode ? "light" : "default";
+    }
+
+    // Function to delete all chats
+    const deleteAllChats = () => {
+      if (confirm("Are you sure you want to delete all chats? This cannot be undone.")) {
+        localStorage.removeItem("saved-chats");
+        chatContainer.innerHTML = "";
+        debugLog("All chats deleted");
+      }
+    }
+
+    // Event listeners
+    debugLog("Setting up event listeners");
+    
+    toggleThemeButton.addEventListener("click", toggleTheme);
+    deleteChatButton.addEventListener("click", deleteAllChats);
+
+    typingForm.addEventListener("submit", (event) => {
+      debugLog("Form submitted");
+      event.preventDefault();
+      handleOutgoingChat();
+    });
+
+    typingInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        debugLog("Enter key pressed (without shift)");
+        e.preventDefault();
+        handleOutgoingChat();
+      }
+    });
+
+    // Initialize app
+    debugLog("Initializing Lalela");
+    loadDataFromLocalstorage();
+    
+    // Start listening automatically when page loads
+    window.addEventListener('load', () => {
+      if (!recognition && setupSpeechRecognition()) {
+        isRecording = true;
+        recognition.start();
+        debugLog("Started listening automatically for wake phrase");
+      }
+    });
+
+    // Initial greeting message if no chats exist
+    if (!localStorage.getItem("saved-chats")) {
+      setTimeout(() => {
+        const greetings = {
+          'en': "Hello, I'm your Lalela. I'm here to provide confidential support and information about gender-based violence. You can ask me about safety planning, local resources, or just share what's on your mind. Remember, you're not alone. You can say 'Hey Lalela' followed by your question at any time.",
+          'zu': "Sawubona, nginguLalela wakho. Ngilapha ukunikeza ukwesekwa okuyimfihlo nolwazi mayelana nodlame olubhekiswe kubulili. Ungangibuza mayelana nokuhlela ukuphepha, izinsiza zendawo, noma usakaze nje okusekhanda lakho. Khumbula, awuwedwa. Ungasho 'Hey Lalela' ulandele umbuzo wakho noma nini.",
+          'xh': "Molo, ndinguLalela wakho. Ndilapha ukunika inkxaso eyimfihlo kunye nolwazi malunga nodlame lweenkcuka. Ungandibuza malunga nokuceba ngokhuseleko, izibonelelo zendawo, okanye udlulise nje oko kusentliziyweni yakho. Khumbula, awukho wedwa. Ungathi 'Hey Lalela' emva kombuzo wakho ngalo naliphi na ixesha.",
+          'af': "Hallo, ek is jou Lalela. Ek is hier om vertroulike ondersteuning en inligting oor geslagsgebaseerde geweld te verskaf. Jy kan my vra oor veiligheidsbeplanning, plaaslike hulpbronne, of net deel wat jou dwars sit. Onthou, jy is nie alleen nie. Jy kan sê 'Hey Lalela' gevolg deur jou vraag enige tyd.",
+          'nso': "Dumela, ke Lalela wa gago. Ke mo go fa tshegetso e e sa buiwang le tshedimosetso ka ga tlhaselo ya bong. O ka mpotsa ka ga maano a tshireletso, dithuso tsa lefelo, kago a o ntshwere pelo. Gopola, ga o le nosi. O ka bua 'Hey Lalela' o latela potso ya gago nako le nako.",
+          'tn': "Dumela, ke Lalela wa gago. Ke mo go fa tshegetso e e sa buiwang le tshedimosetso ka ga tlhaselo ya bong. O ka mpotsa ka ga maano a tshireletso, dithuso tsa lefelo, kago a o ntshwere pelo. Gopola, ga o le nosi. O ka bua 'Hey Lalela' o latela potso ya gago nako le nako.",
+          'st': "Dumela, ke Lalela wa hau. Ke mo ho u fa tshehetso e sa boleloang le tshediso mabapi le tlhekefetso ea bong. U ka mpotsa mabapi le morero oa polokeho, lisebelisoa tsa lehae, kapa u arolelle feela se u se nahanang. Hopola, ha u le mong. U ka bua 'Hey Lalela' u latela potso ea hau nako efe kapa efe.",
+          'ts': "Avuxeni, ndzi Lalela wa wena. Ndzi kona ku nyika xikombiso xa xiviri ni vuxokoxoko hi vanhu lava tshamaka ni vululami bya xiyimo xa vusati. U nga ndlavisa hi ku kongomisa ka nkucetelo, swikumi swa ndhawu, kumbe u hlamula leswi u swi twisiseka. Tisola, a wu n'wi n'we. U nga vulavula 'Hey Lalela' u landzelela xivutiso xa wena nkarhi wun'wana ni wun'wana.",
+          'ss': "Sawubona, nginguLalela wakho. Ngilapha ukunikeza ukwesekwa okungakhululeki nolwazi mayelana nodlame lwebulili. Ungangibuza mayelana nokuhlela ukuphepha, izinsiza zendawo, noma usakaze nje lokusekhanda lakho. Khumbula, awuwedwa. Ungasho 'Hey Lalela' ulandele umbuzo wakho noma nini.",
+          've': "Ndaa, ndi Lalela wa vhone. Ndi hone u itela u vha na thuso ya tshivhidzo na zwidodombedzwa zwa u shusha ha vhathu nga nṱha ha vhukati. Ni nga nndisa nga ha u dzudzanya tshifhinga tsha u sireletsa, zwiko zwa ḽifhasi, kana u sumbedza zwi re vhathu vha zwi ḓivha. Ḓivhani, a ni noṱhe. Ni nga amba 'Hey Lalela' ni tevhedza nṱhahedzo yau nṱhani iṅwe na iṅwe.",
+          'nr': "Lotjhani, ngiyiLalela yakho. Ngilapha ukunikeza ukwesekwa okungakhululeki nolwazi mayelana nodlame olubhekiswe kubulili. Ungangibuza mayelana nokuhlela ukuphepha, izinsiza zendawo, noma usakaze nje lokusekhanda lakho. Khumbula, awuwedwa. Ungasho 'Hey Lalela' ulandele umbuzo wakho noma nini."
+        };
+        
+        const selectedLanguage = localStorage.getItem('language') || 'en';
+        const greetingText = greetings[selectedLanguage] || greetings['en'];
+        
+        const greetingMessage = createMessageElement(`
+          <div class="message-content">
+            <div class="avatar" style="background-color: #8a2be2; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">GBV</div>
+            <p class="text">${greetingText}</p>
+          </div>
+          <span class="icon material-symbols-rounded">content_copy</span>
+        `, "incoming");
+        
+        chatContainer.appendChild(greetingMessage);
+        chatContainer.scrollTo(0, chatContainer.scrollHeight);
+        localStorage.setItem("saved-chats", chatContainer.innerHTML);
+      }, 1000);
+    }
+  </script>
+
+  <!-- Add this style for the wake phrase feedback -->
+  <style>
+    .wake-feedback {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      z-index: 2000;
+      animation: fadeInOut 2s ease-in-out;
+    }
+    
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+
+</body>
+</html>

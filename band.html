@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panic Band - Custom Digital Jewelry</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #a0a0c0;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .design-area {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ffd93d;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        #jewelry-canvas {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #a0a0c0;
+        }
+
+        .color-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .color-option.active {
+            border-color: #fff;
+            transform: scale(1.1);
+        }
+
+        .shape-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .shape-option {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .shape-option.active {
+            background: rgba(255, 217, 61, 0.3);
+            transform: scale(1.05);
+        }
+
+        .slider-container {
+            margin-top: 10px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffd93d;
+            cursor: pointer;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .download-section {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+        }
+
+        .download-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ffd93d;
+        }
+
+        .download-description {
+            margin-bottom: 20px;
+            color: #a0a0c0;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .device-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .device-option {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-option.active {
+            background: rgba(255, 217, 61, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #a0a0c0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Panic Band</h1>
+            <p class="tagline">Design your own digital jewelry. Express your style in the virtual world.</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="design-area">
+                <h2 class="section-title">Design Preview</h2>
+                <div id="jewelry-canvas"></div>
+            </div>
+            
+            <div class="controls">
+                <h2 class="section-title">Customize Your Jewelry</h2>
+                
+                <div class="control-group">
+                    <label class="control-label">Base Color</label>
+                    <div class="color-options">
+                        <div class="color-option active" style="background-color: #ff6b6b;" data-color="#ff6b6b"></div>
+                        <div class="color-option" style="background-color: #4ecdc4;" data-color="#4ecdc4"></div>
+                        <div class="color-option" style="background-color: #ffd93d;" data-color="#ffd93d"></div>
+                        <div class="color-option" style="background-color: #6b5b95;" data-color="#6b5b95"></div>
+                        <div class="color-option" style="background-color: #88d8b0;" data-color="#88d8b0"></div>
+                        <div class="color-option" style="background-color: #ff9ff3;" data-color="#ff9ff3"></div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Accent Color</label>
+                    <div class="color-options">
+                        <div class="color-option active" style="background-color: #ffd93d;" data-color="#ffd93d"></div>
+                        <div class="color-option" style="background-color: #ff6b6b;" data-color="#ff6b6b"></div>
+                        <div class="color-option" style="background-color: #4ecdc4;" data-color="#4ecdc4"></div>
+                        <div class="color-option" style="background-color: #ffffff;" data-color="#ffffff"></div>
+                        <div class="color-option" style="background-color: #6b5b95;" data-color="#6b5b95"></div>
+                        <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Jewelry Shape</label>
+                    <div class="shape-options">
+                        <div class="shape-option active" data-shape="ring">Ring</div>
+                        <div class="shape-option" data-shape="bracelet">Bracelet</div>
+                        <div class="shape-option" data-shape="pendant">Pendant</div>
+                        <div class="shape-option" data-shape="cuff">Cuff</div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Size</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="100" value="50" class="slider" id="size-slider">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Complexity</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="100" value="30" class="slider" id="complexity-slider">
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="save-design">Save Design</button>
+                    <button class="btn btn-secondary" id="reset-design">Reset</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="download-section">
+            <h2 class="download-title">Install Your Panic Band</h2>
+            <p class="download-description">Download your custom jewelry design and install it as a widget on your device.</p>
+            
+            <div class="device-options">
+                <div class="device-option active">Mobile</div>
+                <div class="device-option">Tablet</div>
+                <div class="device-option">Desktop</div>
+            </div>
+            
+            <button class="btn btn-primary" id="download-btn">Download & Install</button>
+        </div>
+        
+        <footer>
+            <p>Panic Band &copy; 2023 | Create your unique digital jewelry expression</p>
+        </footer>
+    </div>
+
+    <script>
+        // Three.js scene setup
+        let scene, camera, renderer, jewelry;
+        
+        // Current design settings
+        let designSettings = {
+            baseColor: '#ff6b6b',
+            accentColor: '#ffd93d',
+            shape: 'ring',
+            size: 50,
+            complexity: 30
+        };
+        
+        // Initialize Three.js scene
+        function initScene() {
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a2e);
+            
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, 
+                document.getElementById('jewelry-canvas').clientWidth / 
+                document.getElementById('jewelry-canvas').clientHeight, 
+                0.1, 1000);
+            camera.position.z = 5;
+            
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(
+                document.getElementById('jewelry-canvas').clientWidth,
+                document.getElementById('jewelry-canvas').clientHeight
+            );
+            document.getElementById('jewelry-canvas').appendChild(renderer.domElement);
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // Create initial jewelry
+            createJewelry();
+            
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+            
+            // Start animation loop
+            animate();
+        }
+        
+        // Create jewelry based on current settings
+        function createJewelry() {
+            // Remove existing jewelry if present
+            if (jewelry) {
+                scene.remove(jewelry);
+            }
+            
+            // Create group for jewelry
+            jewelry = new THREE.Group();
+            
+            // Convert hex colors to Three.js colors
+            const baseColor = new THREE.Color(designSettings.baseColor);
+            const accentColor = new THREE.Color(designSettings.accentColor);
+            
+            // Create jewelry based on selected shape
+            switch(designSettings.shape) {
+                case 'ring':
+                    createRing(baseColor, accentColor);
+                    break;
+                case 'bracelet':
+                    createBracelet(baseColor, accentColor);
+                    break;
+                case 'pendant':
+                    createPendant(baseColor, accentColor);
+                    break;
+                case 'cuff':
+                    createCuff(baseColor, accentColor);
+                    break;
+            }
+            
+            // Add jewelry to scene
+            scene.add(jewelry);
+        }
+        
+        // Create a ring
+        function createRing(baseColor, accentColor) {
+            const size = designSettings.size / 50;
+            const complexity = Math.floor(designSettings.complexity / 10) + 3;
+            
+            // Main ring
+            const ringGeometry = new THREE.TorusGeometry(1.5 * size, 0.3 * size, 16, 100);
+            const ringMaterial = new THREE.MeshStandardMaterial({ 
+                color: baseColor, 
+                metalness: 0.7, 
+                roughness: 0.2 
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            jewelry.add(ring);
+            
+            // Accent gems
+            for (let i = 0; i < complexity; i++) {
+                const angle = (i / complexity) * Math.PI * 2;
+                const gemGeometry = new THREE.OctahedronGeometry(0.2 * size);
+                const gemMaterial = new THREE.MeshStandardMaterial({ 
+                    color: accentColor, 
+                    metalness: 0.3, 
+                    roughness: 0.1 
+                });
+                const gem = new THREE.Mesh(gemGeometry, gemMaterial);
+                
+                gem.position.x = Math.cos(angle) * 1.5 * size;
+                gem.position.y = Math.sin(angle) * 1.5 * size;
+                
+                jewelry.add(gem);
+            }
+        }
+        
+        // Create a bracelet
+        function createBracelet(baseColor, accentColor) {
+            const size = designSettings.size / 50;
+            const complexity = Math.floor(designSettings.complexity / 8) + 4;
+            
+            // Main bracelet
+            const braceletGeometry = new THREE.TorusGeometry(2 * size, 0.2 * size, 16, 100);
+            const braceletMaterial = new THREE.MeshStandardMaterial({ 
+                color: baseColor, 
+                metalness: 0.8, 
+                roughness: 0.1 
+            });
+            const bracelet = new THREE.Mesh(braceletGeometry, braceletMaterial);
+            jewelry.add(bracelet);
+            
+            // Links
+            for (let i = 0; i < complexity; i++) {
+                const angle = (i / complexity) * Math.PI * 2;
+                const linkGeometry = new THREE.BoxGeometry(0.4 * size, 0.4 * size, 0.2 * size);
+                const linkMaterial = new THREE.MeshStandardMaterial({ 
+                    color: accentColor, 
+                    metalness: 0.5, 
+                    roughness: 0.3 
+                });
+                const link = new THREE.Mesh(linkGeometry, linkMaterial);
+                
+                link.position.x = Math.cos(angle) * 2 * size;
+                link.position.y = Math.sin(angle) * 2 * size;
+                link.rotation.z = angle;
+                
+                jewelry.add(link);
+            }
+        }
+        
+        // Create a pendant
+        function createPendant(baseColor, accentColor) {
+            const size = designSettings.size / 50;
+            const complexity = Math.floor(designSettings.complexity / 15) + 2;
+            
+            // Main pendant
+            const pendantGeometry = new THREE.OctahedronGeometry(1 * size);
+            const pendantMaterial = new THREE.MeshStandardMaterial({ 
+                color: baseColor, 
+                metalness: 0.6, 
+                roughness: 0.2 
+            });
+            const pendant = new THREE.Mesh(pendantGeometry, pendantMaterial);
+            jewelry.add(pendant);
+            
+            // Chain
+            const chainGeometry = new THREE.CylinderGeometry(0.05 * size, 0.05 * size, 2 * size, 8);
+            const chainMaterial = new THREE.MeshStandardMaterial({ 
+                color: accentColor, 
+                metalness: 0.9, 
+                roughness: 0.1 
+            });
+            const chain = new THREE.Mesh(chainGeometry, chainMaterial);
+            chain.position.y = 1.5 * size;
+            jewelry.add(chain);
+            
+            // Accent gems
+            for (let i = 0; i < complexity; i++) {
+                const gemGeometry = new THREE.SphereGeometry(0.15 * size, 8, 8);
+                const gemMaterial = new THREE.MeshStandardMaterial({ 
+                    color: accentColor, 
+                    metalness: 0.3, 
+                    roughness: 0.1 
+                });
+                const gem = new THREE.Mesh(gemGeometry, gemMaterial);
+                
+                const angle = (i / complexity) * Math.PI * 2;
+                const radius = 0.7 * size;
+                
+                gem.position.x = Math.cos(angle) * radius;
+                gem.position.z = Math.sin(angle) * radius;
+                
+                jewelry.add(gem);
+            }
+        }
+        
+        // Create a cuff
+        function createCuff(baseColor, accentColor) {
+            const size = designSettings.size / 50;
+            const complexity = Math.floor(designSettings.complexity / 10) + 3;
+            
+            // Main cuff
+            const cuffGeometry = new THREE.TorusGeometry(1.8 * size, 0.4 * size, 16, 100, Math.PI);
+            const cuffMaterial = new THREE.MeshStandardMaterial({ 
+                color: baseColor, 
+                metalness: 0.7, 
+                roughness: 0.2 
+            });
+            const cuff = new THREE.Mesh(cuffGeometry, cuffMaterial);
+            cuff.rotation.x = Math.PI / 2;
+            jewelry.add(cuff);
+            
+            // Spikes/design elements
+            for (let i = 0; i < complexity; i++) {
+                const angle = (i / complexity) * Math.PI;
+                const spikeGeometry = new THREE.ConeGeometry(0.15 * size, 0.5 * size, 8);
+                const spikeMaterial = new THREE.MeshStandardMaterial({ 
+                    color: accentColor, 
+                    metalness: 0.5, 
+                    roughness: 0.3 
+                });
+                const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
+                
+                spike.position.x = Math.cos(angle) * 1.8 * size;
+                spike.position.y = Math.sin(angle) * 1.8 * size;
+                spike.rotation.z = angle + Math.PI / 2;
+                
+                jewelry.add(spike);
+            }
+        }
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate jewelry slowly
+            if (jewelry) {
+                jewelry.rotation.y += 0.01;
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        function onWindowResize() {
+            camera.aspect = document.getElementById('jewelry-canvas').clientWidth / 
+                            document.getElementById('jewelry-canvas').clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(
+                document.getElementById('jewelry-canvas').clientWidth,
+                document.getElementById('jewelry-canvas').clientHeight
+            );
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Color options
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove active class from all options in this group
+                    this.parentElement.querySelectorAll('.color-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked option
+                    this.classList.add('active');
+                    
+                    // Update design settings based on which color group
+                    const group = this.parentElement.previousElementSibling.textContent.trim();
+                    if (group === 'Base Color') {
+                        designSettings.baseColor = this.getAttribute('data-color');
+                    } else if (group === 'Accent Color') {
+                        designSettings.accentColor = this.getAttribute('data-color');
+                    }
+                    
+                    // Update jewelry
+                    createJewelry();
+                });
+            });
+            
+            // Shape options
+            document.querySelectorAll('.shape-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove active class from all options
+                    this.parentElement.querySelectorAll('.shape-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked option
+                    this.classList.add('active');
+                    
+                    // Update design settings
+                    designSettings.shape = this.getAttribute('data-shape');
+                    
+                    // Update jewelry
+                    createJewelry();
+                });
+            });
+            
+            // Size slider
+            document.getElementById('size-slider').addEventListener('input', function() {
+                designSettings.size = parseInt(this.value);
+                createJewelry();
+            });
+            
+            // Complexity slider
+            document.getElementById('complexity-slider').addEventListener('input', function() {
+                designSettings.complexity = parseInt(this.value);
+                createJewelry();
+            });
+            
+            // Save design button
+            document.getElementById('save-design').addEventListener('click', function() {
+                alert('Design saved! You can now download and install it on your device.');
+            });
+            
+            // Reset design button
+            document.getElementById('reset-design').addEventListener('click', function() {
+                designSettings = {
+                    baseColor: '#ff6b6b',
+                    accentColor: '#ffd93d',
+                    shape: 'ring',
+                    size: 50,
+                    complexity: 30
+                };
+                
+                // Update UI to match reset settings
+                updateUIAfterReset();
+                createJewelry();
+            });
+            
+            // Download button
+            document.getElementById('download-btn').addEventListener('click', function() {
+                alert('Your Panic Band design is being prepared for download. It will be available as a widget for your selected device.');
+            });
+            
+            // Device options
+            document.querySelectorAll('.device-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove active class from all options
+                    this.parentElement.querySelectorAll('.device-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked option
+                    this.classList.add('active');
+                });
+            });
+        }
+        
+        // Update UI after reset
+        function updateUIAfterReset() {
+            // Update color options
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            // Set base color
+            document.querySelector('.color-options .color-option[data-color="#ff6b6b"]').classList.add('active');
+            
+            // Set accent color
+            document.querySelectorAll('.color-options')[1]
+                .querySelector('.color-option[data-color="#ffd93d"]').classList.add('active');
+            
+            // Update shape options
+            document.querySelectorAll('.shape-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector('.shape-option[data-shape="ring"]').classList.add('active');
+            
+            // Update sliders
+            document.getElementById('size-slider').value = 50;
+            document.getElementById('complexity-slider').value = 30;
+        }
+        
+        // Initialize the application
+        window.onload = function() {
+            initScene();
+            setupEventListeners();
+        };
+    </script>
+</body>
+</html>
